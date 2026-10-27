@@ -1,0 +1,284 @@
+On this page
+Last updated
+on
+Oct 15, 2026
+Manage notification destinations
+This page teaches you how to create and configure notification destinations for your workspace.
+System notifications are messages that tell you when your workflow experiences a run event (start, success, and failure). By default, notifications are sent to user email addresses, but admins can configure alternate notification destinations using webhooks or the
+Databricks Genie app for Slack and Microsoft Teams (Beta)
+. This allows you to build event-driven integrations with
+Databricks
+.
+Admins can also configure notification destinations to receive access requests from workspace users, such as privilege requests on
+Unity Catalog
+objects.
+You must be
+a Databricks
+workspace admin to manage notification destinations. After a destination is configured, it is available to all users.
+Networking requirements
+​
+For webhook-based destinations, the receiving endpoint must meet the following requirements:
+Databricks
+enforces the use of HTTPS for security. The notification destination must use Secure Sockets Layer (SSL) certificates signed by a trusted certificate authority.
+The notification destination must add both the workspace control plane and data plane outbound IP addresses to its allowlist:
+For control plane webapp IP addresses, see
+IP addresses and domains for
+Databricks
+services and assets
+.
+For data plane outbound IP addresses, see the
+ip-ranges.json
+file that
+Databricks
+publishes. Search the file for your workspace's data plane region and allowlist the corresponding outbound IP addresses in your networking stack.
+Databricks
+may update the outbound IPs as often as once every 30 days. Updated IPs become active as soon as 60 days after publication, so review the file regularly and update your allowlist before the activation window closes.
+To track changes between releases, save successive versions of the JSON file and compare the
+timestampSeconds
+value. Filter entries where:
+The
+service
+field is
+Databricks
+The
+platform
+field is
+aws
+The
+type
+field is
+outbound
+Create a new notification destination
+​
+To configure a new notification destination
+Click your username in the top bar of the workspace and select
+Settings
+from the dropdown.
+In the
+Workspace admin
+section, click the
+Notifications
+tab.
+Click the
+Manage
+button.
+Click
++Add destination
+.
+Select a destination type. The following destinations are currently supported:
+Email
+Slack
+Webhook, with optional
+OAuth authentication (Beta)
+Microsoft Teams
+PagerDuty
+Configure the destination based on the type.
+Click
+Create
+.
+Webhook payloads
+​
+The service that sends a notification defines the webhook payload. For the payloads that jobs send, see
+HTTP webhook payloads
+. For the payload that
+Databricks SQL
+alerts send after a state change, see
+SQL alert webhook payload
+.
+Use different credentials for each destination
+​
+The configuration of a destination is securely stored encrypted in your
+Databricks
+workspace. For destinations that require you to provide a URL or credentials,
+Databricks
+recommends using different credentials for each configured destination. This limits the impact if a third-party endpoint is compromised. These include:
+Slack using a webhook: the URL to which the notification is sent.
+Microsoft Teams using a webhook: the URL to which the notification is sent.
+PagerDuty: integration key used to uniquely route notifications to a PagerDuty service.
+Webhook: a username and password for HTTP Basic authentication, or a client ID and client secret for
+OAuth authentication (Beta)
+.
+Using different secrets for each configured destination allows you to individually revoke access of individual notification destinations without impacting the operation of all other destinations in your
+Databricks
+workspace.
+OAuth authentication for webhook destinations
+​
+Beta
+This feature is in
+Beta
+. To use it, a workspace admin must turn on
+Destination Type Generic Webhook Oauth
+from the
+Previews
+page. See
+Manage workspace-level previews
+.
+Use OAuth 2.0 client credentials to send notifications to an endpoint that requires an access token.
+Databricks
+obtains the token from your identity provider and uses it to authenticate the notification request.
+Your identity provider must support the client credentials grant. Both the receiving endpoint and the token endpoint must use HTTPS.
+To create an OAuth webhook destination:
+In
+Settings
+>
+Notifications
+, click
+Manage
+, then
++Add destination
+.
+Enter a name and select
+Webhook
+for
+Type
+.
+For
+Authentication mode
+, select
+OAuth
+.
+Enter the following values:
+URL
+: The endpoint that receives notifications.
+Client ID
+and
+Client secret
+: The credentials issued by your identity provider.
+Token endpoint URL
+: The endpoint from which
+Databricks
+obtains an access token.
+Scopes
+and
+Audience
+: Enter these optional values if required by your identity provider. Separate multiple scopes with commas.
+Click
+Create
+.
+The client ID, client secret, and token endpoint URL are required together. OAuth cannot be combined with HTTP Basic authentication.
+To verify the configuration, open the destination's three-dot menu and click
+Test
+.
+Databricks
+obtains an access token and sends a sample notification. If the test fails, check the credentials, scopes, audience, receiver permissions, and network access to both endpoints.
+Slack destination
+​
+To set up a webhook-based Slack destination, follow the instructions in
+Incoming webhooks for Slack
+. Paste the generated URL into your
+Databricks
+notification destination. To use the Databricks Genie app instead, see
+Slack and Microsoft Teams Genie app destinations
+.
+Slack and Microsoft Teams Genie app destinations
+​
+Beta
+This feature is in
+Beta
+. To use it, a workspace admin must turn on
+Destination Type Databricks App Slack
+or
+Destination Type Databricks App Teams
+from the
+Previews
+page. See
+Manage workspace-level previews
+.
+Use the Databricks Genie app to connect your Slack workspace or Microsoft Teams tenant to your
+Databricks
+workspace. Then select an available channel as a notification destination.
+You can use Genie app destinations with the following features:
+SQL alerts
+: Slack and Microsoft Teams.
+Unity Catalog
+access requests
+: Slack and Microsoft Teams.
+Model Serving endpoint notifications: Slack.
+Create a Genie app destination
+​
+Before creating a Genie app destination, you must install the Databricks Genie app for Slack or Microsoft Teams, connect it to your
+Databricks
+workspace, and add it to the channel that receives notifications. For details on app installation and connection steps, see
+Slack
+or
+Microsoft Teams
+.
+To create a Genie app destination:
+In
+Settings
+>
+Notifications
+, click
+Manage
+, then
++Add destination
+.
+For
+Type
+, select
+Slack
+or
+Microsoft Teams
+, then select
+Using Databricks App
+.
+Enter a name for the destination.
+Select the workspace or tenant and the channel:
+For Slack, select the
+Slack Workspace
+and
+Channel
+.
+For Microsoft Teams, select the
+Tenant
+and
+Channel
+. The tenant selector identifies each tenant by the last six characters of its tenant ID.
+If no Slack workspaces or Microsoft Teams tenants are connected, click
+Connect a Slack workspace
+or
+Connect a Teams tenant
+, respectively, and complete the Genie app setup. Return to the destination form and click
+Refresh
+. If you just added the Genie app to a channel, click
+Reload channels
+to update the channel list.
+Click
+Create
+.
+PagerDuty destination
+​
+To set up a PagerDuty destination:
+In PagerDuty, add an integration to your service and select the
+Events API V2
+integration type.
+Copy the integration key that PagerDuty generates for the integration.
+In
+Databricks
+, paste the integration key into the PagerDuty notification destination.
+Add a webhook to a job
+​
+After configuring destinations, you can access them in a job's
+Job notifications
+settings. For more information, see
+Add notifications on a job
+.
+Each job supports up to three system destinations per event type. When configuring job notifications, email addresses must be entered manually.
+Limitations
+​
+Notification destinations currently has the following limitations:
+Email notification destinations have a 1,300-character limit on the recipient address length.
+For custom notification bodies, non-email destinations such as Slack and Microsoft Teams do not support HTML formatting. Some notification destinations support markdown.
+For jobs, email destinations must be manually set in the job's settings.
+On this page
+Networking requirements
+Create a new notification destination
+Webhook payloads
+Use different credentials for each destination
+OAuth authentication for webhook destinations
+Slack destination
+Slack and Microsoft Teams Genie app destinations
+Create a Genie app destination
+PagerDuty destination
+Add a webhook to a job
+Limitations

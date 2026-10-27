@@ -1,0 +1,523 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+Databricks widgets
+Input widgets allow you to add parameters to your notebooks and dashboards. You can add a widget from the Databricks UI or using the widget API. To add or edit a widget, you must have CAN EDIT
+permissions on the notebook
+.
+If you are running
+Databricks Runtime
+11.3 LTS or above, you can also use
+ipywidgets in Databricks notebooks
+.
+Databricks widgets are best for:
+Building a notebook or dashboard that is re-executed with different parameters.
+Quickly exploring results of a single query with different parameters.
+To view the documentation for the widget API in Scala, Python, or R, use the following command:
+dbutils.widgets.help()
+. You can also refer to the
+widgets utility (dbutils.widgets) documentation
+.
+Databricks widget types
+​
+There are 4 types of widgets:
+text
+: Input a value in a text box.
+dropdown
+: Select a value from a list of provided values.
+combobox
+: Combination of text and dropdown. Select a value from a provided list or input one in the text box.
+multiselect
+: Select one or more values from a list of provided values.
+Widget dropdowns and text boxes appear immediately following the notebook toolbar. Widgets only accept string values.
+Create widgets
+​
+This section shows you how to create widgets using the UI or programmatically using either SQL magics or the widget API for Python, Scala, and R.
+prompt
+Tell
+Genie Code
+to do this for you:
+Create a new notebook that queries @samples.nyctaxi.trips and displays a bar chart showing the average fare amount by trip distance, grouped by the pickup zip code.
+Create widgets using the UI
+​
+Create a widget using the notebook UI. If you are connected to a SQL warehouse, this is the only way you can create widgets. Select
+Edit > Add parameter
+.
+To edit the
+widget settings
+, click the gear icon.
+In the
+widget settings
+dialog, you can enter the widget name, optional label, type, parameter type, possible values, and optional default value. In the dialog,
+Parameter Name
+is the name you use to reference the widget in your code.
+Widget Label
+is an optional name that appears over the widget in the UI.
+After you've created a widget, you can hover over the widget name to display a tooltip that describes how to reference the widget.
+Create widgets with SQL, Python, R, and Scala
+​
+Programmatically create widgets in a notebook attached to a compute cluster.
+The widget API is designed to be consistent in Scala, Python, and R. The widget API in SQL is slightly different but equivalent to the other languages. You manage widgets through the
+Databricks Utilities (
+dbutils
+) reference
+interface.
+The first argument for all widget types is
+name
+. This is the name you use to access the widget.
+The second argument is
+defaultValue
+, the widget's default setting.
+The third argument for all widget types (except
+text
+) is
+choices
+, a list of values the widget can take on. This argument is not used for
+text
+type widgets.
+The last argument is
+label
+, an optional value for the label shown over the widget text box or dropdown.
+Python
+Scala
+R
+SQL
+Python
+dbutils
+.
+widgets
+.
+dropdown
+(
+"state"
+,
+"CA"
+,
+[
+"CA"
+,
+"IL"
+,
+"MI"
+,
+"NY"
+,
+"OR"
+,
+"VA"
+]
+)
+Scala
+dbutils
+.
+widgets
+.
+dropdown
+(
+"state"
+,
+"CA"
+,
+Seq
+(
+"CA"
+,
+"IL"
+,
+"MI"
+,
+"NY"
+,
+"OR"
+,
+"VA"
+)
+)
+R
+dbutils.widgets.dropdown
+(
+"state"
+,
+"CA"
+,
+list
+(
+"CA"
+,
+"IL"
+,
+"MI"
+,
+"NY"
+,
+"OR"
+,
+"VA"
+)
+)
+SQL
+CREATE
+WIDGET DROPDOWN state
+DEFAULT
+"CA"
+CHOICES
+SELECT
+*
+FROM
+(
+VALUES
+(
+"CA"
+)
+,
+(
+"IL"
+)
+,
+(
+"MI"
+)
+,
+(
+"NY"
+)
+,
+(
+"OR"
+)
+,
+(
+"VA"
+)
+)
+Interact with the widget from the widget panel.
+You can access the current value of the widget or get a mapping of all widgets:
+Python
+Scala
+R
+SQL
+Python
+dbutils
+.
+widgets
+.
+get
+(
+"state"
+)
+dbutils
+.
+widgets
+.
+getAll
+(
+)
+Scala
+dbutils
+.
+widgets
+.
+get
+(
+"state"
+)
+dbutils
+.
+widgets
+.
+getAll
+(
+)
+R
+dbutils.widgets.get
+(
+"state"
+)
+SQL
+SELECT
+:state
+Finally, you can remove a widget or all widgets in a notebook:
+Python
+Scala
+R
+SQL
+Python
+dbutils
+.
+widgets
+.
+remove
+(
+"state"
+)
+dbutils
+.
+widgets
+.
+removeAll
+(
+)
+Scala
+dbutils
+.
+widgets
+.
+remove
+(
+"state"
+)
+dbutils
+.
+widgets
+.
+removeAll
+(
+)
+R
+dbutils.widgets.remove
+(
+"state"
+)
+dbutils.widgets.removeAll
+(
+)
+SQL
+REMOVE WIDGET state
+If you remove a widget, you cannot create one in the same cell. You must create the widget in another cell.
+Use widget values in Spark SQL and SQL Warehouse
+​
+Spark SQL and SQL Warehouse access widget values using
+parameter markers
+. Parameter markers protect your code from SQL injection attacks by clearly separating provided values from the SQL statements.
+Parameter markers for widgets is available in
+Databricks Runtime
+15.2 and above. Previous versions of
+Databricks Runtime
+should use the old
+syntax for
+Databricks Runtime
+15.1 and below
+.
+You can access widgets defined in any language from Spark SQL while executing notebooks interactively. Consider the following workflow:
+Create a dropdown widget of all databases in the current catalog:
+Python
+dbutils
+.
+widgets
+.
+dropdown
+(
+"database"
+,
+"default"
+,
+[
+database
+[
+0
+]
+for
+database
+in
+spark
+.
+catalog
+.
+listDatabases
+(
+)
+]
+)
+Create a text widget to manually specify a table name:
+Python
+dbutils
+.
+widgets
+.
+text
+(
+"table"
+,
+""
+)
+Run a SQL query to see all tables in a database (selected from the dropdown list):
+SQL
+SHOW
+TABLES
+IN
+IDENTIFIER
+(
+:
+database
+)
+note
+You must use the SQL
+IDENTIFIER()
+clause to parse strings as object identifiers such names for databases, tables, views, functions, columns, and fields.
+Manually enter a table name into the
+table
+widget.
+Create a text widget to specify a filter value:
+Python
+dbutils
+.
+widgets
+.
+text
+(
+"filter_value"
+,
+""
+)
+Preview the contents of a table without needing to edit the contents of the query:
+SQL
+SELECT
+*
+FROM
+IDENTIFIER
+(
+:
+database
+||
+'.'
+||
+:
+table
+)
+WHERE
+col
+=
+=
+:filter_value
+LIMIT
+100
+Use widget values in DDL string clauses
+​
+Some DDL clauses, such as the
+LOCATION
+clause in
+CREATE TABLE
+, accept string literals rather than identifiers. You cannot use the
+IDENTIFIER()
+clause for these clauses.
+Applies to:
+Databricks Runtime
+18.0 and above
+In
+Databricks Runtime
+18.0 and above, you can use widgets directly in these clauses:
+SQL
+CREATE
+EXTERNAL
+TABLE
+my_table
+USING
+DELTA LOCATION :path
+Applies to:
+Databricks Runtime
+14.3 to 17.3 LTS
+In earlier versions, use
+EXECUTE IMMEDIATE
+to construct the statement dynamically. For example, if you have a widget named
+path
+:
+SQL
+DECLARE
+table_location STRING
+;
+SET
+VARIABLE table_location
+=
+CONCAT
+(
+'abfss://container@account.dfs.core.windows.net/'
+,
+:path
+)
+;
+EXECUTE
+IMMEDIATE
+'CREATE EXTERNAL TABLE my_table USING DELTA LOCATION \''
+||
+table_location
+||
+'\''
+;
+note
+You cannot embed a parameter marker inside a string literal (for example,
+'abfss://:widget...'
+). Instead, pass the entire string as a single parameter, or build the full string in a variable using
+CONCAT()
+and then pass it to
+EXECUTE IMMEDIATE
+.
+For more information about using parameter markers in DDL statements, see
+Parameter markers in DDL string clauses
+.
+Configure widget settings
+​
+You can configure the behavior of widgets when a new value is selected, whether the widget panel is always pinned to the top of the notebook, and change the layout of widgets in the notebook.
+Click the
+icon at the right end of the Widget panel.
+In the pop-up Widget Panel Settings dialog, choose the widget's execution behavior.
+Run Notebook
+: Reruns the entire notebook every time you select a new value.
+Run Accessed Commands
+: Reruns only cells that retrieve the values for that particular widget every time you select a new value. This is the default setting when you create a widget. SQL cells are not rerun in this configuration.
+Do Nothing
+: Does not rerun anything when you select a new value.
+To pin the widgets to the top of the notebook or to place the widgets above the first cell, click
+. The setting is saved on a per-user basis. Click the thumbtack icon again to reset to the default behavior.
+If you have CAN MANAGE permission for notebooks, you can configure the widget layout by clicking
+. Each widget's order and size can be customized. To save or dismiss your changes, click
+.
+The widget layout is saved with the notebook. If you change the widget layout from the default configuration, new widgets are not added alphabetically.
+To reset the widget layout to a default order and size, click
+to open the
+Widget Panel Settings
+dialog and then click
+Reset Layout
+. The
+removeAll()
+command does not reset the widget layout.
+Databricks widgets in dashboards
+​
+When you create a dashboard from a notebook with input widgets, all the widgets display at the top. In presentation mode, every time you update the value of a widget, you can click the
+Update
+button to re-run the notebook and update your dashboard with new values.
+Use Databricks widgets with %run
+​
+If you
+run a notebook
+that contains widgets, the specified notebook is run with the widget's default values.
+If the notebook is attached to a cluster (not a SQL warehouse), you can also pass values to widgets. For example:
+Bash
+%run /path/to/notebook
+$X
+=
+"10"
+$Y
+=
+"1"
+This example runs the specified notebook and passes
+10
+into widget X and
+1
+into widget Y.
+Limitations
+​
+See
+Known limitations of Databricks notebooks
+for more information.
+On this page
+Databricks widget types
+Create widgets
+Create widgets using the UI
+Create widgets with SQL, Python, R, and Scala
+Use widget values in Spark SQL and SQL Warehouse
+Use widget values in DDL string clauses
+Configure widget settings
+Databricks widgets in dashboards
+Use Databricks widgets with %run
+Limitations

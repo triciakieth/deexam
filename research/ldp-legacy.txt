@@ -1,0 +1,354 @@
+On this page
+Last updated
+on
+Oct 25, 2026
+Lakeflow pipelines
+Python language reference
+The
+Lakeflow pipelines
+Python interface is defined in the
+pyspark.pipelines
+module, imported as
+dp
+.
+The module provides decorators and functions for defining datasets, flows, sinks, and data quality expectations.
+Serverless pipelines
+run these definitions without requiring you to configure clusters.
+For conceptual information and an overview of using Python for pipelines, see
+Develop pipeline code with Python
+.
+For SQL reference, see the
+Pipeline SQL language reference
+.
+For details specific to configuring
+Auto Loader
+, see
+What is
+Auto Loader
+?
+.
+pipelines
+module overview
+​
+Lakeflow pipelines
+Python functions are defined in the
+pyspark.pipelines
+module (imported as
+dp
+). Your pipelines implemented with the Python API must import this module:
+Python
+from
+pyspark
+import
+pipelines
+as
+dp
+note
+Most of the pipelines module is only available in the context of a pipeline. For more information about editing pipeline code, see
+Develop and debug ETL pipelines with the Lakeflow Pipelines Editor
+.
+You can also apply
+@materialized_view
+and
+@table
+outside a pipeline, in a notebook on serverless general compute, to define a standalone
+materialized view
+or
+streaming table
+. See
+Define tables with the pipelines decorators
+.
+Apache Spark™
+pipelines
+​
+Apache Spark
+includes
+declarative pipelines
+beginning in Spark 4.1, available through the
+pyspark.pipelines
+module. The
+Databricks Runtime
+extends these open source capabilities with additional APIs and integrations for managed production use.
+Code written with the open-source
+pipelines
+module runs without modification on
+Databricks
+. The following features are not part of
+Apache Spark
+:
+dp.create_auto_cdc_flow
+dp.create_auto_cdc_from_snapshot_flow
+@dp.expect(...)
+The
+pipelines
+module was previously called
+dlt
+in
+Databricks
+. For details, and more information about the differences from
+Apache Spark
+, see
+What happened to
+@dlt
+?
+.
+Functions for dataset definitions
+​
+Pipelines use Python decorators for defining datasets such as
+materialized views
+and
+streaming tables
+. See
+Functions to define datasets
+.
+API reference
+​
+append_flow
+create_auto_cdc_flow
+create_auto_cdc_from_snapshot_flow
+create_table
+create_sink
+create_streaming_table
+Expectations
+foreach_batch_sink
+foreach_sink
+materialized_view
+replace_flow
+table
+temporary_view
+update_flow
+Coding requirements for Python pipelines
+​
+The following are important requirements when you implement pipelines with the Python interface:
+A pipeline evaluates its source code multiple times during planning and runs. Python functions that define datasets should include only the code required to define the table or view. Arbitrary Python logic included in dataset definitions might lead to unexpected behavior.
+Do not try to implement custom monitoring logic in your dataset definitions. See
+Define custom monitoring of pipelines with event hooks
+.
+The function used to define a dataset must return a Spark DataFrame. Do not include logic in your dataset definitions that does not relate to a returned DataFrame.
+Never use methods that save or write to files or tables as part of your pipeline dataset code.
+Examples of
+Apache Spark
+operations that should never be used in pipeline code:
+collect()
+count()
+toPandas()
+save()
+saveAsTable()
+start()
+toTable()
+What happened to
+@dlt
+?
+​
+Previously,
+Databricks
+used the
+dlt
+module to support pipeline functionality. The
+dlt
+module has been replaced by the
+pyspark.pipelines
+module. You may still use
+dlt
+, but Databricks recommends using
+pipelines
+.
+Differences between DLT,
+Lakeflow pipelines
+, and
+Apache Spark™ Declarative Pipelines
+​
+The following table shows the differences in syntax and functionality between DLT,
+Lakeflow pipelines
+, and
+Apache Spark™ Declarative Pipelines
+.
+For a feature-level comparison of what
+Lakeflow pipelines
+share with and add to
+Apache Spark™ Declarative Pipelines
+, see
+Apache Spark Declarative Pipelines
+.
+For a property-by-property mapping of pipeline configuration to the SDP project specification, see
+Pipeline properties reference
+.
+note
+In Databricks documentation, the Databricks product is called
+Lakeflow pipelines
+, and the
+Apache Spark
+project it extends is
+Apache Spark™ Declarative Pipelines
+(
+SDP
+). The two are interoperable but differ in features. For example, the
+AUTO CDC
+APIs are available only in
+Lakeflow pipelines
+.
+Area
+DLT syntax
+SDP Syntax (Lakeflow and Apache, where applicable)
+Available in
+Apache Spark
+Imports
+import dlt
+from pyspark import pipelines
+(
+as dp
+, optionally)
+Yes
+Streaming table
+@dlt.table
+with a streaming dataframe
+@dp.table
+Yes
+Materialized view
+@dlt.table
+with a batch dataframe
+@dp.materialized_view
+Yes
+View
+@dlt.view
+@dp.temporary_view
+Yes
+Append flow
+@dlt.append_flow
+@dp.append_flow
+Yes
+Update flow
+Unavailable
+@dp.update_flow
+No
+SQL – streaming
+CREATE STREAMING TABLE ...
+CREATE STREAMING TABLE ...
+Yes
+SQL – materialized
+CREATE MATERIALIZED VIEW ...
+CREATE MATERIALIZED VIEW ...
+Yes
+SQL – flow
+CREATE FLOW ...
+CREATE FLOW ...
+Yes
+Event log
+spark.read.table("event_log")
+spark.read.table("event_log")
+No
+Apply Changes (CDC)
+dlt.apply_changes(...)
+dp.create_auto_cdc_flow(...)
+No
+Expectations
+@dlt.expect(...)
+dp.expect(...)
+No
+Continuous mode
+Pipeline config with continuous trigger
+Pipeline config with continuous trigger
+No
+Sink
+@dlt.create_sink(...)
+dp.create_sink(...)
+Yes
+ForEachBatch
+sink
+Unavailable
+@dp.foreach_batch_sink(...)
+No
+ForEach
+sink
+Unavailable
+@dp.foreach_sink(...)
+No
+←
+✕
+Area
+DLT syntax
+SDP Syntax (Lakeflow and Apache, where applicable)
+Available in
+Apache Spark
+Imports
+import dlt
+from pyspark import pipelines
+(
+as dp
+, optionally)
+Yes
+Streaming table
+@dlt.table
+with a streaming dataframe
+@dp.table
+Yes
+Materialized view
+@dlt.table
+with a batch dataframe
+@dp.materialized_view
+Yes
+View
+@dlt.view
+@dp.temporary_view
+Yes
+Append flow
+@dlt.append_flow
+@dp.append_flow
+Yes
+Update flow
+Unavailable
+@dp.update_flow
+No
+SQL – streaming
+CREATE STREAMING TABLE ...
+CREATE STREAMING TABLE ...
+Yes
+SQL – materialized
+CREATE MATERIALIZED VIEW ...
+CREATE MATERIALIZED VIEW ...
+Yes
+SQL – flow
+CREATE FLOW ...
+CREATE FLOW ...
+Yes
+Event log
+spark.read.table("event_log")
+spark.read.table("event_log")
+No
+Apply Changes (CDC)
+dlt.apply_changes(...)
+dp.create_auto_cdc_flow(...)
+No
+Expectations
+@dlt.expect(...)
+dp.expect(...)
+No
+Continuous mode
+Pipeline config with continuous trigger
+Pipeline config with continuous trigger
+No
+Sink
+@dlt.create_sink(...)
+dp.create_sink(...)
+Yes
+ForEachBatch
+sink
+Unavailable
+@dp.foreach_batch_sink(...)
+No
+ForEach
+sink
+Unavailable
+@dp.foreach_sink(...)
+No
+On this page
+pipelines
+module overview
+Apache Spark™ pipelines
+Functions for dataset definitions
+API reference
+Coding requirements for Python pipelines
+What happened to
+@dlt
+?
+Differences between DLT, Lakeflow pipelines, and Apache Spark™ Declarative Pipelines

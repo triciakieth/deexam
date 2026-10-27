@@ -1,0 +1,229 @@
+On this page
+Last updated
+on
+Oct 13, 2026
+Known limitations of Databricks notebooks
+Databricks notebooks have known limitations on size, cell outputs, the debugger, SQL warehouse sessions, and widgets. Notebooks can be up to 100 MB, each cell input up to 6 MB, and table results are limited to 10,000 rows or 2 MB, whichever is lower. For additional resource limits, see
+Resource limits
+.
+Notebook sizing
+​
+Revision snapshot autosaving, manual saving, and cloning are supported for all notebooks up to 100 MB.
+Import and export is supported for IPYNB notebooks up to 100 MB.
+Import and export is supported for DBC archive, HTML, R Markdown, and source notebooks up to 10 MB.
+Individual notebook cells have an input limit of 6 MB.
+Notebook cell outputs
+​
+Table results are limited to 10,000 rows or 2 MB, whichever is lower.
+Job clusters have a maximum notebook output size of 30 MB.
+In
+Databricks Runtime
+17.0 and above, and serverless environment 3:
+The maximum cell output size defaults to 10 MB.
+This limit can be customized in Python cells to any value between 1 MB and 20 MB (inclusive) using the following cell magic:
+%set_cell_max_output_size_in_mb <size_in_MB>
+. This limit will then apply to all cells in the notebook.
+When cell output exceeds the configured size limit, the output is truncated to fit within the limit. The truncation is applied in a way to preserve as much useful output as possible.
+In
+Databricks Runtime
+16.4 LTS and below, and serverless environment 2 and below:
+Text results return a maximum of 50,000 characters.
+In
+Databricks Runtime
+12.2 and above, you can increase this limit up to 20 MB by setting the Spark configuration property,
+spark.databricks.driver.maxReplOutputLength
+.
+When cell output exceeds the configured size limit, the output is
+entirely discarded
+.
+Notebook debugger
+​
+Limitations of the
+notebook debugger
+:
+The debugger works only with Python. It does not support Scala or R.
+To access the debugger, your notebook must be connected to one of the following compute resources:
+Serverless compute
+Compute with
+access mode
+set to
+Standard
+(formerly shared) in
+Databricks Runtime
+14.3 LTS and above
+Compute with
+access mode
+set to
+Dedicated
+(formerly single user) in
+Databricks Runtime
+13.3 LTS and above
+Compute with
+access mode
+set to
+No Isolation Shared
+in
+Databricks Runtime
+13.3 LTS and above
+The debugger does not support stepping into Python libraries.
+You cannot run other commands in the notebook when a debug session is active.
+The debugger does not support debugging on subprocesses when connected to
+serverless compute
+and clusters with
+access mode
+set to
+Standard
+.
+SQL warehouse notebooks
+​
+Limitations of
+SQL warehouses notebooks
+:
+When attached to a SQL warehouse, execution contexts have an idle timeout of 8 hours.
+ipywidgets
+​
+Limitations of
+ipywidgets
+:
+A notebook using ipywidgets must be attached to a running cluster.
+Widget states are not preserved across notebook sessions. You must re-run widget cells to render them each time you attach the notebook to a cluster.
+The Password and Controller ipywidgets are not supported.
+HTMLMath and Label widgets with LaTeX expressions do not render correctly. (For example,
+widgets.Label(value=r'$$\frac{x+1}{x-1}$$')
+does not render correctly.)
+Widgets might not render correctly if the notebook is in dark mode, especially colored widgets.
+Widget outputs cannot be used in notebook dashboard views.
+The maximum message payload size for an ipywidget is 5 MB. Widgets that use images or large text data may not be properly rendered.
+Databricks widgets
+​
+Limitations of
+Databricks widgets
+:
+A maximum of 512 widgets can be created in a notebook.
+A widget name is limited to 1024 characters.
+A widget label is limited to 2048 characters.
+A maximum of 2048 characters can be input to a text widget.
+There can be a maximum of 1024 choices for a multi-select, combo box, or dropdown widget.
+There is a known issue where a widget state might not properly clear after pressing
+Run All
+, even after clearing or removing the widget in the code. If this happens, you will see a discrepancy between the widget's visual and printed states. Re-running the cells individually might bypass this issue. To avoid this issue, Databricks recommends using
+ipywidgets
+.
+Don't access widget state directly in asynchronous contexts like threads, subprocesses, or Structured Streaming (
+foreachBatch
+), as widget state can change while the asynchronous code is running. If you need to access widget state in an asynchronous context, pass it in as an argument.
+For example, if you have the following code that uses threads:
+Python
+import
+threading
+def
+thread_func
+(
+)
+:
+# Unsafe access in a thread
+value
+=
+dbutils
+.
+widgets
+.
+get
+(
+'my_widget'
+)
+print
+(
+value
+)
+thread
+=
+threading
+.
+Thread
+(
+target
+=
+thread_func
+)
+thread
+.
+start
+(
+)
+thread
+.
+join
+(
+)
+Databricks recommends using an argument instead:
+Python
+# Access widget values outside the asynchronous context and pass them to the function
+value
+=
+dbutils
+.
+widgets
+.
+get
+(
+'my_widget'
+)
+def
+thread_func
+(
+val
+)
+:
+# Use the passed value safely inside the thread
+print
+(
+val
+)
+thread
+=
+threading
+.
+Thread
+(
+target
+=
+thread_func
+,
+args
+=
+(
+value
+,
+)
+)
+thread
+.
+start
+(
+)
+thread
+.
+join
+(
+)
+Widgets can't generally pass arguments between different languages within a notebook. You can create a widget
+arg1
+in a Python cell and use it in a SQL or Scala cell if you run one cell at a time. However, this does not work if you use
+Run All
+or run the notebook as a job. Some workarounds are:
+For notebooks that do not mix languages, you can create a notebook for each language and pass the arguments when you
+run the notebook
+.
+You can access the widget using a
+spark.sql()
+call. For example, in Python:
+spark.sql("select getArgument('arg1')").take(1)[0][0]
+.
+On this page
+Notebook sizing
+Notebook cell outputs
+Notebook debugger
+SQL warehouse notebooks
+ipywidgets
+Databricks widgets

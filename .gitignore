@@ -6,3 +6,6 @@ playwright-report/
 .venv/
 
 .import-cache/
+
+__pycache__/
+*.py[cod]

@@ -1,0 +1,52 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+What is Catalog Explorer?
+Databricks
+Catalog Explorer provides a UI to explore and manage data, schemas (databases), tables, models, functions, and other AI assets. To open Catalog Explorer, click
+Catalog
+in the sidebar.
+What can you do with Catalog Explorer?
+​
+Catalog Explorer has two primary functions:
+Finding data assets.
+For example, you can use Catalog Explorer to view schema details, preview sample data, see table and model details, and explore entity relationships. To learn how to use Catalog Explorer to discover data, see
+Discover data
+and the articles listed below.
+Managing
+Unity Catalog
+and
+OpenSharing
+.
+For example, you can use Catalog Explorer to create catalogs, create shares, manage external locations, view and change object ownership, and grant and revoke permissions on all objects. To learn how to use Catalog Explorer to manage
+Unity Catalog
+and
+OpenSharing
+, see
+What is
+Unity Catalog
+?
+.
+Catalog Explorer also supports the following AI-assisted data discovery tools:
+AI-generated comments on data and AI objects, such as catalogs, tables, columns, volumes, and models. See
+Add AI-generated comments to
+Unity Catalog
+objects
+.
+Genie Code
+for prompt-driven information about table lineage and insights. See
+Get lineage using
+Genie Code
+.
+Natural language sample data exploration (Public Preview) to help you assess whether a dataset fits your needs before diving deeper. See
+Explore table data using an LLM
+.
+note
+The Catalog Explorer UI is not live in all
+Databricks
+workspaces. For information about the previous UI, see
+Explore and create tables in DBFS
+.
+On this page
+What can you do with Catalog Explorer?

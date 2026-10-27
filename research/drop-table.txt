@@ -1,0 +1,155 @@
+On this page
+Last updated
+on
+Sep 16, 2026
+DROP TABLE
+Applies to:
+Databricks SQL
+Databricks Runtime
+Deletes the table and removes the directory associated with the table from the file system
+if the table is not an
+EXTERNAL
+table. An exception is thrown if the table does not exist.
+To drop a table you must have the
+MANAGE
+privilege on the table, be its owner, or the owner of the schema, catalog, or metastore the table resides in.
+In the case of an external table, only the associated metadata information is removed from the metastore schema.
+Any foreign key constraints referencing the table are also dropped.
+If the table is cached, the command uncaches the table and all of its dependents.
+note
+Unity Catalog
+supports the
+UNDROP TABLE
+command to recover dropped managed tables. By default, tables are recoverable for 7 days after being dropped, and you can configure the recovery period at the catalog or schema level to 0 (to disable recovery) or 7 to 30 days. Configuring the recovery period is in
+Public Preview
+. An asynchronous purge process permanently deletes the underlying data files after the recovery period ends, so the files can remain in your cloud tenant for a time after the table is no longer recoverable. See
+Drop a managed table
+and
+Object storage lifecycle in
+Unity Catalog
+.
+Syntax
+​
+DROP TABLE [ IF EXISTS ] table_name [ FORCE ]
+DROP {TEMP | TEMPORARY} TABLE table_name [IF EXISTS]
+Parameter
+​
+TEMP or TEMPORARY
+Applies to:
+Databricks SQL
+If specified, drops the temporary table. If no temporary table with this name exists in the session, the command raises a
+TABLE_OR_VIEW_NOT_FOUND error condition
+error.
+If not specified, the command drops only a permanent table and raises an error if a temporary table with the same unqualified name exists in the session. To drop a permanent table when a temporary table shares the same name, use the qualified name.
+IF EXISTS
+If specified, no
+TABLE_OR_VIEW_NOT_FOUND
+error is thrown when the table does not exist.
+table_name
+The name of the table to be dropped. The name must not include a
+temporal specification or options specification
+.
+If the table cannot be found
+Databricks
+raises a
+TABLE_OR_VIEW_NOT_FOUND
+error.
+If the relation found is not a table
+Databricks
+raises a
+WRONG_COMMAND_FOR_OBJECT_TYPE
+error.
+FORCE
+If specified, drops a
+Unity Catalog
+managed table even when it has dependent shallow clones.
+FORCE
+is required only where the workspace enforces drop-time protection for shallow clones. If a plain
+DROP TABLE
+fails with
+CANNOT_DROP_BASE_TABLE_REFERENCED_BY_SHALLOW_CLONE
+, use
+FORCE
+to override it. See
+Drop the base table for a shallow clone
+.
+Examples
+​
+SQL
+-- Assumes a table named `employeetable` exists.
+>
+DROP
+TABLE
+employeetable
+;
+-- Assumes a table named `employeetable` exists in the `userdb` schema
+>
+DROP
+TABLE
+userdb
+.
+employeetable
+;
+-- Assumes a table named `employeetable` does not exist.
+-- Throws TABLE_OR_VIEW_NOT_FOUND
+>
+DROP
+TABLE
+employeetable
+;
+Error: TABLE_OR_VIEW_NOT_FOUND
+-- Assumes a table named `employeetable` does not exist. Try with IF EXISTS
+-- this time it will not throw exception
+>
+DROP
+TABLE
+IF
+EXISTS
+employeetable
+;
+-- Assumes a table named `employeetable` exists and has a shallow clone.
+-- Where the workspace enforces drop-time protection for shallow clones,
+-- a plain DROP throws CANNOT_DROP_BASE_TABLE_REFERENCED_BY_SHALLOW_CLONE
+>
+DROP
+TABLE
+employeetable
+;
+Error: CANNOT_DROP_BASE_TABLE_REFERENCED_BY_SHALLOW_CLONE
+-- Assumes a table named `employeetable` exists and has a shallow clone.
+-- Drops the base table even when it has shallow clones. The referencing shallow clones stop working.
+>
+DROP
+TABLE
+employeetable
+FORCE
+;
+-- Creates and drops a temporary table
+>
+CREATE
+TEMPORARY
+TABLE
+scratchpad
+(
+txt STRING
+)
+;
+>
+DROP
+TEMPORARY
+TABLE
+scratchpad
+;
+Related articles
+​
+CREATE TABLE
+CREATE SCHEMA
+DROP SCHEMA
+UNDROP TABLE
+Object storage lifecycle in
+Unity Catalog
+On this page
+Syntax
+Parameter
+Examples
+Related articles

@@ -1,0 +1,67 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+Spark memory issues
+When executors run out of memory, Spark removes them and retries their tasks. The job slows down, and after repeated failures the stage and job fail.
+Use this page when jobs fail or executors are removed and the compute's event log doesn't show spot or preemptible instance losses or autoscaling. To check the event log, see
+Failing jobs or executors removed
+. If the stage completes but is slow and shows spill, see
+Skew and spill
+.
+Verifying a memory issue
+​
+Memory issues often cause errors such as:
+Output
+SparkException: Job aborted due to stage failure: Task 3 in stage 0.0 failed 4 times, most recent failure: Lost task 3.3 in stage 0.0 (TID 30) (10.139.64.114 executor 4): ExecutorLostFailure (executor 4 exited caused by one of the running tasks) Reason: Remote RPC client disassociated. Likely due to containers exceeding thresholds, or network issues. Check driver logs for WARN messages.
+These errors are often generic, and other issues might cause them. If you suspect a memory issue, verify it by doubling the memory per core to see whether it resolves the problem.
+For example, if the worker type has 4 cores and 16 GB of memory, switch to a worker type with 4 cores and 32 GB of memory. That gives you 8 GB per core instead of 4 GB. The ratio of memory to cores matters, not the total memory. If the job takes longer to fail or doesn't fail at all, memory might be the cause.
+If more memory fixes the issue, keep the larger worker type. If it doesn't, or if the extra cost is too high, check the possible causes in the next section.
+Possible causes
+​
+Memory problems have many possible causes. Start with these common causes:
+Too few shuffle partitions.
+Set
+spark.sql.shuffle.partitions
+to
+auto
+so that Spark picks the number of shuffle partitions. See
+AQE configuration
+.
+A large broadcast.
+Check for broadcast join hints on large tables, and review the runtime broadcast threshold. See
+AQE configuration
+.
+UDFs.
+Each task that runs a
+UDF
+might load all the data in its partition into memory. Rewrite the UDF using native functions, or repartition before you apply it. See
+Slow UDFs
+.
+A window function without
+PARTITION BY
+.
+Add a
+PARTITION BY
+clause so that the
+window
+doesn't span the whole dataset. See
+Long Spark stage with one task
+.
+Skew.
+Verify skew in the stage's
+Summary Metrics
+. See
+Skew
+. For joins, see
+Dynamically handle skew join
+.
+Streaming state.
+For queries that keep
+streaming state
+, use the RocksDB state store and cap its memory usage. See
+Cap RocksDB memory usage
+.
+On this page
+Verifying a memory issue
+Possible causes

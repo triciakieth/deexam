@@ -1,0 +1,147 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Add branching logic to a job with the If/else task
+Use the
+If/else condition
+task to add boolean conditional logic to task graphs. These tasks consist of a boolean operator and a pair of operands, where the operands might reference the job or task state using configured or dynamic parameters or task values. See
+Parameterize jobs
+.
+For example, suppose you have a task named
+process_records
+that maintains a count of records that are not valid in a value named
+bad_records
+, and you want to branch processing when you encounter bad records. To add this logic to your workflow, you can create an
+If/else condition
+task with an expression like
+{{tasks.process_records.values.bad_records}} > 0
+. You can then add dependent tasks based on the results of the condition.
+After a job run containing an
+If/else condition
+task, you can view the result and the expression evaluation details when you view the job run details in the UI. See
+View job run details
+.
+note
+Numeric and non-numeric values are handled differently depending on the boolean operator:
+The
+==
+and
+!=
+operators perform string comparison of their operands. For example,
+12.0 == 12
+evaluates to false.
+The
+>
+,
+>=
+,
+<
+, and
+<=
+operators perform numeric comparisons of their operands. For example,
+12.0 >= 12
+evaluates to true, and
+10.0 >= 12
+evaluates to false.
+Only numeric, string, and boolean values are allowed when referencing
+task values
+in an operand. Any other types cause the condition expression to fail. Non-numeric value types are serialized to strings and are treated as strings in
+If/else condition
+expressions. For example, if a task value is set to a boolean value, it is serialized to
+"true"
+or
+"false"
+.
+Configure an If/else task
+​
+Add an
+If/else condition
+task from the
+Tasks
+tab in the Jobs UI by doing the following:
+Click
+Add task
+.
+Enter a name into the
+Task name
+field.
+In the
+Type
+drop-down menu, select
+If/else condition
+.
+Enter the operand to be evaluated in the first
+Condition
+text box. The operand can reference any of the following:
+A job parameter variable, for example
+{{job.parameters.<name>}}
+.
+A task parameter variable.
+A task value, for example
+{{tasks.<task_name>.values.<value_name>}}
+.
+Select a boolean operator from the drop-down menu.
+In the second
+Condition
+text box, enter the value for evaluating the condition.
+(Optional) To configure retries, run-duration or streaming-backlog thresholds, or notifications, see
+Advanced task settings
+.
+Click
+Save task
+.
+To edit, clone, disable, or delete this task, see
+Configure and edit tasks in Lakeflow Jobs
+.
+Configure dependencies on an If/else condition
+​
+Configure dependencies on the
+If/else condition
+task from the tasks graph in the
+Tasks
+tab by doing the following:
+Select the
+If/else condition
+task in the tasks graph and click
+Add task
+.
+Enter details for the task. The
+Depends on
+field defaults to
+<task-name> (true)
+where
+<task-name>
+is the name of the
+If/else condition
+task.
+Select
+<task-name> (false)
+to configure a task that runs on a false condition evaluation.
+You can configure multiple tasks to run in serial or parallel based on the outcome of an
+If/else condition
+. Consider configuring
+Run if dependencies
+if you need conditionalized runs based on upstream task failures. See
+Configure task dependencies
+.
+note
+An
+If/else condition
+task fails if the upstream task that provides its condition value is disabled. See
+Limitations
+.
+Additional resources
+​
+Condition task
+: Define a condition task as code with
+Declarative Automation Bundles
+.
+Configure task dependencies
+: Set run-if dependencies for conditional runs.
+Use task values to pass information between tasks
+: Use task values to pass data between tasks.
+On this page
+Configure an If/else task
+Configure dependencies on an If/else condition
+Additional resources

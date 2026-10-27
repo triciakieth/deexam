@@ -1,0 +1,294 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Configure and edit Lakeflow Jobs
+You can create and run a job using the Jobs UI, or developer tools such as the Databricks CLI or the REST API. Using the UI or API, you can repair and rerun a failed or canceled job. This article shows how to create, configure, and edit jobs using the
+Jobs & Pipelines
+workspace UI. For information about other tools, see the following:
+To learn about using the Databricks CLI to create and run jobs, see
+Databricks CLI
+.
+To learn about using the Jobs API to create and run jobs, see
+Jobs
+in the REST API reference.
+If you prefer an infrastructure-as-code (IaC) approach to configuring jobs, you can use
+Declarative Automation Bundles
+. To learn about using bundles to configure and orchestrate your jobs, see
+Declarative Automation Bundles
+.
+To learn how to run and schedule jobs directly in a Databricks notebook, see
+Create and manage scheduled notebook jobs
+.
+tip
+To view a job as YAML, click the kebab menu to the left of
+Run now
+for the job and then click
+Switch to code version (YAML)
+.
+Minimum configuration for a job
+​
+All jobs on
+Databricks
+require the following:
+A task that contains logic to be run, such as a Databricks notebook. See
+Configure and edit tasks in Lakeflow Jobs
+A compute resource to run the logic. The compute resource can be
+serverless compute
+, classic jobs compute, or all-purpose compute. See
+Configure compute for jobs
+.
+A specified schedule for when the job should be run. Optionally, you can omit setting a schedule and trigger the job manually.
+A unique name.
+Create a new job
+​
+This section describes the steps to create a new job with a notebook task and schedule with the workspace UI.
+Jobs contain one or more tasks. You create a new job by configuring the first task for that job.
+note
+Each task type has dynamic configuration options in the workspace UI. See
+Configure and edit tasks in Lakeflow Jobs
+.
+In your workspace, click
+Jobs & Pipelines
+in the sidebar.
+Click
+Create
+, then
+Job
+.
+Click the
+Notebook
+tile to configure the first task. If the
+Notebook
+tile is not available, click
+Add another task type
+and search for
+Notebook
+.
+Enter a
+Task name
+.
+Select a notebook for the
+Path
+field.
+Click
+Save task
+.
+If your workspace is not enabled for serverless compute for jobs, you must select a
+Compute
+option. Databricks recommends always using jobs compute when configuring tasks.
+A new job appears in the workspace jobs list with the default name
+New Job <date> <time>
+.
+You can continue to add more tasks within the same job, if needed for your workflow. Jobs with greater than 100 tasks may have special requirements. For more information, see
+Jobs with a large number of tasks
+.
+Schedule a job
+​
+You can decide when your job is run. By default, it only runs when you
+manually start it
+, but you can also configure it to run automatically. You can create a
+trigger
+to run a job on a schedule, or based on an event.
+Control the flow of tasks within the job
+​
+When configuring multiple tasks in jobs, you can use specialized tasks to control how the tasks run. See
+Control the flow of tasks within Lakeflow Jobs
+.
+Select a job to edit in the workspace
+​
+To edit an existing job with the workspace UI, do the following:
+In your
+Databricks
+workspace's sidebar, click
+Jobs & Pipelines
+.
+Optionally, select the
+Jobs
+and
+Owned by me
+filters.
+Click your job's
+Name
+link.
+Use the jobs UI to do the following:
+Edit job settings
+Rename, clone, or delete a job
+Add new tasks to an existing job
+Edit task settings
+note
+You can also view the JSON definitions for use with REST API
+get
+,
+create
+, and
+reset
+endpoints.
+Edit job settings
+​
+The side pane contains the
+Job details
+. You can change the job schedule or trigger, job parameters, compute configuration, tags,
+notifications
+, the maximum number of concurrent runs, duration thresholds, and Git settings. You can also edit job permissions if
+job access control
+is enabled.
+Add parameters for all job tasks
+​
+Parameters configured at the job level are passed to the job's tasks that accept key-value parameters, including Python wheel files configured to accept keyword arguments. See
+Parameterize jobs
+.
+Add tags to a job
+​
+To add labels or key-value attributes to your job, you can add
+tags
+when you edit the job. You can use tags to filter jobs in the
+Jobs list
+. For example, you can use a
+department
+tag to filter all jobs that belong to a specific department.
+note
+Because job tags are not designed to store sensitive information such as personally identifiable information or passwords, Databricks recommends using tags for non-sensitive values only.
+Tags also propagate to job clusters created when a job is run, allowing you to use tags with your existing
+cluster monitoring
+.
+Click
+Tag
+in the
+Job details
+side pane to add or edit tags. You can add the tag as a label or key-value pair. To add a label, enter the label in the
+Key
+field and leave the
+Value
+field empty.
+Use Git with jobs
+​
+You can configure job tasks to check out source code directly from a remote Git repository. For instructions and best practices, including sparse checkout for large repositories, see
+Use Git with Lakeflow Jobs
+.
+Add a serverless usage policy to a job
+​
+Preview
+This feature is in
+Public Preview
+.
+If your workspace uses serverless usage policies to attribute serverless usage, you can select your job's serverless usage policy using the
+Usage policy
+setting in the
+Job details
+side pane. See
+Attribute usage with serverless usage policies
+.
+Rename, clone, or delete a job
+​
+To rename a job, go to the Jobs UI, click the job name, and enter a new name.
+You can quickly create a new job by cloning an existing job. Cloning a job creates an identical copy of the job except for the job ID. To clone a job, do the following:
+Click
+Jobs & Pipelines on the left sidebar.
+Click the name of the job you want to clone to open the Jobs UI.
+Click
+next to the
+Run now
+button.
+Select
+Clone job
+from the drop-down menu.
+Enter a name for the cloned job.
+Click
+Clone
+.
+Delete a job
+​
+To delete a job, go to the job page, click
+next to the job name, and select
+Delete job
+from the drop-down menu.
+Configure thresholds for job run duration or streaming backlog metrics
+​
+Preview
+Streaming observability for Lakeflow Jobs is in
+Public Preview
+.
+You can configure optional thresholds for job run duration or streaming backlog metrics. To configure duration or streaming metric thresholds, click
+Duration and streaming backlog thresholds
+in the
+Job details
+pane.
+To configure job duration thresholds, including expected and maximum completion times for the job, select
+Run duration
+in the
+Metric
+drop-down menu. Enter a duration in the
+Warning
+field to configure the job's expected completion time. If the job exceeds this threshold, an event is triggered. You can use this event to notify when a job is running slowly. See
+Configure notifications for slow jobs
+. To configure a maximum completion time for a job, enter the maximum duration in the
+Timeout
+field. If the job does not complete in this time,
+Databricks
+sets its status to “Timed Out”.
+To configure a threshold for a streaming backlog metric, select the metric in the
+Metric
+drop-down menu and enter a value for the threshold. To learn about the specific metrics supported by a streaming source, see
+View metrics for streaming tasks
+.
+If an event is triggered because a threshold is exceeded, you can use the event to send a notification. See
+Configure notifications for slow jobs
+.
+note
+Streaming backlog thresholds aren't supported for pipeline tasks. See
+Streaming backlog alerts and pipeline tasks
+.
+You can optionally specify duration thresholds for tasks. See
+Configure thresholds for task run duration or streaming backlog metrics
+.
+Enable queueing of job runs
+​
+note
+Queueing is enabled by default for jobs created through the UI after April 15, 2024.
+To prevent runs of a job from being skipped because of concurrency limits, you can enable queueing for the job. When queueing is enabled, the run is queued for up to 48 hours if resources are unavailable for a job run. When capacity is available, the job run is dequeued and run. Queued runs are displayed in the
+runs list for the job
+and the
+recent job runs list
+.
+A run is queued when one of the following limits is reached:
+The maximum concurrent active runs in the workspace.
+The maximum concurrent
+Run Job
+task runs in the workspace.
+The maximum concurrent runs of the job.
+Queueing is a job-level property that queues runs only for that job.
+To enable or disable queueing, click
+Advanced settings
+and click the
+Queue
+toggle button in the
+Job details
+side pane.
+Configure maximum concurrent runs
+​
+By default, the maximum concurrent runs for all new jobs is 1.
+Click
+Edit concurrent runs
+under
+Advanced settings
+to set this job's maximum number of parallel runs.
+Databricks
+skips the run if the job has already reached its maximum number of active runs when attempting to start a new run.
+Set this value higher than 1 to allow multiple concurrent runs of the same job. This is useful, for example, if you trigger your job on a frequent schedule and want to enable consecutive runs to overlap or trigger multiple runs that differ by their input parameters.
+On this page
+Minimum configuration for a job
+Create a new job
+Schedule a job
+Control the flow of tasks within the job
+Select a job to edit in the workspace
+Edit job settings
+Add parameters for all job tasks
+Add tags to a job
+Use Git with jobs
+Add a serverless usage policy to a job
+Rename, clone, or delete a job
+Delete a job
+Configure thresholds for job run duration or streaming backlog metrics
+Enable queueing of job runs
+Configure maximum concurrent runs

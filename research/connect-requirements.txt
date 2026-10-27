@@ -1,0 +1,450 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Databricks Connect usage requirements
+note
+This article covers
+Databricks Connect for
+Databricks Runtime
+13.3 LTS and above
+.
+This article provides usage requirements for Databricks Connect. For information about Databricks Connect, see
+Databricks Connect
+.
+Workspace requirements
+​
+To use Databricks Connect to connect to your workspace:
+Your
+Databricks
+account and workspace must have
+Unity Catalog
+enabled. See
+Get started with
+Unity Catalog
+and
+Enable a workspace for
+Unity Catalog
+.
+The
+Databricks Runtime
+version of your compute must be greater than or equal to the
+Databricks Connect
+package version. Databricks recommends that you use the most recent
+Databricks Connect
+package that matches your
+Databricks Runtime
+version.
+To use features that are available in later versions of the
+Databricks Runtime
+, you must upgrade the Databricks Connect package. See the
+Databricks Connect release notes
+for a list of available Databricks Connect releases. For
+Databricks Runtime
+version release notes, see
+Databricks Runtime
+release notes versions and compatibility
+.
+If you are connecting to
+serverless compute
+, your workspace must meet the
+requirements for serverless compute
+.
+note
+Serverless compute
+is supported starting with
+Databricks Connect
+version 15.1. Versions of
+Databricks Connect
+that are lower than or equal to the
+Databricks Runtime
+release on serverless are fully compatible. See
+Release notes
+. To verify if the Databricks Connect version is compatible with serverless compute, see
+Validate the connection to Databricks
+.
+If you are connecting to a
+cluster
+, your target cluster must use a cluster access mode of Assigned or Shared. See
+Access modes
+.
+important
+Databricks Connect
+does not support connecting to open source Apache Spark servers. See
+Errors connecting to Apache Spark server
+.
+Local environment requirements
+​
+To install Databricks Connect, your local development environment must meet the following requirements:
+Python
+Scala
+Authentication to Databricks is configured. Depending on the
+Databricks authentication type
+there might be requirements:
+For
+OAuth user-to-machine (U2M) authentication
+, you must use the
+Databricks CLI
+to authenticate before you run your code. To install and configure the
+Databricks CLI
+, see
+Install or update the Databricks CLI
+. See also the
+Databricks Connect for Python tutorial
+.
+OAuth user-to-machine (U2M) authentication
+and
+OAuth machine-to-machine (M2M) authentication
+are supported on
+Databricks SDK for Python
+0.19.0 and above. To update your project's installed version of the
+Databricks SDK for Python
+, see
+Get started with the
+Databricks SDK for Python
+.
+Python 3 is installed, and the minor version of Python installed meets the version requirements in the
+version compatibility table
+below.
+If you are using user-defined functions (UDFs), the local minor version of Python matches the minor version of Python of the
+Databricks Runtime
+version of the cluster or serverless compute. To find the minor Python version of the
+Databricks Runtime
+version of your cluster, refer to the
+System environment
+section of the
+Databricks Runtime
+release notes for that version. See
+Databricks Runtime
+release notes versions and compatibility
+and
+Serverless compute release notes
+.
+Authentication to Databricks is configured. Depending on the
+Databricks authentication type
+there may be requirements:
+For
+OAuth user-to-machine (U2M) authentication
+, you must use the
+Databricks CLI
+to authenticate before you run your code. To install and configure the
+Databricks CLI
+, see
+Install or update the Databricks CLI
+. See also the
+Databricks Connect for Scala tutorial
+.
+OAuth user-to-machine (U2M) authentication
+and
+OAuth machine-to-machine (M2M) authentication
+are supported on
+Databricks SDK for Java
+0.18.0 and above. To update your project's installed version of the
+Databricks SDK for Java
+, see
+Get started with the
+Databricks SDK for Java
+.
+For Databricks Connect for
+Databricks Runtime
+13.3 LTS and above, for Scala, Databricks Connect includes the
+Databricks SDK for Java
+. This SDK implements the
+Databricks unified authentication
+standard.
+The Java Development Kit (JDK) is installed. Databricks recommends that the version of your JDK installation matches the JDK version on your
+Databricks
+cluster. To find the JDK version of the
+Databricks Runtime
+on your cluster, refer to the
+System environment
+section of the
+Databricks Runtime release notes
+or the
+version compatibility table
+.
+note
+Using a JDK version that doesn't match your cluster’s JDK version might cause unexpected behavior or prevent your code from running.
+Scala is installed. Databricks recommends that the version of your Scala installation matches the Scala version on your
+Databricks
+cluster. To find the Scala version of the
+Databricks Runtime
+version of your cluster, refer to the
+System environment
+section of the
+Databricks Runtime release notes
+or the
+version compatibility table
+.
+If you are using user-defined functions (UDFs), the local Scala and Java versions match the Scala and Java versions of the
+Databricks Runtime
+version of the cluster. To find the Scala and Java versions of the
+Databricks Runtime
+version of your cluster, refer to the
+System environment
+section of the
+Databricks Runtime release notes
+or the
+version compatibility table
+below.
+A Scala build tool, such as
+sbt
+, is installed.
+Databricks Connect versions
+​
+The following table shows supported Databricks Connect and compatible language versions. Databricks Connect version numbers correspond to
+Databricks Runtime
+version numbers. See the
+Databricks Connect release notes
+for a list of available Databricks Connect releases. For
+Databricks Runtime
+version release notes, see
+Databricks Runtime
+release notes versions and compatibility
+.
+Python
+Scala
+For UDF support, see
+Python base environment
+.
+Databricks Connect version
+Compute type
+Required Python version
+18.0 to 19.0
+Cluster
+3.12
+18.0 to 18.3
+Serverless, version 5
+3.12
+17.3
+Serverless, version 4
+3.12
+17.3
+Cluster
+3.12
+16.4.1 to below 17
+Serverless, version 3
+3.12
+16.4
+Cluster
+3.12
+15.4.10 to below 16
+Serverless, version 2
+3.11
+15.4
+Cluster
+3.11
+14.3
+Cluster
+3.10
+13.3
+Cluster
+3.10
+←
+✕
+Databricks Connect version
+Compute type
+Required Python version
+18.0 to 19.0
+Cluster
+3.12
+18.0 to 18.3
+Serverless, version 5
+3.12
+17.3
+Serverless, version 4
+3.12
+17.3
+Cluster
+3.12
+16.4.1 to below 17
+Serverless, version 3
+3.12
+16.4
+Cluster
+3.12
+15.4.10 to below 16
+Serverless, version 2
+3.11
+15.4
+Cluster
+3.11
+14.3
+Cluster
+3.10
+13.3
+Cluster
+3.10
+Databricks Connect version
+Compute type
+JDK version
+Required Scala version
+18.0 to 19.0
+Cluster
+JDK 21
+2.13.16
+17.2 to 17.3
+Serverless, version 4
+JDK 17
+2.13.16
+17.2 to 17.3
+Cluster
+JDK 17
+2.13.16
+16.4
+Cluster
+JDK 17
+2.12.18
+15.4
+Cluster
+JDK 8
+2.12.18
+14.3
+Cluster
+JDK 8
+2.12.15
+13.3
+Cluster
+JDK 8
+2.12.15
+←
+✕
+Databricks Connect version
+Compute type
+JDK version
+Required Scala version
+18.0 to 19.0
+Cluster
+JDK 21
+2.13.16
+17.2 to 17.3
+Serverless, version 4
+JDK 17
+2.13.16
+17.2 to 17.3
+Cluster
+JDK 17
+2.13.16
+16.4
+Cluster
+JDK 17
+2.12.18
+15.4
+Cluster
+JDK 8
+2.12.18
+14.3
+Cluster
+JDK 8
+2.12.15
+13.3
+Cluster
+JDK 8
+2.12.15
+End-of-support versions
+​
+Databricks Connect
+follows the
+Databricks Runtime
+support lifecycles
+. The following versions have reached end-of-support. If you're using a version of
+Databricks Connect
+that has reached end-of-support, upgrade to a
+supported version
+.
+Python
+Scala
+Databricks Connect version
+Compute type
+Compatible Python version
+17.0 to 17.2
+Serverless, version 4
+3.12
+17.0 to 17.2
+Cluster
+3.12
+16.0 to 16.4.0
+Serverless
+There is no compatible Python version. Upgrade to Databricks Connect 16.4.1 or above.
+16.0 to 16.3
+Cluster
+3.12
+15.1 to 15.4.9
+Serverless
+There is no compatible Python version. Upgrade to Databricks Connect 15.4.10 or above.
+15.1 to 15.3
+Cluster
+3.11
+14.0 to 14.2
+Cluster
+3.10
+13.0 to 13.2
+Cluster
+3.10
+←
+✕
+Databricks Connect version
+Compute type
+Compatible Python version
+17.0 to 17.2
+Serverless, version 4
+3.12
+17.0 to 17.2
+Cluster
+3.12
+16.0 to 16.4.0
+Serverless
+There is no compatible Python version. Upgrade to Databricks Connect 16.4.1 or above.
+16.0 to 16.3
+Cluster
+3.12
+15.1 to 15.4.9
+Serverless
+There is no compatible Python version. Upgrade to Databricks Connect 15.4.10 or above.
+15.1 to 15.3
+Cluster
+3.11
+14.0 to 14.2
+Cluster
+3.10
+13.0 to 13.2
+Cluster
+3.10
+Databricks Connect version
+Compute type
+JDK version
+Scala version
+16.0 to 16.3
+Cluster
+JDK 17
+2.12.18
+15.1 to 15.3
+Cluster
+JDK 8
+2.12.18
+14.0 to 14.2
+Cluster
+JDK 8
+2.12.15
+←
+✕
+Databricks Connect version
+Compute type
+JDK version
+Scala version
+16.0 to 16.3
+Cluster
+JDK 17
+2.12.18
+15.1 to 15.3
+Cluster
+JDK 8
+2.12.18
+14.0 to 14.2
+Cluster
+JDK 8
+2.12.15
+On this page
+Workspace requirements
+Local environment requirements
+Databricks Connect versions

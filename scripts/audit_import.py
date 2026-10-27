@@ -10,6 +10,14 @@ for bank,expected in [(1,91),(2,90),(3,90)]:
  keys={int(n):letter for n,letter in re.findall(r'(?<!\d)(\d+)\.\s*([a-e])\)',text)}
  assert len(keys)==expected
  for q in [q for q in questions if q['bank']==bank]:assert keys[q['number']] in q['originalAnswer'],q['id']
+def asset_hash(path):return hashlib.sha256((ROOT/'public'/path.lstrip('/')).read_bytes()).hexdigest()
+seen={}
+for q in questions:
+ signature=json.dumps([' '.join(q['text'].split()),[(c['id'],' '.join(c['text'].split()),asset_hash(c['image']) if len(c['text'].strip())<=3 else None) for c in q['choices']],[asset_hash(p) for p in q.get('promptFigures',[])]],ensure_ascii=False)
+ q['duplicateOf']=seen.get(signature)
+ seen.setdefault(signature,q['id'])
+report['unique']=sum(q['duplicateOf'] is None for q in questions)
+(ROOT/'src/data/questions.json').write_text(json.dumps(questions,ensure_ascii=False,indent=2))
 normalized={q['id']:' '.join(q['text'].lower().split()) for q in questions}
 pairs=[]
 for i,a in enumerate(questions):

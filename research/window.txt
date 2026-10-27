@@ -1,0 +1,566 @@
+On this page
+Last updated
+on
+Oct 5, 2026
+Window functions
+Applies to:
+Databricks SQL
+Databricks Runtime
+Functions that operate on a group of rows, referred to as a window, and calculate a return value for each row based on the group of rows.
+Window functions are useful for processing tasks such as calculating a moving average, computing a cumulative statistic, or accessing the value of rows given the relative position of the current row.
+Syntax
+​
+function OVER { window_name | ( window_name ) | window_spec }
+function
+{ ranking_function | analytic_function | aggregate_function }
+over_clause
+OVER { window_name | ( window_name ) | window_spec }
+window_spec
+( [ PARTITION BY partition [ , ... ] ] [ order_by ] [ window_frame ] )
+Parameters
+​
+function
+The function operating on the window. Different classes of functions support different configurations of window specifications.
+ranking_function
+Any of the
+Ranking window functions
+.
+If specified the window_spec must include an
+ORDER BY clause
+, but not a window_frame clause.
+analytic_function
+Any of the
+Analytic window functions
+.
+aggregate_function
+Any of the
+Aggregate functions
+.
+If specified the function must not include a FILTER clause.
+window_name
+Identifies a
+named window
+specification defined by the
+query
+.
+window_spec
+This clause defines how the rows will be grouped, sorted within the group, and which rows within a partition a function operates on.
+partition
+One or more expression used to specify a group of rows defining the scope on which the function operates.
+If no PARTITION clause is specified the partition is comprised of all rows.
+order_by
+The
+ORDER BY clause
+specifies the order of rows within a partition.
+window_frame
+The
+window frame clause
+specifies a sliding subset of rows within the partition on which the aggregate or analytics function operates.
+You can specify SORT BY as an alias for ORDER BY.
+You can also specify DISTRIBUTE BY as an alias for PARTITION BY.
+You can use CLUSTER BY as an alias for PARTITION BY in the absence of ORDER BY.
+Common error conditions
+​
+DISTINCT_WINDOW_FUNCTION_UNSUPPORTED
+MISSING_WINDOW_SPECIFICATION
+UNSUPPORTED_EXPR_FOR_WINDOW
+WINDOW_FUNCTION_AND_FRAME_MISMATCH
+WINDOW_FUNCTION_NOT_ALLOWED_IN_CLAUSE
+WINDOW_FUNCTION_WITHOUT_OVER_CLAUSE
+Examples
+​
+SQL
+>
+CREATE
+TABLE
+employees
+(
+name STRING
+,
+dept STRING
+,
+salary
+INT
+,
+age
+INT
+)
+;
+>
+INSERT
+INTO
+employees
+VALUES
+(
+'Lisa'
+,
+'Sales'
+,
+10000
+,
+35
+)
+,
+(
+'Evan'
+,
+'Sales'
+,
+32000
+,
+38
+)
+,
+(
+'Fred'
+,
+'Engineering'
+,
+21000
+,
+28
+)
+,
+(
+'Alex'
+,
+'Sales'
+,
+30000
+,
+33
+)
+,
+(
+'Tom'
+,
+'Engineering'
+,
+23000
+,
+33
+)
+,
+(
+'Helen'
+,
+'Marketing'
+,
+29000
+,
+40
+)
+,
+(
+'Jane'
+,
+'Marketing'
+,
+29000
+,
+28
+)
+,
+(
+'Jeff'
+,
+'Marketing'
+,
+35000
+,
+38
+)
+,
+(
+'Paul'
+,
+'Engineering'
+,
+29000
+,
+23
+)
+,
+(
+'Chloe'
+,
+'Engineering'
+,
+23000
+,
+25
+)
+;
+>
+SELECT
+name
+,
+dept
+,
+salary
+,
+age
+FROM
+employees
+;
+Chloe Engineering
+23000
+25
+Fred Engineering
+21000
+28
+Paul Engineering
+29000
+23
+Helen   Marketing
+29000
+40
+Tom Engineering
+23000
+33
+Jane   Marketing
+29000
+28
+Jeff   Marketing
+35000
+38
+Evan       Sales
+32000
+38
+Lisa       Sales
+10000
+35
+Alex       Sales
+30000
+33
+>
+SELECT
+name
+,
+dept
+,
+RANK
+(
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+salary
+)
+AS
+rank
+FROM
+employees
+;
+Lisa       Sales
+10000
+1
+Alex       Sales
+30000
+2
+Evan       Sales
+32000
+3
+Fred Engineering
+21000
+1
+Tom Engineering
+23000
+2
+Chloe Engineering
+23000
+2
+Paul Engineering
+29000
+4
+Helen   Marketing
+29000
+1
+Jane   Marketing
+29000
+1
+Jeff   Marketing
+35000
+3
+>
+SELECT
+name
+,
+dept
+,
+DENSE_RANK
+(
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+salary
+ROWS
+BETWEEN
+UNBOUNDED
+PRECEDING
+AND
+CURRENT
+ROW
+)
+AS
+dense_rank
+FROM
+employees
+;
+Lisa       Sales
+10000
+1
+Alex       Sales
+30000
+2
+Evan       Sales
+32000
+3
+Fred Engineering
+21000
+1
+Tom Engineering
+23000
+2
+Chloe Engineering
+23000
+2
+Paul Engineering
+29000
+3
+Helen   Marketing
+29000
+1
+Jane   Marketing
+29000
+1
+Jeff   Marketing
+35000
+2
+>
+SELECT
+name
+,
+dept
+,
+age
+,
+CUME_DIST
+(
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+age
+RANGE
+BETWEEN
+UNBOUNDED
+PRECEDING
+AND
+CURRENT
+ROW
+)
+AS
+cume_dist
+FROM
+employees
+;
+Alex       Sales
+33
+0.3333333333333333
+Lisa       Sales
+35
+0.6666666666666666
+Evan       Sales
+38
+1.0
+Paul Engineering
+23
+0.25
+Chloe Engineering
+25
+0.50
+Fred Engineering
+28
+0.75
+Tom Engineering
+33
+1.0
+Jane   Marketing
+28
+0.3333333333333333
+Jeff   Marketing
+38
+0.6666666666666666
+Helen   Marketing
+40
+1.0
+>
+SELECT
+name
+,
+dept
+,
+salary
+,
+MIN
+(
+salary
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+salary
+)
+AS
+min
+FROM
+employees
+;
+Lisa       Sales
+10000
+10000
+Alex       Sales
+30000
+10000
+Evan       Sales
+32000
+10000
+Helen   Marketing
+29000
+29000
+Jane   Marketing
+29000
+29000
+Jeff   Marketing
+35000
+29000
+Fred Engineering
+21000
+21000
+Tom Engineering
+23000
+21000
+Chloe Engineering
+23000
+21000
+Paul Engineering
+29000
+21000
+>
+SELECT
+name
+,
+salary
+,
+LAG
+(
+salary
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+salary
+)
+AS
+lag
+,
+LEAD
+(
+salary
+,
+1
+,
+0
+)
+OVER
+(
+PARTITION
+BY
+dept
+ORDER
+BY
+salary
+)
+AS
+lead
+FROM
+employees
+;
+Lisa
+10000
+NULL
+30000
+Alex
+30000
+10000
+32000
+Evan
+32000
+30000
+0
+Fred
+21000
+NULL
+23000
+Chloe
+23000
+21000
+23000
+Tom
+23000
+23000
+29000
+Paul
+29000
+23000
+0
+Helen
+29000
+NULL
+29000
+Jane
+29000
+29000
+35000
+Jeff
+35000
+29000
+0
+Related articles
+​
+SELECT
+ORDER BY
+window frame clause
+named window
+query
+Aggregate functions
+Analytic window functions
+Ranking window functions
+On this page
+Syntax
+Parameters
+Common error conditions
+Examples
+Related articles

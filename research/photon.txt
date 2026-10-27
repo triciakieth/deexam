@@ -1,0 +1,193 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+What is Photon?
+Photon is the
+Databricks
+-native vectorized query engine that accelerates your SQL workloads, DataFrame API calls, ETL pipelines, and stateless streaming workloads. Photon processes data in columnar batches, delivering significant performance improvements over traditional row-based execution. Photon is also compatible with
+Apache Spark
+APIs, so it works with your existing code with no changes required.
+How Photon works
+​
+For supported operations, Photon replaces the JVM-based Spark SQL execution engine with a native C++ runtime. The
+Apache Spark
+query optimizer (Catalyst) still plans your query, but Photon takes over at the execution layer, processing data in columnar batches rather than row by row. When Photon encounters an unsupported operation during query execution, it transparently falls back to the Spark runtime for the remainder of that operation.
+Photon processes data in batches of thousands of rows at a time, enabling modern CPUs to use SIMD instructions that evaluate multiple values per CPU cycle. By executing in native C++ instead of the JVM, Photon eliminates garbage collection pauses, JIT warm-up delays, and memory overhead. The columnar batch processing enables cache-friendly sequential reads, which maximizes memory bandwidth and CPU pipeline efficiency.
+Photon's architecture improves performance in a number of ways:
+Query acceleration
+: Photon provides up to 5x better price/performance for data and analytics workloads compared to other cloud data warehouses, as measured by industry-standard TPC-DS benchmarks.
+Optimized joins and shuffles
+: Replaces sort-merge joins with high-performance hash joins and uses a redesigned columnar shuffle to increase throughput for large-scale joins.
+Write performance
+: The Photon native Parquet writer accelerates Delta Lake, Apache Iceberg, and Parquet writes, including
+UPDATE
+,
+DELETE
+,
+MERGE INTO
+,
+INSERT
+, and
+CREATE TABLE AS SELECT
+operations. Wide tables with thousands of columns see especially significant improvements.
+Scan efficiency
+: Implements filter pushdown, dictionary pruning, and row-group skipping to reduce data read from storage, even when handling many small files.
+Disk cache and concurrency
+: Provides faster repeat access via the disk cache and improves throughput for concurrent queries in interactive BI workloads.
+Integration with SQL and Dataframes API
+: Supports SQL and DataFrame APIs across Python, R, Scala, and Java with no code changes required.
+Photon provides the greatest benefit for longer-running queries that process large datasets. Queries that normally complete in under two seconds don't see meaningful improvement because execution time is dominated by planning and scheduling overhead rather than data processing.
+Integration with the
+Databricks
+platform
+​
+Photon accelerates workloads across the
+Databricks
+platform. You don't need to change your code or queries to take advantage of Photon.
+SQL analytics and BI
+: Photon is the default engine for all SQL warehouses, powering dashboards, ad hoc queries, and scheduled reports.
+ETL and data engineering
+: Batch jobs built with SQL or the DataFrame API benefit from faster scans, joins, aggregations, and writes. The native Parquet writer is particularly effective for ingestion into Delta Lake, Apache Iceberg, or Parquet tables.
+Lakeflow pipelines
+: Enabling Photon in your pipeline configuration helps to accelerate
+Lakeflow pipelines
+execution.
+Streaming
+: Photon supports stateless streaming when writing to a Delta or Parquet sink. Supported sources include Delta, Parquet, CSV, JSON, Kafka, and Kinesis. Stateful streaming is not supported.
+AI and machine learning
+: Photon improves performance for Spark SQL, DataFrames, feature engineering, and GraphFrames operations.
+Photon enablement
+​
+Photon is enabled on serverless compute, SQL warehouses, and serverless
+Lakeflow pipelines
+.
+For classic all-purpose compute, jobs compute, and classic
+Lakeflow pipelines
+, Databricks enables Photon by default. Turn it on or off with the
+Use Photon Acceleration
+checkbox under
+Performance
+when creating or editing compute. See
+Use Photon acceleration
+. If you create these resources using the
+Clusters API
+or
+Jobs API
+, you must explicitly enable Photon by setting
+runtime_engine
+to
+PHOTON
+. If you use the
+Pipelines API
+, set
+photon
+to
+true
+.
+Features that require Photon enablement
+​
+The following features require Photon enablement:
+Predictive I/O for read and write. See
+What is predictive I/O?
+.
+Dynamic file pruning in
+MERGE
+,
+UPDATE
+, and
+DELETE
+statements. See
+Dynamic file pruning
+.
+Supported instance types
+​
+Photon supports a number of instance types on the driver and worker nodes, including Graviton-based instances. Photon instance types consume DBUs at a different rate than the same instance type running the non-Photon runtime. For more information about Photon instances and DBU consumption, see the
+Databricks pricing page
+.
+Supported operators, expressions, and data types
+​
+Photon covers the following operators, expressions, and data types. When a query uses an unsupported operation, Photon transparently falls back to the Spark runtime for that portion of the execution.
+Operators
+Scan (Parquet, Delta, CSV, JSON), Filter, Project
+Hash Aggregate/Join/Shuffle
+Nested-Loop Join
+Null-Aware Anti Join
+Spatial Join (broadcast and shuffled variants supporting
+ST_Intersects
+,
+ST_Contains
+,
+ST_Covers
+,
+ST_Equals
+,
+ST_Touches
+,
+ST_Within
+, and
+ST_DWithin
+)
+Union, Expand, ScalarSubquery
+Delta/Parquet Write Sink
+Sort, TopK, Limit
+Window Function
+Expressions
+These categories are representative, not exhaustive. Individual functions within each category may have limitations.
+Comparison / Logic
+Arithmetic / Math
+Conditional (IF, CASE, etc.)
+String
+Casts
+Aggregates, including Min/Max/MinBy/MaxBy on nested types
+Date/Timestamp/DateFormat
+Data types
+Byte/Short/Int/Long
+Boolean
+String/Binary
+Decimal
+Float/Double
+Date/Timestamp
+TimestampNTZ
+Struct
+Array
+Map
+Variant
+Null
+Geometry
+Geography
+Collated string
+Monitor Photon usage
+​
+You can monitor how much of your query runs on Photon using the following tools:
+Spark UI
+(classic all-purpose and jobs compute): In the
+SQL/DataFrame
+tab of the
+Spark UI
+, Photon operators appear in orange in the query DAG visualization. Standard Spark operators appear in blue. This helps you identify which parts of your query benefit from Photon and which fall back to the Spark runtime.
+Query profile
+(SQL warehouses and serverless compute): The Execution Details view shows the percentage of task time spent in Photon. The query plan distinguishes Photon operators (purple) from standard operators (grey).
+If you notice that a query isn't using Photon as expected, check whether the query uses unsupported operations, UDFs, or data formats that cause a fallback to the Spark runtime.
+Limitations
+​
+If your workload hits an unsupported operation, the compute resource transparently switches to the Spark runtime for the remainder of that operation. Your query still produces correct results.
+Photon doesn't support UDFs (User Defined Functions), RDD APIs, or Dataset APIs.
+Stateful streaming is not supported. Photon supports stateless streaming only.
+Photon doesn't improve queries that normally run in under two seconds.
+Graviton-based instances with Photon don't support
+Databricks Container Services for dedicated compute
+or
+Databricks
+SQL warehouses. This limitation doesn't apply to
+Databricks Container Services for standard compute
+.
+On this page
+How Photon works
+Integration with the Databricks platform
+Photon enablement
+Features that require Photon enablement
+Supported instance types
+Supported operators, expressions, and data types
+Monitor Photon usage
+Limitations

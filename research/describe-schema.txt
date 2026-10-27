@@ -1,0 +1,178 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+DESCRIBE SCHEMA
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns the metadata of an existing schema.
+The metadata information includes the schema's name, comment, and location on the filesystem.
+If the optional
+EXTENDED
+option is specified, schema properties are also returned.
+While usage of
+SCHEMA
+and
+DATABASE
+is interchangeable,
+SCHEMA
+is preferred.
+Syntax
+​
+{ DESC | DESCRIBE } SCHEMA [ EXTENDED ] schema_name
+Parameters
+​
+schema_name
+: The name of an existing schema (schema) in the system.
+If the name does not exist, an exception is thrown.
+Examples
+​
+SQL
+-- Create employees SCHEMA
+>
+CREATE
+SCHEMA
+employees
+COMMENT
+'For software companies'
+;
+-- Describe employees SCHEMA.
+-- Returns Database Name, Description and Root location of the filesystem
+-- for the employees SCHEMA.
+>
+DESCRIBE
+SCHEMA
+employees
+;
+database_description_item    database_description_value
+------------------------- -----------------------------
+Database
+Name                     employees
+Description
+For
+software companies
+Location
+file
+:
+/
+you
+/
+Temp
+/
+employees
+.
+db
+-- Create employees SCHEMA
+>
+CREATE
+SCHEMA
+employees
+COMMENT
+'For software companies'
+;
+-- Alter employees schema to set DBPROPERTIES
+>
+ALTER
+SCHEMA
+employees
+SET
+DBPROPERTIES
+(
+'Create-by'
+=
+'Kevin'
+,
+'Create-date'
+=
+'09/01/2019'
+)
+;
+-- Describe employees SCHEMA with EXTENDED option to return additional schema properties
+>
+DESCRIBE
+SCHEMA
+EXTENDED
+employees
+;
+database_description_item                    database_description_value
+------------------------- ---------------------------------------------
+Database
+Name                                     employees
+Description
+For
+software companies
+Location
+file
+:
+/
+you
+/
+Temp
+/
+employees
+.
+db
+Properties
+(
+(
+Create
+-
+by
+,
+kevin
+)
+,
+(
+Create
+-
+date
+,
+09
+/
+01
+/
+2019
+)
+)
+-- Create deployment SCHEMA
+>
+CREATE
+SCHEMA
+deployment
+COMMENT
+'Deployment environment'
+;
+-- Describe deployment.
+>
+DESCRIBE
+SCHEMA
+deployment
+;
+database_description_item database_description_value
+------------------------- ------------------------------
+Database
+Name                     deployment
+Description         Deployment environment
+Location
+file
+:
+/
+you
+/
+Temp
+/
+deployment
+.
+db
+Related articles
+​
+DESCRIBE FUNCTION
+DESCRIBE QUERY
+DESCRIBE TABLE
+INFORMATION_SCHEMA.SCHEMATA
+On this page
+Syntax
+Parameters
+Examples
+Related articles

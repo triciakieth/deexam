@@ -25,8 +25,8 @@
   ],
   "total": 271,
   "unique": 271,
-  "verified": 39,
-  "unverified": 232,
+  "verified": 216,
+  "unverified": 55,
   "issues": [
     {
       "id": "b1-q7",
@@ -71,6 +71,12 @@
       ]
     },
     {
+      "id": "b1-q74",
+      "issues": [
+        "Research correction: source key B differs from documentation-supported answer D."
+      ]
+    },
+    {
       "id": "b1-q77",
       "issues": [
         "Image-based choices: consult preserved choice images"
@@ -80,6 +86,12 @@
       "id": "b1-q88",
       "issues": [
         "Image-based choices: consult preserved choice images"
+      ]
+    },
+    {
+      "id": "b1-q91",
+      "issues": [
+        "Research correction: source key A differs from documentation-supported answer D."
       ]
     },
     {
@@ -103,13 +115,15 @@
     {
       "id": "b2-q6",
       "issues": [
-        "Image-based choices: consult preserved choice images"
+        "Image-based choices: consult preserved choice images",
+        "Research correction: source key B differs from documentation-supported answer A."
       ]
     },
     {
       "id": "b2-q12",
       "issues": [
-        "Image-based choices: consult preserved choice images"
+        "Image-based choices: consult preserved choice images",
+        "Research correction: source key C differs from documentation-supported answer A."
       ]
     },
     {
@@ -121,7 +135,8 @@
     {
       "id": "b2-q15",
       "issues": [
-        "Image-based choices: consult preserved choice images"
+        "Image-based choices: consult preserved choice images",
+        "Research correction: source key A differs from documentation-supported answer C."
       ]
     },
     {
@@ -143,9 +158,27 @@
       ]
     },
     {
+      "id": "b2-q35",
+      "issues": [
+        "Research correction: source key A differs from documentation-supported answer B."
+      ]
+    },
+    {
+      "id": "b2-q46",
+      "issues": [
+        "Research correction: source key B differs from documentation-supported answer D."
+      ]
+    },
+    {
       "id": "b2-q50",
       "issues": [
         "Image-based choices: consult preserved choice images"
+      ]
+    },
+    {
+      "id": "b2-q53",
+      "issues": [
+        "Research correction: source key C differs from documentation-supported answer A."
       ]
     },
     {
@@ -205,13 +238,21 @@
     {
       "id": "b3-q70",
       "issues": [
-        "Network requirements are underspecified; serverless access to customer-defined networks needs appropriate supported connectivity. Do not assume the supplied key is universally valid."
+        "Network requirements are underspecified; serverless access to customer-defined networks needs appropriate supported connectivity. Do not assume the supplied key is universally valid.",
+        "Research correction: source key B differs from documentation-supported answer C."
       ]
     },
     {
       "id": "b3-q76",
       "issues": [
-        "Official documentation conflicts with the source key; grading uses the verified answer. Original key retained for audit."
+        "Official documentation conflicts with the source key; grading uses the verified answer. Original key retained for audit.",
+        "Research correction: source key B differs from documentation-supported answer C."
+      ]
+    },
+    {
+      "id": "b3-q82",
+      "issues": [
+        "Research correction: source key B differs from documentation-supported answer C."
       ]
     },
     {
@@ -231,7 +272,7 @@
     {
       "a": "b1-q19",
       "b": "b3-q19",
-      "similarity": 0.995,
+      "similarity": 1.0,
       "note": "Similar prompt only; choices and images may differ. Not automatically merged."
     },
     {
@@ -241,21 +282,57 @@
       "note": "Similar prompt only; choices and images may differ. Not automatically merged."
     },
     {
+      "a": "b1-q27",
+      "b": "b2-q41",
+      "similarity": 1.0,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
+      "a": "b1-q41",
+      "b": "b2-q75",
+      "similarity": 0.96,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
       "a": "b1-q51",
       "b": "b2-q27",
-      "similarity": 0.95,
+      "similarity": 1.0,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
+      "a": "b1-q51",
+      "b": "b3-q16",
+      "similarity": 0.981,
       "note": "Similar prompt only; choices and images may differ. Not automatically merged."
     },
     {
       "a": "b1-q64",
       "b": "b2-q26",
-      "similarity": 0.977,
+      "similarity": 0.948,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
+      "a": "b1-q66",
+      "b": "b2-q76",
+      "similarity": 0.965,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
+      "a": "b1-q68",
+      "b": "b3-q90",
+      "similarity": 0.947,
       "note": "Similar prompt only; choices and images may differ. Not automatically merged."
     },
     {
       "a": "b2-q23",
       "b": "b3-q18",
-      "similarity": 0.985,
+      "similarity": 1.0,
+      "note": "Similar prompt only; choices and images may differ. Not automatically merged."
+    },
+    {
+      "a": "b2-q27",
+      "b": "b3-q16",
+      "similarity": 0.981,
       "note": "Similar prompt only; choices and images may differ. Not automatically merged."
     }
   ],
@@ -264,5 +341,16 @@
     "bank-2.pdf": "0e7e40fabf9b042cfe2fd5049add068124a86d651cfd6b7ac915be391cb0dd76",
     "bank-3.pdf": "2158d412e4319c589fccd51f46eb5516061a8c12dbae641d6371a684702a127f"
   },
-  "independentKeyAudit": "All 271 primary key letters matched independently against pdftotext layout extraction. Multi-select sets are additionally retained from column-aware key extraction."
+  "independentKeyAudit": "All 271 primary key letters matched independently against pdftotext layout extraction. Multi-select sets are additionally retained from column-aware key extraction.",
+  "researched": 271,
+  "pendingResearch": 0,
+  "completedExplanations": 271,
+  "correctedKeys": 11,
+  "reviewedUnresolved": 55,
+  "outdatedKeyPremises": 2,
+  "confirmedKeyProblems": 13,
+  "allCitedLinksChecked": 117,
+  "linkCheckFailures": 0,
+  "nativeCodeChoiceImages": 110,
+  "nativePromptFigures": 14
 }

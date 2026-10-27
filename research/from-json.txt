@@ -1,0 +1,365 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+from_json
+function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns a struct value with the
+jsonStr
+and
+schema
+.
+Syntax
+​
+from_json(jsonStr, schema [, options])
+Arguments
+​
+jsonStr
+: A
+STRING
+expression specifying a json document.
+schema
+: A
+STRING
+expression or invocation of
+schema_of_json
+function
+.
+options
+: An optional
+MAP<STRING,STRING>
+literal specifying directives.
+jsonStr
+should be well-formed with respect to
+schema
+and
+options
+.
+The
+schema
+must be defined as comma-separated column names and data type pairs, similar to the format used in
+CREATE TABLE
+. Prior to
+Databricks Runtime
+12.2
+schema
+must be a literal.
+Alternatively, you can use
+from_json
+with
+Lakeflow pipelines
+to automatically infer and evolve the schema by setting
+schema
+to NULL and specifying a
+schemaLocationKey
+. For examples, see
+Infer and evolve the schema using
+from_json
+in pipelines
+.
+note
+The column and field names in
+schema
+are case-sensitive and must match the names in
+jsonStr
+exactly.
+To map JSON fields which differ only in case, you can
+cast
+the resulting struct to distinct field names.
+See
+Examples
+for more details.
+For a complete list of options, see
+JSON
+.
+options
+, if provided, can be any of the following:
+primitivesAsString
+(default
+false
+): infers all primitive values as a string type.
+prefersDecimal
+(default
+false
+): infers all floating-point values as a decimal type. If the values do not fit in decimal, then it infers them as doubles.
+allowComments
+(default
+false
+): ignores Java and C++ style comment in JSON records.
+allowUnquotedFieldNames
+(default
+false
+): allows unquoted JSON field names.
+allowSingleQuotes
+(default
+true
+): allows single quotes in addition to double quotes.
+allowNumericLeadingZeros
+(default
+false
+): allows leading zeros in numbers (for example,
+00012
+).
+allowBackslashEscapingAnyCharacter
+(default
+false
+): allows accepting quoting of all character using backslash quoting mechanism.
+allowUnquotedControlChars
+(default
+false
+): allows JSON Strings to contain unquoted control characters (ASCII characters with value less than 32, including tab and line feed characters) or not.
+mode
+(default
+PERMISSIVE
+): allows a mode for dealing with corrupt records during parsing.
+PERMISSIVE
+: when it meets a corrupted record, puts the malformed string into a field configured by
+columnNameOfCorruptRecord
+, and sets malformed fields to null. To keep corrupt records, you can set a string type field named
+columnNameOfCorruptRecord
+in an user-defined schema. If a schema does not have the field, it drops corrupt records during parsing. When inferring a schema, it implicitly adds a
+columnNameOfCorruptRecord
+field in an output schema.
+FAILFAST
+: throws an exception when it meets corrupted records.
+columnNameOfCorruptRecord
+(default is the value specified in
+spark.sql.columnNameOfCorruptRecord
+): allows renaming the new field having malformed string created by
+PERMISSIVE
+mode. This overrides
+spark.sql.columnNameOfCorruptRecord
+.
+dateFormat
+(default
+yyyy-MM-dd
+): sets the string that indicates a date format. Custom date formats follow the formats at
+Datetime patterns
+. This applies to date type.
+timestampFormat
+(default
+yyyy-MM-dd'T'HH:mm:ss[.SSS][XXX]
+): sets the string that indicates a timestamp format. Custom date formats follow the formats at
+Datetime patterns
+. This applies to timestamp type.
+multiLine
+(default
+false
+): parses one record, which may span multiple lines, per file.
+encoding
+(by default it is not set): allows to forcibly set one of standard basic or extended encoding for the JSON files. For example UTF-16BE, UTF-32LE. If the encoding is not specified and
+multiLine
+is set to
+true
+, it is detected automatically.
+lineSep
+(default covers all
+\r
+,
+\r\n
+and
+\n
+): defines the line separator that should be used for parsing.
+samplingRatio
+(default 1.0): defines fraction of input JSON objects used for schema inferring.
+dropFieldIfAllNull
+(default
+false
+): whether to ignore column of all null values or empty array/struct during schema inference.
+locale
+(default is
+en-US
+):
+sets
+a locale as language tag in IETF BCP 47 format. For instance, this is used while parsing dates and timestamps.
+allowNonNumericNumbers
+(default
+true
+): allows JSON parser to recognize set of not-a-number (
+NaN
+) tokens as legal floating number values:
++INF
+for positive infinity, as well as alias of
++Infinity
+and
+Infinity
+.
+-INF
+for negative infinity), alias
+-Infinity
+.
+NaN
+for other not-a-numbers, like result of division by zero.
+readerCaseSensitive
+(default
+true
+): specifies the case sensitivity behavior when
+rescuedDataColumn
+is enabled. If true, rescue the data columns whose names differ by case from the schema; otherwise, read the data in a case-insensitive manner. Available in
+Databricks SQL
+and
+Databricks Runtime
+13.3 LTS and above.
+Returns
+​
+A struct with field names and types matching the schema definition.
+When the
+mode
+option is set to
+FAILFAST
+,
+Databricks
+raises
+MALFORMED_RECORD_IN_PARSING
+if the input does not conform to the schema.
+Common error conditions
+​
+MALFORMED_RECORD_IN_PARSING
+Examples
+​
+SQL
+>
+SELECT
+from_json
+(
+'{"a":1, "b":0.8}'
+,
+'a INT, b DOUBLE'
+)
+;
+{
+"a"
+:
+1
+,
+"b"
+:
+0.8
+}
+-- The column name must to match the case of the JSON field
+>
+SELECT
+from_json
+(
+'{"a":1}'
+,
+'A INT'
+)
+;
+{
+"A"
+:
+null
+}
+>
+SELECT
+from_json
+(
+'{"datetime":"26/08/2015"}'
+,
+'datetime Timestamp'
+,
+map
+(
+'timestampFormat'
+,
+'dd/MM/yyyy'
+)
+)
+;
+{
+"datetime"
+:
+2015
+-
+08
+-
+26
+00
+:
+00
+:
+00
+}
+-- Disambiguate field names with different cases
+>
+SELECT
+cast
+(
+from_json
+(
+'{"a":1, "A":0.8}'
+,
+'a INT, A DOUBLE'
+)
+AS
+STRUCT
+<
+a:
+INT
+,
+b:
+DOUBLE
+>
+)
+;
+{
+"a"
+:
+1
+,
+"b"
+:
+0.8
+}
+>
+SELECT
+from_json
+(
+'invalid'
+,
+'a INT'
+,
+map
+(
+'mode'
+,
+'FAILFAST'
+)
+)
+;
+Error: MALFORMED_RECORD_IN_PARSING
+Related
+​
+: operator
+from_csv
+function
+schema_of_json
+function
+schema_of_csv
+function
+to_csv
+function
+to_json
+function
+json_object_keys
+function
+json_array_length
+function
+JSON path expression
+json_tuple
+table-valued generator function
+from_json
+function
+get_json_object
+function
+On this page
+Syntax
+Arguments
+Returns
+Common error conditions
+Examples
+Related

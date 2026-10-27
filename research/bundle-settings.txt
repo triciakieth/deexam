@@ -1,0 +1,751 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Declarative Automation Bundles
+configuration
+This article describes the syntax for bundle configuration files, which define
+Declarative Automation Bundles
+(formerly known as Databricks Asset Bundles). See
+What are
+Declarative Automation Bundles
+?
+.
+To create and work with bundles, see
+Develop
+Declarative Automation Bundles
+.
+For bundle configuration reference, see
+Configuration reference
+.
+databricks.yml
+​
+A bundle must contain one (and only one) configuration file named
+databricks.yml
+at the root of the bundle project folder.
+databricks.yml
+is the main configuration file that defines a bundle, but it can reference other configuration files, such as resource configuration files, in the
+include
+mapping. Bundle configuration is expressed in YAML. For more information about YAML, see the official YAML
+specification
+.
+The simplest
+databricks.yml
+defines the bundle name, which is a required top-level mapping, and a target deployment.
+YAML
+bundle
+:
+name
+:
+my_bundle
+targets
+:
+dev
+:
+default
+:
+true
+For details on all top-level mappings, see
+Configuration reference
+.
+tip
+Python support for Declarative Automation Bundles
+enables you to define resources in Python. See
+Bundle configuration in Python
+.
+Specification
+​
+The following YAML specification provides top-level configuration keys for
+Declarative Automation Bundles
+. For complete configuration reference, see
+Configuration reference
+and
+Declarative Automation Bundles
+resources
+.
+YAML
+# This is the default bundle configuration if not otherwise overridden in
+# the "targets" top-level mapping.
+bundle
+:
+# Required.
+name
+:
+string
+# Required.
+databricks_cli_version
+:
+string
+cluster_id
+:
+string
+deployment
+:
+Map
+git
+:
+origin_url
+:
+string
+branch
+:
+string
+# This is the identity to use to run the bundle
+run_as
+:
+-
+user_name
+:
+<user
+-
+name
+>
+-
+service_principal_name
+:
+<service
+-
+principal
+-
+name
+>
+# These are any additional configuration files to include.
+include
+:
+-
+'<some-file-or-path-glob-to-include>'
+-
+'<another-file-or-path-glob-to-include>'
+# These are any scripts that can be run.
+scripts
+:
+<some-unique-script-name>
+:
+content
+:
+string
+# These are any additional files or paths to include or exclude.
+sync
+:
+include
+:
+-
+'<some-file-or-path-glob-to-include>'
+-
+'<another-file-or-path-glob-to-include>'
+exclude
+:
+-
+'<some-file-or-path-glob-to-exclude>'
+-
+'<another-file-or-path-glob-to-exclude>'
+paths
+:
+-
+'<some-file-or-path-to-synchronize>'
+# These are the default artifact settings if not otherwise overridden in
+# the targets top-level mapping.
+artifacts
+:
+<some-unique-artifact-identifier>
+:
+build
+:
+string
+dynamic_version
+:
+boolean
+executable
+:
+string
+files
+:
+-
+source
+:
+string
+path
+:
+string
+type
+:
+string
+# These are for any custom variables for use throughout the bundle.
+variables
+:
+<some-unique-variable-name>
+:
+description
+:
+string
+default
+:
+string or complex
+lookup
+:
+Map
+type
+:
+string
+# The only valid value is "complex" if the variable is a complex variable, otherwise do not define this key.
+# These are the workspace settings if not otherwise overridden in
+# the targets top-level mapping.
+workspace
+:
+artifact_path
+:
+string
+host
+:
+string
+profile
+:
+string
+resource_path
+:
+string
+root_path
+:
+string
+state_path
+:
+string
+# These are the permissions to apply to resources defined
+# in the resources mapping.
+permissions
+:
+-
+level
+:
+<permission
+-
+level
+>
+group_name
+:
+<unique
+-
+group
+-
+name
+>
+-
+level
+:
+<permission
+-
+level
+>
+user_name
+:
+<unique
+-
+user
+-
+name
+>
+-
+level
+:
+<permission
+-
+level
+>
+service_principal_name
+:
+<unique
+-
+principal
+-
+name
+>
+# These are the resource settings if not otherwise overridden in
+# the targets top-level mapping.
+resources
+:
+alerts
+:
+<unique-alert-name>
+:
+# alert settings
+apps
+:
+<unique-app-name>
+:
+# app settings
+catalogs
+:
+<unique-catalog-name>
+:
+# catalog settings
+clusters
+:
+<unique-cluster-name>
+:
+# cluster settings
+dashboards
+:
+<unique-dashboard-name>
+:
+# dashboard settings
+database_catalogs
+:
+<unique-database-catalog-name>
+:
+# database catalog settings
+database_instances
+:
+<unique-database-instance-name>
+:
+# database instance settings
+experiments
+:
+<unique-experiment-name>
+:
+# experiment settings
+jobs
+:
+<unique-job-name>
+:
+# job settings
+model_serving_endpoints
+:
+<unique-model-serving-endpoint-name>
+:
+# model_serving_endpoint settings
+pipelines
+:
+<unique-pipeline-name>
+:
+# pipeline settings
+postgres_branches
+:
+<unique-postgres-branch-name>
+:
+# postgres branch settings
+postgres_endpoints
+:
+<unique-postgres-endpoint-name>
+:
+# postgres endpoint settings
+postgres_projects
+:
+<unique-postgres-project-name>
+:
+# postgres project settings
+quality_monitors
+:
+<unique-quality-monitor-name>
+:
+# quality monitor settings
+registered_models
+:
+<unique-registered-model-name>
+:
+# registered model settings
+schemas
+:
+<unique-schema-name>
+:
+# schema settings
+secret_scopes
+:
+<unique-secret-scope-name>
+:
+# secret scopes settings
+sql_warehouses
+:
+<unique-sql-warehouse-name>
+:
+# sql warehouse settings
+synced_database_tables
+:
+<unique-synced-database-table-name>
+:
+# synced database table settings
+volumes
+:
+<unique-volume-name>
+:
+# volumes settings
+# These are the targets to use for deployments and workflow runs. One and only one of these
+# targets can be set to "default: true".
+targets
+:
+<some-unique-programmatic-identifier-for-this-target>
+:
+artifacts
+:
+# artifact build settings for this target
+bundle
+:
+# bundle settings for this target
+default
+:
+boolean
+git
+:
+Map
+mode
+:
+string
+permissions
+:
+# permissions for this target
+presets
+:
+<preset>
+:
+<value
+>
+resources
+:
+# resource settings for this target
+sync
+:
+# sync settings for this target
+variables
+:
+<defined-variable-name>
+:
+<non
+-
+default
+-
+value
+>
+# value for this target
+workspace
+:
+# workspace settings for this target
+run_as
+:
+# run_as settings for this target
+Examples
+​
+This section contains some basic examples to help you understand how bundles work and how to structure the configuration.
+note
+For configuration examples that demonstrate bundle features and common bundle use cases, see
+Bundle configuration examples
+and the
+bundle examples repository in GitHub
+.
+The following example bundle configuration specifies a local file named
+hello.py
+that is in the same directory as bundle configuration file
+databricks.yml
+. It runs this notebook as a job using the remote cluster with the specified cluster ID. The remote workspace URL and workspace authentication credentials are read from the caller's local
+configuration profile
+named
+DEFAULT
+.
+YAML
+bundle
+:
+name
+:
+hello
+-
+bundle
+resources
+:
+jobs
+:
+hello-job
+:
+name
+:
+hello
+-
+job
+tasks
+:
+-
+task_key
+:
+hello
+-
+task
+existing_cluster_id
+:
+1234
+-
+567890
+-
+abcde123
+notebook_task
+:
+notebook_path
+:
+./hello.py
+targets
+:
+dev
+:
+default
+:
+true
+The following example adds a target with the name
+prod
+that uses a different remote workspace URL and workspace authentication credentials, which are read from the caller's
+.databrickscfg
+file's matching
+host
+entry with the specified workspace URL. This job runs the same notebook but uses a different remote cluster with the specified cluster ID.
+note
+Databricks recommends that you use the
+host
+mapping instead of the
+default
+mapping wherever possible, as this makes your bundle configuration files more portable. Setting the
+host
+mapping instructs the Databricks CLI to find a matching profile in your
+.databrickscfg
+file and then use that profile's fields to determine which Databricks authentication type to use. If multiple profiles with a matching
+host
+field exist, then you must use the
+--profile
+option on bundle commands to specify a profile to use.
+Notice that you do not need to declare the
+notebook_task
+mapping within the
+prod
+mapping, as it falls back to use the
+notebook_task
+mapping within the top-level
+resources
+mapping, if the
+notebook_task
+mapping is not explicitly overridden within the
+prod
+mapping.
+YAML
+bundle
+:
+name
+:
+hello
+-
+bundle
+resources
+:
+jobs
+:
+hello-job
+:
+name
+:
+hello
+-
+job
+tasks
+:
+-
+task_key
+:
+hello
+-
+task
+existing_cluster_id
+:
+1234
+-
+567890
+-
+abcde123
+notebook_task
+:
+notebook_path
+:
+./hello.py
+targets
+:
+dev
+:
+default
+:
+true
+prod
+:
+workspace
+:
+host
+:
+https
+:
+//<production
+-
+workspace
+-
+url
+>
+resources
+:
+jobs
+:
+hello-job
+:
+name
+:
+hello
+-
+job
+tasks
+:
+-
+task_key
+:
+hello
+-
+task
+existing_cluster_id
+:
+2345
+-
+678901
+-
+fabcd456
+Use the following
+bundle commands
+to validate, deploy, and run this job within the
+dev
+target. For details about the lifecycle of a bundle, see
+Develop
+Declarative Automation Bundles
+.
+Bash
+# Because the "dev" target is set to "default: true",
+# you do not need to specify "-t dev":
+databricks bundle validate
+databricks bundle deploy
+databricks bundle run hello_job
+# But you can still explicitly specify it, if you want or need to:
+databricks bundle validate
+databricks bundle deploy
+-t
+dev
+databricks bundle run
+-t
+dev hello_job
+To validate, deploy, and run this job within the
+prod
+target instead:
+Bash
+# You must specify "-t prod", because the "dev" target
+# is already set to "default: true":
+databricks bundle validate
+databricks bundle deploy
+-t
+prod
+databricks bundle run
+-t
+prod hello_job
+For more modularization and better reuse of definitions and settings across bundles, split your bundle configuration into separate files:
+YAML
+# databricks.yml
+bundle
+:
+name
+:
+hello
+-
+bundle
+include
+:
+-
+'*.yml'
+YAML
+# hello-job.yml
+resources
+:
+jobs
+:
+hello-job
+:
+name
+:
+hello
+-
+job
+tasks
+:
+-
+task_key
+:
+hello
+-
+task
+existing_cluster_id
+:
+1234
+-
+567890
+-
+abcde123
+notebook_task
+:
+notebook_path
+:
+./hello.py
+YAML
+# targets.yml
+targets
+:
+dev
+:
+default
+:
+true
+prod
+:
+workspace
+:
+host
+:
+https
+:
+//<production
+-
+workspace
+-
+url
+>
+resources
+:
+jobs
+:
+hello-job
+:
+name
+:
+hello
+-
+job
+tasks
+:
+-
+task_key
+:
+hello
+-
+task
+existing_cluster_id
+:
+2345
+-
+678901
+-
+fabcd456
+Additional resources
+​
+Configuration reference
+Declarative Automation Bundles
+resources
+Bundle configuration examples
+Develop
+Declarative Automation Bundles
+On this page
+databricks.yml
+Specification
+Examples
+Additional resources

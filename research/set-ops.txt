@@ -1,0 +1,372 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Set operators
+Applies to:
+Databricks SQL
+Databricks Runtime
+Combines the preceding
+subquery1
+and
+subquery2
+into a single one.
+Databricks
+supports three types of set operators:
+EXCEPT
+INTERSECT
+UNION
+Syntax
+​
+{ UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] subquery2 } [...]
+subquery2
+Any two
+subquery
+clauses as specified in
+SELECT
+(subselect)
+.
+Both subqueries must have the same number of columns and share a least common type for each respective column.
+If the number of columns differs,
+Databricks
+raises
+NUM_COLUMNS_MISMATCH
+. If corresponding columns have incompatible types,
+Databricks
+raises
+INCOMPATIBLE_COLUMN_TYPE
+.
+UNION [ALL | DISTINCT]
+Returns the result of
+subquery1
+plus the rows of
+subquery2
+.
+If
+ALL
+is specified duplicate rows are preserved.
+If
+DISTINCT
+is specified the result does not contain any duplicate rows. This is the default.
+INTERSECT [ALL | DISTINCT]
+Returns the set of rows which are in both subqueries.
+If
+ALL
+is specified a row that appears multiple times in the
+subquery1
+as well as in
+subquery
+will be returned multiple times.
+If
+DISTINCT
+is specified the result does not contain duplicate rows. This is the default.
+EXCEPT [ALL | DISTINCT ]
+Returns the rows in
+subquery1
+which are not in
+subquery2
+.
+If
+ALL
+is specified, each row in
+subquery2
+will remove exactly one of possibly multiple matches from
+subquery1
+.
+If
+DISTINCT
+is specified, duplicate rows are removed from
+subquery1
+before applying the operation,
+so all matches are removed and the result will have no duplicate rows (matched or unmatched). This is the default.
+You can specify
+MINUS
+as a syntax alternative for
+EXCEPT
+.
+When chaining set operations
+INTERSECT
+has a higher precedence than
+UNION
+and
+EXCEPT
+.
+The type of each result column is the least common type of the respective columns in
+subquery1
+and
+subquery2
+.
+If the result column is a
+STRING
+its collation is derived by applying the
+collation precedence rules
+to the columns in the subqueries.
+Common error conditions
+​
+INCOMPATIBLE_COLUMN_TYPE
+NUM_COLUMNS_MISMATCH
+UNSUPPORTED_FEATURE.SET_OPERATION_ON_MAP_TYPE
+Examples
+​
+SQL
+-- Use number1 and number2 tables to demonstrate set operators in this page.
+>
+CREATE
+TEMPORARY
+VIEW
+number1
+(
+c
+)
+AS
+VALUES
+(
+3
+)
+,
+(
+1
+)
+,
+(
+2
+)
+,
+(
+2
+)
+,
+(
+3
+)
+,
+(
+4
+)
+;
+>
+CREATE
+TEMPORARY
+VIEW
+number2
+(
+c
+)
+AS
+VALUES
+(
+5
+)
+,
+(
+1
+)
+,
+(
+1
+)
+,
+(
+2
+)
+;
+>
+SELECT
+c
+FROM
+number1
+EXCEPT
+SELECT
+c
+FROM
+number2
+;
+3
+4
+>
+SELECT
+c
+FROM
+number1 MINUS
+SELECT
+c
+FROM
+number2
+;
+3
+4
+>
+SELECT
+c
+FROM
+number1
+EXCEPT
+ALL
+(
+SELECT
+c
+FROM
+number2
+)
+;
+3
+3
+4
+>
+SELECT
+c
+FROM
+number1 MINUS
+ALL
+(
+SELECT
+c
+FROM
+number2
+)
+;
+3
+3
+4
+>
+(
+SELECT
+c
+FROM
+number1
+)
+INTERSECT
+(
+SELECT
+c
+FROM
+number2
+)
+;
+1
+2
+>
+(
+SELECT
+c
+FROM
+number1
+)
+INTERSECT
+DISTINCT
+(
+SELECT
+c
+FROM
+number2
+)
+;
+1
+2
+>
+(
+SELECT
+c
+FROM
+number1
+)
+INTERSECT
+ALL
+(
+SELECT
+c
+FROM
+number2
+)
+;
+1
+2
+2
+>
+(
+SELECT
+c
+FROM
+number1
+)
+UNION
+(
+SELECT
+c
+FROM
+number2
+)
+;
+1
+3
+5
+4
+2
+>
+(
+SELECT
+c
+FROM
+number1
+)
+UNION
+DISTINCT
+(
+SELECT
+c
+FROM
+number2
+)
+;
+1
+3
+5
+4
+2
+>
+SELECT
+c
+FROM
+number1
+UNION
+ALL
+(
+SELECT
+c
+FROM
+number2
+)
+;
+3
+1
+2
+2
+3
+4
+5
+1
+1
+2
+-- Different number of columns.
+>
+SELECT
+c
+FROM
+number1
+UNION
+SELECT
+c
+,
+c
+FROM
+number2
+;
+Error: NUM_COLUMNS_MISMATCH
+Related articles
+​
+SELECT
+On this page
+Syntax
+Common error conditions
+Examples
+Related articles

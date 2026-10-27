@@ -1,10 +1,18 @@
 import raw from "./data/questions.json";
-export type Choice = { id: string; text: string; image: string };
+export type Choice = {
+  id: string;
+  text: string;
+  image: string;
+  sourceCrop?: string;
+};
 export type Reference = {
   title: string;
   url: string;
   section: string;
   support: string;
+  evidenceFile?: string;
+  evidenceSha256?: string;
+  retrieved?: string;
 };
 export type Question = {
   id: string;
@@ -14,6 +22,7 @@ export type Question = {
   pages: number[];
   text: string;
   promptImages: string[];
+  promptFigures?: string[];
   sourceImages: string[];
   choices: Choice[];
   type: string;
@@ -28,13 +37,16 @@ export type Question = {
   duplicateOf: string | null;
   keyConcept?: string;
   examTip?: string;
+  analysis?: string;
+  reviewStatus?: string;
+  reviewedAt?: string;
 };
 export const questions = raw as Question[];
 export const byId = Object.fromEntries(questions.map((q) => [q.id, q]));
 export type Attempt = {
   questionId: string;
   selected: string[];
-  correct: boolean;
+  correct: boolean | null;
   at: string;
   mode: "practice" | "exam";
 };
@@ -47,9 +59,17 @@ export type Session = {
   finished: boolean;
   expiresAt: number | null;
 };
+export type SessionSummary = {
+  ids: string[];
+  mode: "practice" | "exam";
+  selections: Record<string, string[]>;
+  submitted: string[];
+  finishedAt: string;
+};
 export type Progress = {
   version: 1;
   history: Attempt[];
+  completedSessions: SessionSummary[];
   bookmarks: string[];
   session: Session | null;
   dark: boolean;
@@ -58,6 +78,7 @@ export const STORAGE_KEY = "lakehouse-study-v1";
 export const emptyProgress = (): Progress => ({
   version: 1,
   history: [],
+  completedSessions: [],
   bookmarks: [],
   session: null,
   dark: false,
@@ -65,25 +86,35 @@ export const emptyProgress = (): Progress => ({
 export function answer(q: Question) {
   return q.verifiedAnswer ?? q.originalAnswer;
 }
-export function grade(q: Question, selected: string[]) {
-  const expected = answer(q);
+export function grade(q: Question, selected: string[]): boolean | null {
+  if (q.verification !== "verified" || !q.verifiedAnswer) return null;
+  const expected = q.verifiedAnswer;
   return (
     expected.length === selected.length &&
     new Set(selected).size === selected.length &&
     expected.every((x) => selected.includes(x))
   );
 }
+export function evaluate(q: Question, selected: string[]): boolean | null {
+  return grade(q, selected);
+}
 export function latest(history: Attempt[]) {
   return Object.fromEntries(history.map((a) => [a.questionId, a]));
 }
 export function stats(history: Attempt[]) {
   const values = Object.values(latest(history));
-  const correct = values.filter((a) => a.correct).length;
+  const correct = values.filter((a) => a.correct === true).length;
+  const incorrect = values.filter((a) => a.correct === false).length;
+  const ungraded = values.length - correct - incorrect;
   return {
     answered: values.length,
     correct,
-    incorrect: values.length - correct,
-    accuracy: values.length ? Math.round((correct / values.length) * 100) : 0,
+    incorrect,
+    ungraded,
+    accuracy:
+      correct + incorrect
+        ? Math.round((correct / (correct + incorrect)) * 100)
+        : 0,
   };
 }
 export type Filters = {
@@ -102,6 +133,7 @@ export function filterQuestions(filters: Filters, progress: Progress) {
         q.verification === filters.verification) &&
       (filters.status === "all" ||
         (filters.status === "unanswered" && !last[q.id]) ||
+        (filters.status === "correct" && last[q.id]?.correct === true) ||
         (filters.status === "incorrect" && last[q.id]?.correct === false) ||
         (filters.status === "bookmarked" && progress.bookmarks.includes(q.id))),
   );
@@ -146,7 +178,7 @@ export function recordAttempt(
       {
         questionId: q.id,
         selected: [...selected],
-        correct: grade(q, selected),
+        correct: evaluate(q, selected),
         mode,
         at,
       },
@@ -167,6 +199,56 @@ export function completeExam(progress: Progress): Progress {
   return {
     ...result,
     session: { ...session, finished: true, submitted: [...session.ids] },
+    completedSessions: [
+      ...result.completedSessions,
+      {
+        ids: [...session.ids],
+        mode: "exam",
+        selections: structuredClone(session.selections),
+        submitted: [...session.ids],
+        finishedAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+export function finishPractice(progress: Progress): Progress {
+  const s = progress.session;
+  if (!s || s.mode !== "practice" || s.finished) return progress;
+  return {
+    ...progress,
+    session: { ...s, finished: true },
+    completedSessions: [
+      ...progress.completedSessions,
+      {
+        ids: [...s.ids],
+        mode: "practice",
+        selections: structuredClone(s.selections),
+        submitted: [...s.submitted],
+        finishedAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+export function summarizeSession(s: SessionSummary) {
+  const attempted = s.mode === "exam" ? s.ids : s.submitted;
+  const evaluated = attempted.map((id) =>
+    evaluate(byId[id], s.selections[id] ?? []),
+  );
+  const correct = evaluated.filter((v) => v === true).length,
+    incorrect = evaluated.filter((v) => v === false).length;
+  return {
+    total: s.ids.length,
+    answered: s.ids.filter(
+      (id) => s.submitted.includes(id) && (s.selections[id]?.length ?? 0) > 0,
+    ).length,
+    correct,
+    incorrect,
+    graded: correct + incorrect,
+    ungraded: evaluated.filter((v) => v === null).length,
+    accuracy:
+      correct + incorrect
+        ? Math.round((correct / (correct + incorrect)) * 100)
+        : null,
   };
 }
 function hasQuestion(id: unknown): id is string {
@@ -211,6 +293,31 @@ export function parseBackup(text: string): Progress {
     new Set(x.bookmarks).size !== x.bookmarks.length
   )
     throw new Error("Backup contains invalid bookmarks.");
+  const completed = x.completedSessions ?? [];
+  if (
+    !Array.isArray(completed) ||
+    completed.length > 10000 ||
+    completed.some(
+      (s) =>
+        !s ||
+        !Array.isArray(s.ids) ||
+        s.ids.length === 0 ||
+        s.ids.some((id) => !hasQuestion(id)) ||
+        new Set(s.ids).size !== s.ids.length ||
+        !["practice", "exam"].includes(s.mode) ||
+        !Number.isFinite(Date.parse(s.finishedAt)) ||
+        !Array.isArray(s.submitted) ||
+        new Set(s.submitted).size !== s.submitted.length ||
+        s.submitted.some((id) => !s.ids.includes(id)) ||
+        !s.selections ||
+        typeof s.selections !== "object" ||
+        Array.isArray(s.selections) ||
+        Object.entries(s.selections).some(
+          ([id, values]) => !s.ids.includes(id) || !validSelection(id, values),
+        ),
+    )
+  )
+    throw new Error("Backup contains invalid completed sessions.");
   const s = x.session;
   if (s !== null) {
     if (
@@ -250,10 +357,17 @@ export function parseBackup(text: string): Progress {
   return {
     version: 1,
     dark: x.dark,
+    completedSessions: completed.map((s) => ({
+      ids: [...s.ids],
+      mode: s.mode,
+      selections: structuredClone(s.selections),
+      submitted: [...s.submitted],
+      finishedAt: s.finishedAt,
+    })),
     bookmarks: [...x.bookmarks],
     history: x.history.map((a) => ({
       ...a,
-      correct: grade(byId[a.questionId], a.selected),
+      correct: evaluate(byId[a.questionId], a.selected),
     })),
     session: s,
   };

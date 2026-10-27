@@ -1,0 +1,753 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+JOIN
+Applies to:
+Databricks SQL
+Databricks Runtime
+Combines the rows from the preceding
+left_table reference
+with the
+right_table reference
+based on join criteria.
+Syntax
+​
+{ [ join_type ] JOIN right_table_reference [ join_criteria ] |
+NATURAL join_type JOIN right_table_reference |
+CROSS JOIN right_table_reference }
+join_type
+{ [ INNER ] |
+LEFT [ OUTER ] |
+[ LEFT ] SEMI |
+RIGHT [ OUTER ] |
+FULL [ OUTER ] |
+[ LEFT ] ANTI |
+CROSS }
+join_criteria
+{ ON boolean_expression |
+USING ( column_name [, ...] ) }
+Parameters
+​
+right_table_reference
+The table reference on the right side of the join.
+join_type
+The join-type.
+[ INNER ]
+Returns the rows that have matching values in both table references. The default join-type.
+LEFT [ OUTER ]
+Returns all values from the left table reference and the matched values from the right table reference, or appends
+NULL
+if there is no match.
+It is also referred to as a
+left outer join
+.
+RIGHT [ OUTER ]
+Returns all values from the right table reference and the matched values from the left table reference, or appends
+NULL
+if there is no match.
+It is also referred to as a
+right outer join
+.
+FULL [OUTER]
+Returns all values from both relations, appending
+NULL
+values on the side that does not have a match.
+It is also referred to as a
+full outer join
+.
+[ LEFT ] SEMI
+Returns values from the left side of the table reference that has a match with the right.
+It is also referred to as a
+left semi join
+.
+[ LEFT ] ANTI
+Returns the values from the left table reference that have no match with the right table reference.
+It is also referred to as a
+left anti join
+.
+CROSS JOIN
+Returns the Cartesian product of two relations.
+NATURAL
+Specifies that the rows from the two relations will implicitly be matched on equality for all columns with matching names.
+Combining
+NATURAL
+with
+CROSS
+or
+LATERAL
+is not supported.
+Databricks
+raises
+INCOMPATIBLE_JOIN_TYPES
+.
+join_criteria
+Optionally specifies how the rows from one table reference is combined with the rows of another table reference.
+warning
+If you omit the
+join_criteria
+the semantic of any
+join_type
+becomes that of a
+CROSS JOIN
+.
+ON boolean_expression
+An expression with a return type of BOOLEAN which specifies how rows from the two relations are matched. If the result is true the rows are considered a match.
+If the expression does not evaluate to a
+BOOLEAN
+,
+Databricks
+raises
+JOIN_CONDITION_IS_NOT_BOOLEAN_TYPE
+.
+USING (
+column_name
+[, …] )
+Matches the rows by comparing equality for list of columns
+column_name
+which must exist in both relations.
+If a column is not found in one of the relations,
+Databricks
+raises
+UNRESOLVED_USING_COLUMN_FOR_JOIN
+.
+table_alias
+A temporary name with an optional column identifier list.
+Common error conditions
+​
+AMBIGUOUS_COLUMN_REFERENCE
+AMBIGUOUS_REFERENCE
+INCOMPATIBLE_JOIN_TYPES
+JOIN_CONDITION_IS_NOT_BOOLEAN_TYPE
+UNRESOLVED_USING_COLUMN_FOR_JOIN
+Notes
+​
+When you specify
+USING
+or
+NATURAL
+,
+SELECT *
+will only show one occurrence for each of the columns used to match first, followed by the columns of the left, then right join tables excluding the columns joined upon.
+SQL
+SELECT
+*
+FROM
+first
+JOIN
+second
+USING
+(
+a
+,
+b
+)
+is equivalent to
+SQL
+SELECT
+first
+.
+a
+,
+first
+.
+b
+,
+first
+.
+*
+EXCEPT
+(
+a
+,
+b
+)
+,
+second
+.
+*
+EXCEPT
+(
+a
+,
+b
+)
+FROM
+first
+JOIN
+second
+ON
+first
+.
+a
+=
+second
+.
+a
+AND
+first
+.
+b
+=
+second
+.
+b
+Examples
+​
+SQL
+-- Use employee and department tables to demonstrate different type of joins.
+>
+CREATE
+TEMP
+VIEW
+employee
+(
+id
+,
+name
+,
+deptno
+)
+AS
+VALUES
+(
+105
+,
+'Chloe'
+,
+5
+)
+,
+(
+103
+,
+'Paul'
+,
+3
+)
+,
+(
+101
+,
+'John'
+,
+1
+)
+,
+(
+102
+,
+'Lisa'
+,
+2
+)
+,
+(
+104
+,
+'Evan'
+,
+4
+)
+,
+(
+106
+,
+'Amy'
+,
+6
+)
+;
+>
+CREATE
+TEMP
+VIEW
+department
+(
+deptno
+,
+deptname
+)
+AS
+VALUES
+(
+3
+,
+'Engineering'
+)
+,
+(
+2
+,
+'Sales'
+)
+,
+(
+1
+,
+'Marketing'
+)
+;
+-- Use employee and department tables to demonstrate inner join.
+>
+SELECT
+id
+,
+name
+,
+employee
+.
+deptno
+,
+deptname
+FROM
+employee
+INNER
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+103
+Paul
+3
+Engineering
+101
+John
+1
+Marketing
+102
+Lisa
+2
+Sales
+-- Use employee and department tables to demonstrate left join.
+>
+SELECT
+id
+,
+name
+,
+employee
+.
+deptno
+,
+deptname
+FROM
+employee
+LEFT
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+105
+Chloe
+5
+NULL
+103
+Paul
+3
+Engineering
+101
+John
+1
+Marketing
+102
+Lisa
+2
+Sales
+104
+Evan
+4
+NULL
+106
+Amy
+6
+NULL
+-- Use employee and department tables to demonstrate right join.
+>
+SELECT
+id
+,
+name
+,
+employee
+.
+deptno
+,
+deptname
+FROM
+employee
+RIGHT
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+103
+Paul
+3
+Engineering
+101
+John
+1
+Marketing
+102
+Lisa
+2
+Sales
+-- Use employee and department tables to demonstrate full join.
+>
+SELECT
+id
+,
+name
+,
+employee
+.
+deptno
+,
+deptname
+FROM
+employee
+FULL
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+101
+John
+1
+Marketing
+106
+Amy
+6
+NULL
+103
+Paul
+3
+Engineering
+105
+Chloe
+5
+NULL
+104
+Evan
+4
+NULL
+102
+Lisa
+2
+Sales
+-- Use employee and department tables to demonstrate cross join.
+>
+SELECT
+id
+,
+name
+,
+employee
+.
+deptno
+,
+deptname
+FROM
+employee
+CROSS
+JOIN
+department
+;
+105
+Chloe
+5
+Engineering
+105
+Chloe
+5
+Marketing
+105
+Chloe
+5
+Sales
+103
+Paul
+3
+Engineering
+103
+Paul
+3
+Marketing
+103
+Paul
+3
+Sales
+101
+John
+1
+Engineering
+101
+John
+1
+Marketing
+101
+John
+1
+Sales
+102
+Lisa
+2
+Engineering
+102
+Lisa
+2
+Marketing
+102
+Lisa
+2
+Sales
+104
+Evan
+4
+Engineering
+104
+Evan
+4
+Marketing
+104
+Evan
+4
+Sales
+106
+Amy
+4
+Engineering
+106
+Amy
+4
+Marketing
+106
+Amy
+4
+Sales
+-- Use employee and department tables to demonstrate semi join.
+>
+SELECT
+*
+FROM
+employee
+SEMI
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+103
+Paul
+3
+101
+John
+1
+102
+Lisa
+2
+-- Use employee and department tables to demonstrate anti join.
+>
+SELECT
+*
+FROM
+employee
+ANTI
+JOIN
+department
+ON
+employee
+.
+deptno
+=
+department
+.
+deptno
+;
+105
+Chloe
+5
+104
+Evan
+4
+106
+Amy
+6
+-- Use employee and department tables to demonstrate lateral inner join.
+>
+SELECT
+id
+,
+name
+,
+deptno
+,
+deptname
+FROM
+employee
+JOIN
+LATERAL
+(
+SELECT
+deptname
+FROM
+department
+WHERE
+employee
+.
+deptno
+=
+department
+.
+deptno
+)
+;
+103
+Paul
+3
+Engineering
+101
+John
+1
+Marketing
+102
+Lisa
+2
+Sales
+-- Use employee and department tables to demonstrate lateral left join.
+>
+SELECT
+id
+,
+name
+,
+deptno
+,
+deptname
+FROM
+employee
+LEFT
+JOIN
+LATERAL
+(
+SELECT
+deptname
+FROM
+department
+WHERE
+employee
+.
+deptno
+=
+department
+.
+deptno
+)
+;
+105
+Chloe
+5
+NULL
+103
+Paul
+3
+Engineering
+101
+John
+1
+Marketing
+102
+Lisa
+2
+Sales
+104
+Evan
+4
+NULL
+106
+Amy
+6
+NULL
+-- `USING` column not found.
+>
+SELECT
+*
+FROM
+employee
+JOIN
+department
+USING
+(
+name
+)
+;
+Error: UNRESOLVED_USING_COLUMN_FOR_JOIN
+-- Join condition is not a `BOOLEAN`.
+>
+SELECT
+*
+FROM
+employee
+JOIN
+department
+ON
+1
+;
+Error: JOIN_CONDITION_IS_NOT_BOOLEAN_TYPE
+-- `NATURAL CROSS JOIN` is not supported.
+>
+SELECT
+*
+FROM
+employee
+NATURAL
+CROSS
+JOIN
+department
+;
+Error: INCOMPATIBLE_JOIN_TYPES
+Related articles
+​
+SELECT
+On this page
+Syntax
+Parameters
+Common error conditions
+Notes
+Examples
+Related articles

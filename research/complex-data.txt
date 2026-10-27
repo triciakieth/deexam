@@ -1,0 +1,554 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Transform complex data types
+While working with nested data types,
+Databricks
+optimizes certain transformations out-of-the-box. The following code examples demonstrate patterns for working with complex and nested data types in
+Databricks
+.
+Dot notation for accessing nested data
+​
+You can use dot notation (
+.
+) to access a nested field.
+Python
+SQL
+Python
+df
+.
+select
+(
+"column_name.nested_field"
+)
+SQL
+SELECT
+column_name
+.
+nested_field
+FROM
+table_name
+Select all nested fields
+​
+Use the star operator (
+*
+) to select all fields within a given field.
+note
+This only unpacks nested fields at the specified depth.
+Python
+SQL
+Python
+df
+.
+select
+(
+"column_name.*"
+)
+SQL
+SELECT
+column_name
+.
+*
+FROM
+table_name
+Create a new nested field
+​
+Use the
+struct()
+function to create a new nested field.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+struct
+,
+col
+df
+.
+select
+(
+struct
+(
+col
+(
+"field_to_nest"
+)
+.
+alias
+(
+"nested_field"
+)
+)
+.
+alias
+(
+"column_name"
+)
+)
+SQL
+SELECT
+struct
+(
+field_to_nest
+AS
+nested_field
+)
+AS
+column_name
+FROM
+table_name
+Nest all fields into a column
+​
+Use the star operator (
+*
+) to nest all fields from a data source as a single column.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+struct
+df
+.
+select
+(
+struct
+(
+"*"
+)
+.
+alias
+(
+"column_name"
+)
+)
+SQL
+SELECT
+struct
+(
+*
+)
+AS
+column_name
+FROM
+table_name
+Select a named field from a nested column
+​
+Use square brackets
+[]
+to select nested fields from a column.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+df
+.
+select
+(
+col
+(
+"column_name"
+)
+[
+"field_name"
+]
+)
+SQL
+SELECT
+column_name
+[
+"field_name"
+]
+FROM
+table_name
+Explode nested elements from a map or array
+​
+Use the
+explode()
+function to unpack values from
+ARRAY
+and
+MAP
+type columns.
+ARRAY
+columns store values as a list. When unpacked with
+explode()
+, each value becomes a row in the output.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+explode
+df
+.
+select
+(
+explode
+(
+"array_name"
+)
+.
+alias
+(
+"column_name"
+)
+)
+SQL
+SELECT
+explode
+(
+array_name
+)
+AS
+column_name
+FROM
+table_name
+MAP
+columns store values as ordered key-value pairs. When unpacked with
+explode()
+, each key becomes a column and values become rows.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+explode
+df
+.
+select
+(
+explode
+(
+"map_name"
+)
+.
+alias
+(
+"column1_name"
+,
+"column2_name"
+)
+)
+SQL
+SELECT
+explode
+(
+map_name
+)
+AS
+(
+column1_name
+,
+column2_name
+)
+FROM
+table_name
+Create an array from a list or set
+​
+Use the functions
+collect_list()
+or
+collect_set()
+to transform the values of a column into an array.
+collect_list()
+collects all values in the column, while
+collect_set()
+collects only unique values.
+note
+Spark does not guarantee the order of items in the array resulting from either operation.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+collect_list
+,
+collect_set
+df
+.
+select
+(
+collect_list
+(
+"column_name"
+)
+.
+alias
+(
+"array_name"
+)
+)
+df
+.
+select
+(
+collect_set
+(
+"column_name"
+)
+.
+alias
+(
+"set_name"
+)
+)
+SQL
+SELECT
+collect_list
+(
+column_name
+)
+AS
+array_name
+FROM
+table_name
+;
+SELECT
+collect_set
+(
+column_name
+)
+AS
+set_name
+FROM
+table_name
+;
+Select a column from a map in an array
+​
+You can also use dot notation (
+.
+) to access fields in maps that are contained within an array. This returns an array of all values for the specified field.
+Consider the following data structure:
+JSON
+{
+"column_name"
+:
+[
+{
+"field1"
+:
+1
+,
+"field2"
+:
+"a"
+}
+,
+{
+"field1"
+:
+2
+,
+"field2"
+:
+"b"
+}
+]
+}
+You can return the values from
+field1
+as an array with the following query:
+Python
+SQL
+Python
+df
+.
+select
+(
+"column_name.field1"
+)
+SQL
+SELECT
+column_name
+.
+field1
+FROM
+table_name
+Transform nested data to JSON
+​
+Use the
+to_json
+function to convert a complex data type to JSON.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+to_json
+df
+.
+select
+(
+to_json
+(
+"column_name"
+)
+.
+alias
+(
+"json_name"
+)
+)
+SQL
+SELECT
+to_json
+(
+column_name
+)
+AS
+json_name
+FROM
+table_name
+To encode all contents of a query or DataFrame, combine this with
+struct(*)
+.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+to_json
+,
+struct
+df
+.
+select
+(
+to_json
+(
+struct
+(
+"*"
+)
+)
+.
+alias
+(
+"json_name"
+)
+)
+SQL
+SELECT
+to_json
+(
+struct
+(
+*
+)
+)
+AS
+json_name
+FROM
+table_name
+note
+Databricks
+also supports
+to_avro
+and
+to_protobuf
+for transforming complex data types for interoperability with integrated systems.
+Transform JSON data to complex data
+​
+Use the
+from_json
+function to convert JSON data to native complex data types.
+note
+You must specify the schema for the JSON data.
+Python
+SQL
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+from_json
+schema
+=
+"column1 STRING, column2 DOUBLE"
+df
+.
+select
+(
+from_json
+(
+"json_name"
+,
+schema
+)
+.
+alias
+(
+"column_name"
+)
+)
+SQL
+SELECT
+from_json
+(
+json_name
+,
+"column1 STRING, column2 DOUBLE"
+)
+AS
+column_name
+FROM
+table_name
+On this page
+Dot notation for accessing nested data
+Select all nested fields
+Create a new nested field
+Nest all fields into a column
+Select a named field from a nested column
+Explode nested elements from a map or array
+Create an array from a list or set
+Select a column from a map in an array
+Transform nested data to JSON
+Transform JSON data to complex data

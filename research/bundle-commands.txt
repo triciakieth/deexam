@@ -1,0 +1,1424 @@
+On this page
+Last updated
+on
+Sep 25, 2026
+bundle
+command group
+note
+Databricks CLI use is subject to the
+Databricks License
+and
+Databricks Privacy Notice
+, including any Usage Data provisions.
+The
+bundle
+command group within the
+Databricks CLI
+contains commands for managing
+Declarative Automation Bundles
+.
+Declarative Automation Bundles
+let you express projects as code and programmatically validate, deploy, and run
+Databricks
+workflows such as
+Databricks
+jobs
+,
+Lakeflow pipelines
+, and
+MLOps
+Stacks. See
+What are
+Declarative Automation Bundles
+?
+.
+note
+Bundle commands use the settings in
+databricks.yml
+for authentication when run from inside the bundle folder. If you want to run bundle commands with different authentication from inside the bundle folder, specify a
+configuration profile
+using the
+--profile
+(or
+-p
+) flag and do not specify a
+--target
+.
+Alternatively, run commands that do not need the same authentication as the bundle from outside the bundle folder.
+databricks bundle deploy
+​
+Deploy a bundle to the remote workspace.
+databricks bundle deploy [flags]
+Bundle target and identity
+​
+To deploy the bundle to a specific target, set the
+-t
+(or
+--target
+) option along with the target's name as declared within the bundle configuration files. If no command options are specified, the default target as declared within the bundle configuration files is used. For example, for a target declared with the name
+dev
+:
+Bash
+databricks bundle deploy
+-t
+dev
+A bundle can be deployed to multiple workspaces, such as development, staging, and production workspaces. Fundamentally, the
+root_path
+property is what determines a bundle's unique identity, which defaults to
+~/.bundle/${bundle.name}/${bundle.target}
+. Therefore by default, a bundle's identity is comprised of the identity of the deployer, the bundle's name, and the bundle's target name. If these are identical across different bundles, deployment of these bundles will interfere with one another.
+Furthermore, a bundle deployment tracks the resources it creates in the target workspace by their IDs as a state that is stored in the workspace file system. Resource names are not used to correlate between a bundle deployment and a resource instance, so:
+If a resource in the bundle configuration does not exist in the target workspace, it is created.
+If a resource in the bundle configuration exists in the target workspace, it is updated in the workspace.
+If a resource is removed from the bundle configuration, it is removed from the target workspace if it was previously deployed.
+A resource's association with a bundle can only be forgotten if you change the bundle name, the bundle target, or the workspace. You can run
+bundle validate
+to output a summary containing these values.
+Options
+​
+--auto-approve
+Skip interactive approvals that might be required for deployment.
+-c, --cluster-id string
+Override cluster in the deployment with the given cluster ID.
+--fail-on-active-runs
+Fail if there are running jobs or pipelines in the deployment.
+--force
+Override validations that block a deployment.
+--force
+overrides Git branch validation, so a deployment proceeds even when your current Git branch doesn't match the
+git.branch
+configured for the target. For dashboards,
+--force
+also overwrites a dashboard that was modified in the workspace after the last deployment. Without
+--force
+, the deployment fails in this case so that the remote changes aren't lost.
+--force-lock
+Force acquisition of deployment lock. This option disables the mechanism that prevents concurrent deployments from interacting with each other. It should only be used if the previous deployment crashed or was interrupted and left a stale lock file.
+--plan
+Path to a JSON plan file to apply instead of planning (
+direct engine only
+). The plan file can be created using
+databricks bundle plan -o json
+.
+--select strings
+important
+Databricks recommends only using this option for deploying resources to development workspaces. It is not intended for use in production. Only the specified resource(s) and required upstream dependencies are deployed; downstream resources and dependencies are not updated. This can cause dependency errors and unexpected behavior.
+Deploy only the specified resource(s) (for example,
+my_job
+or
+jobs.my_job
+). Can be repeated or comma-separated.
+Global flags
+Examples
+​
+The following example deploys a bundle using a specific cluster ID:
+Bash
+databricks bundle deploy --cluster-id 0123-456789-abcdef
+The following example only deploys the specified resources. Use the
+--select
+flag with the resource key(s), optionally qualified by resource type, and repeat the flag or use a comma-separated list to deploy multiple resources:
+Bash
+databricks bundle deploy
+--select
+my_job
+databricks bundle deploy
+--select
+jobs.my_job
+--select
+pipelines.my_pipeline
+databricks bundle deploy
+--select
+my_job,my_pipeline
+databricks bundle deployment
+​
+Deployment-related commands.
+databricks bundle deployment [command]
+Available Commands
+​
+bind
+- Bind a bundle-defined resource to an existing resource in the remote workspace.
+migrate
+- Migrate a bundle to use the
+direct deployment engine
+.
+unbind
+- Unbind a bundle-defined resource from its remote resource.
+databricks bundle deployment bind
+​
+Link bundle-defined resources to existing resources in the
+Databricks
+workspace so that they become managed by
+Declarative Automation Bundles
+. If you bind a resource, the existing
+Databricks
+resource in the workspace is updated based on the configuration defined in the bundle it is bound to after the next
+bundle deploy
+.
+databricks bundle deployment bind KEY RESOURCE_ID [flags]
+Bind does not recreate data. For example, if a pipeline with data in a catalog had bind applied, you can deploy to that pipeline without losing the existing data. In addition, you do not need to recompute the
+Materialized view
+, for example, so pipelines do not have to rerun.
+The bind command should be used with the
+--target
+flag. The identifier format depends on the resource type — see
+Arguments
+below.
+tip
+It's a good idea to confirm the resource in the workspace before running bind.
+Bind is supported for all
+Declarative Automation Bundles
+resource types. Note that some resources are only available using the direct engine, see
+Declarative Automation Bundles
+resources
+.
+For resources supported by the
+bundle generate
+command, automatically bind the resource after generation using the
+--bind
+option.
+Arguments
+​
+KEY
+The key of the resource to bind
+RESOURCE_ID
+The identifier of the existing resource to bind to. The format depends on the resource type, because the bind command uses the GET REST API endpoint to discover the resource. For resources identified by a numeric or UUID-style ID (such as jobs and pipelines), pass that ID. For
+Unity Catalog
+resources identified by their full name (such as schemas and volumes), pass the full name path instead. For example:
+job
+: numeric ID, such as
+6565621249
+pipeline
+: UUID, such as
+7688611149d5709ac9-2900-1229-9996-586a9zez8929
+schema
+: full name in
+catalog.schema
+form, such as
+my_catalog.my_schema
+volume
+: full name in
+catalog.schema.volume
+form, such as
+my_catalog.my_schema.my_volume
+registered_model
+: full name in
+catalog.schema.model
+form
+quality_monitor
+: full table name in
+catalog.schema.table
+form
+Options
+​
+--auto-approve
+Automatically approve the binding, instead of prompting
+--force-lock
+Force acquisition of deployment lock. This option disables the mechanism that prevents concurrent deployments from interacting with each other. It should only be used if the previous deployment crashed or was interrupted and left a stale lock file.
+Global flags
+Examples
+​
+The following command binds the bundle resource
+hello_job
+to an existing job in the workspace using the job's numeric ID. The command outputs a diff and allows you to deny the resource binding, but if confirmed, any updates to the job definition in the bundle are applied to the corresponding remote job when the bundle is next deployed.
+Bash
+databricks bundle deployment
+bind
+hello_job
+6565621249
+For
+Unity Catalog
+resources such as schemas and volumes, pass the full name path instead of an ID. The following command binds a bundle-defined schema to an existing schema in the workspace:
+Bash
+databricks bundle deployment
+bind
+my_bundle_schema_ref my_existing_catalog.my_existing_schema
+databricks bundle deployment migrate
+​
+Preview
+This feature is in
+Public Preview
+.
+Migrate the bundle from using the Terraform deployment engine to using the direct deployment engine. See
+Migrate to the direct deployment engine
+. To complete the migration you must then deploy the bundle.
+You can verify a migration was successful by running
+databricks bundle plan
+. See
+databricks bundle plan
+.
+databricks bundle deployment migrate [flags]
+Arguments
+​
+None
+Options
+​
+--noplancheck
+Skip running
+bundle plan
+before the migration. Only applicable in
+Databricks CLI
+versions 0.280.0 through 1.4.x, which runs
+bundle plan
+as part of
+migrate
+and stops the migration if the plan reports any actions.
+Global flags
+Examples
+​
+The following example migrates the current bundle to use the
+direct deployment engine
+:
+Bash
+databricks bundle deployment migrate
+databricks bundle deployment unbind
+​
+Remove the link between the resource in a bundle and its remote counterpart in a workspace.
+databricks bundle deployment unbind KEY [flags]
+Arguments
+​
+KEY
+The key of the resource to unbind
+Options
+​
+--force-lock
+Force acquisition of deployment lock. This option disables the mechanism that prevents concurrent deployments from interacting with each other. It should only be used if the previous deployment crashed or was interrupted and left a stale lock file.
+Global flags
+Examples
+​
+The following example unbinds the
+hello_job
+resource:
+Bash
+databricks bundle deployment unbind hello_job
+databricks bundle-deployments
+​
+Preview
+This feature is in
+Private Preview
+. To try it, reach out to your
+Databricks
+contact.
+Manage the deployment metadata recorded for
+Declarative Automation Bundles
+, including deployments, their versions, the resources each deployment manages, and the operations performed on those resources. For an overview of the feature, see
+Bundle deployment history
+.
+databricks bundle-deployments [command]
+Available Commands
+​
+get-deployment
+- Get a single deployment.
+get-operation
+- Get a single operation.
+get-resource
+- Get a single managed resource.
+get-version
+- Get a single deployment version.
+list-deployments
+- List the deployments in the workspace.
+list-operations
+- List the operations performed in a deployment version.
+list-resources
+- List the resources managed by a deployment.
+list-versions
+- List the versions of a deployment.
+These commands are reserved for internal use only:
+complete-version
+,
+create-deployment
+,
+create-version
+,
+delete-deployment
+,
+heartbeat
+,
+update-operation
+.
+databricks bundle-deployments get-deployment
+​
+Get a summary of a single deployment, including its latest version and Git information.
+databricks bundle-deployments get-deployment NAME [flags]
+Arguments
+​
+NAME
+The resource name of the deployment, in the form
+deployments/<id>
+.
+Options
+​
+Global flags
+Examples
+​
+The following example gets a single deployment:
+Bash
+databricks bundle-deployments get-deployment deployments/abc
+databricks bundle-deployments get-operation
+​
+Get details for a single operation on a resource in a deployment version.
+databricks bundle-deployments get-operation NAME [flags]
+Arguments
+​
+NAME
+The resource name of the operation, in the form
+deployments/<id>/versions/<version>/operations/<resource-key>
+.
+Options
+​
+Global flags
+Examples
+​
+The following example gets a single operation:
+Bash
+databricks bundle-deployments get-operation deployments/abc/versions/1/operations/my_job
+databricks bundle-deployments get-resource
+​
+Get details for a single resource managed by a deployment.
+databricks bundle-deployments get-resource NAME [flags]
+Arguments
+​
+NAME
+The resource name of the managed resource, in the form
+deployments/<id>/resources/<resource-key>
+.
+Options
+​
+Global flags
+Examples
+​
+The following example gets a single managed resource:
+Bash
+databricks bundle-deployments get-resource deployments/abc/resources/my_job
+databricks bundle-deployments get-version
+​
+Get details for a single version of a deployment.
+databricks bundle-deployments get-version NAME [flags]
+Arguments
+​
+NAME
+The resource name of the version, in the form
+deployments/<id>/versions/<version>
+.
+Options
+​
+Global flags
+Examples
+​
+The following example gets a single deployment version:
+Bash
+databricks bundle-deployments get-version deployments/abc/versions/1
+databricks bundle-deployments list-deployments
+​
+List the deployments in the workspace.
+databricks bundle-deployments list-deployments [flags]
+Options
+​
+--limit int
+The maximum number of results to return.
+--page-size int
+The maximum number of deployments to return per page.
+Global flags
+Examples
+​
+The following example lists the deployments in the workspace:
+Bash
+databricks bundle-deployments list-deployments
+databricks bundle-deployments list-operations
+​
+List the operations performed on resources in a deployment version, such as creates, updates, and deletes.
+databricks bundle-deployments list-operations PARENT [flags]
+Arguments
+​
+PARENT
+The resource name of the version, in the form
+deployments/<id>/versions/<version>
+.
+Options
+​
+--limit int
+The maximum number of results to return.
+--page-size int
+The maximum number of operations to return per page.
+Global flags
+Examples
+​
+The following example lists the operations in a deployment version:
+Bash
+databricks bundle-deployments list-operations deployments/abc/versions/1
+databricks bundle-deployments list-resources
+​
+List the resources managed by a deployment.
+databricks bundle-deployments list-resources PARENT [flags]
+Arguments
+​
+PARENT
+The resource name of the deployment, in the form
+deployments/<id>
+.
+Options
+​
+--limit int
+The maximum number of results to return.
+--page-size int
+The maximum number of resources to return per page.
+Global flags
+Examples
+​
+The following example lists the resources managed by a deployment:
+Bash
+databricks bundle-deployments list-resources deployments/abc
+databricks bundle-deployments list-versions
+​
+List the versions of a deployment. Each deployment records a new version every time it is deployed, so this is the deployment's history.
+databricks bundle-deployments list-versions PARENT [flags]
+Arguments
+​
+PARENT
+The resource name of the deployment, in the form
+deployments/<id>
+.
+Options
+​
+--limit int
+The maximum number of results to return.
+--page-size int
+The maximum number of versions to return per page.
+Global flags
+Examples
+​
+The following example lists the versions of a deployment:
+Bash
+databricks bundle-deployments list-versions deployments/abc
+databricks bundle destroy
+​
+warning
+Destroying a bundle permanently deletes a bundle's previously-deployed jobs, pipelines, and artifacts. This action cannot be undone.
+Delete jobs, pipelines, other resources, and artifacts that were previously deployed.
+databricks bundle destroy [flags]
+note
+A
+bundle's identity
+is comprised of the bundle name, the bundle target, and the workspace. If you have changed any of these and then attempt to destroy a bundle prior to deploying, an error will occur.
+By default, you are prompted to confirm permanent deletion of the previously-deployed jobs, pipelines, and artifacts. To skip these prompts and perform automatic permanent deletion, add the
+--auto-approve
+option to the
+bundle destroy
+command.
+You can use the
+lifecycle
+setting to prevent specific resources from being destroyed. See
+lifecycle
+.
+Options
+​
+--auto-approve
+Skip interactive approvals for deleting resources and files
+--force-lock
+Force acquisition of deployment lock. This option disables the mechanism that prevents concurrent deployments from interacting with each other. It should only be used if the previous deployment crashed or was interrupted and left a stale lock file.
+Global flags
+Examples
+​
+The following command deletes all previously-deployed resources and artifacts that are defined in the bundle configuration files:
+Bash
+databricks bundle destroy
+databricks bundle generate
+​
+Generate bundle configuration for a resource that already exists in your Databricks workspace. The following resources are supported:
+app
+,
+dashboard
+,
+job
+,
+pipeline
+.
+By default, this command generates a
+*.yml
+file for the resource in the
+resources
+folder of the bundle project and also downloads any files, such as notebooks, referenced in the configuration.
+important
+The
+bundle generate
+command is provided as a convenience to autogenerate resource configuration. However, if your bundle includes resource configuration and you deploy it,
+Databricks
+creates a new resource rather than updating the existing one. To update an existing resource instead, you must either use the
+--bind
+flag with
+bundle generate
+or run
+bundle deployment bind
+before deploying. See
+databricks bundle deployment bind
+.
+databricks bundle generate [command]
+Available Commands
+​
+app
+- Generate bundle configuration for a Databricks app.
+dashboard
+- Generate configuration for a dashboard.
+genie-space
+- Generate configuration for a Genie agent.
+job
+- Generate bundle configuration for a job.
+pipeline
+- Generate bundle configuration for a pipeline.
+Options
+​
+--key string
+Resource key to use for the generated configuration
+Global flags
+databricks bundle generate app
+​
+Generate bundle configuration for an existing Databricks app in the workspace.
+databricks bundle generate app [flags]
+Options
+​
+--bind
+Automatically bind the generated resource with the existing one in the workspace.
+-d, --config-dir string
+Directory path where the output bundle config will be stored (default "resources")
+--existing-app-name string
+App name to generate config for
+-f, --force
+Force overwrite existing files in the output directory
+-s, --source-dir string
+Directory path where the app files will be stored (default "src/app")
+Global flags
+Examples
+​
+The following example generates configuration for an existing app named
+my-app
+. You can get the app name from the
+Compute
+>
+Apps
+tab of the workspace UI.
+Bash
+databricks bundle generate app --existing-app-name my-app
+The following command generates a new
+hello_world.app.yml
+file in the
+resources
+bundle project folder, and downloads the app's code files, such as the app's command configuration file
+app.yaml
+and main
+app.py
+. By default, the code files are copied to the bundle's
+src
+folder.
+Bash
+databricks bundle generate app --existing-app-name
+"hello_world"
+YAML
+# This is the contents of the resulting /resources/hello-world.app.yml file.
+resources
+:
+apps
+:
+hello_world
+:
+name
+:
+hello
+-
+world
+description
+:
+A basic starter application.
+source_code_path
+:
+../src/app
+databricks bundle generate dashboard
+​
+Generate configuration for an existing dashboard in the workspace.
+databricks bundle generate dashboard [flags]
+tip
+To update the
+.lvdash.json
+file after you have already deployed a dashboard, use the
+--resource
+option when you run
+bundle generate dashboard
+to generate that file for the existing dashboard resource. To continuously poll and retrieve updates to a dashboard, use the
+--force
+and
+--watch
+options.
+Options
+​
+--bind
+Automatically bind the generated resource with the existing one in the workspace.
+-s, --dashboard-dir string
+Directory to write the dashboard representation to (default "src")
+--existing-id string
+ID of the dashboard to generate configuration for
+--existing-path string
+Workspace path of the dashboard to generate configuration for
+-f, --force
+Force overwrite existing files in the output directory
+--resource string
+Resource key of dashboard to watch for changes
+-d, --resource-dir string
+Directory to write the configuration to (default "resources")
+--watch
+Watch for changes to the dashboard and update the configuration
+Global flags
+Examples
+​
+The following example generates configuration by an existing dashboard ID:
+Bash
+databricks bundle generate dashboard --existing-id abc123
+You can also generate configuration for an existing dashboard by workspace path. Copy the workspace path for a dashboard from the workspace UI.
+For example, the following command generates a new
+baby_gender_by_county.dashboard.yml
+file in the
+resources
+bundle project folder containing the YAML below, and downloads the
+baby_gender_by_county.lvdash.json
+file to the
+src
+project folder.
+Bash
+databricks bundle generate dashboard --existing-path
+"/Workspace/Users/someone@example.com/baby_gender_by_county.lvdash.json"
+YAML
+# This is the contents of the resulting baby_gender_by_county.dashboard.yml file.
+resources
+:
+dashboards
+:
+baby_gender_by_county
+:
+display_name
+:
+'Baby gender by county'
+warehouse_id
+:
+aae11o8e6fe9zz79
+file_path
+:
+../src/baby_gender_by_county.lvdash.json
+databricks bundle generate genie-space
+​
+Generate configuration for an existing Genie agent in the workspace.
+This command generates the following:
+A Genie agent configuration YAML file with settings and a reference to the Genie agent definition
+A Genie agent definition (
+*.geniespace.json
+) file with the serialized space content
+databricks bundle generate genie-space [flags]
+tip
+To update the
+.geniespace.json
+file after you have already deployed a Genie agent, use the
+--resource
+option when you run
+bundle generate genie-space
+to generate that file for the existing resource. To continuously poll and retrieve updates to a Genie agent, use the
+--force
+and
+--watch
+options.
+Options
+​
+--existing-id string
+ID of the Genie agent to generate configuration for
+-f, --force
+Force overwrite existing files in the output directory
+-s, --genie-space-dir string
+Directory to write the Genie agent representation to (default "src")
+--resource string
+Resource key of the Genie agent to watch for changes
+-d, --resource-dir string
+Directory to write the configuration to (default "resources")
+--watch
+Watch for changes to the Genie agent and update the configuration
+Global flags
+Examples
+​
+The following example generates configuration using an existing Genie agent ID:
+Bash
+databricks bundle generate genie-space --existing-id abc123
+The following example keeps the bundle in sync with UI modifications to the Genie agent:
+Bash
+databricks bundle generate genie-space
+--resource
+my_genie_space
+--watch
+--force
+databricks bundle generate job
+​
+Generate bundle configuration for a job.
+note
+Currently, only jobs with notebook tasks are supported by this command.
+databricks bundle generate job [flags]
+Options
+​
+--bind
+Automatically bind the generated resource with the existing one in the workspace.
+-d, --config-dir string
+Dir path where the output config will be stored (default "resources")
+--existing-job-id int
+Job ID of the job to generate config for
+-f, --force
+Force overwrite existing files in the output directory
+-s, --source-dir string
+Dir path where the downloaded files will be stored (default "src")
+Global flags
+Examples
+​
+The following example generates a new
+hello_job.yml
+file in the
+resources
+bundle project folder containing the YAML below, and downloads the
+simple_notebook.py
+to the
+src
+project folder. It also binds the generated resource with the existing job in the workspace.
+Bash
+databricks bundle generate job --existing-job-id
+6565621249
+--bind
+YAML
+# This is the contents of the resulting hello_job.yml file.
+resources
+:
+jobs
+:
+hello_job
+:
+name
+:
+'Hello Job'
+tasks
+:
+-
+task_key
+:
+run_notebook
+email_notifications
+:
+{
+}
+notebook_task
+:
+notebook_path
+:
+../src/simple_notebook.py
+source
+:
+WORKSPACE
+run_if
+:
+ALL_SUCCESS
+max_concurrent_runs
+:
+1
+databricks bundle generate pipeline
+​
+Generate bundle configuration for an existing pipeline.
+databricks bundle generate pipeline [flags]
+tip
+If you have an existing Spark Declarative Pipelines (SDP) project, you can generate configuration for it using
+databricks pipelines generate
+. See
+databricks pipelines generate
+.
+Options
+​
+--bind
+Automatically bind the generated resource with the existing one in the workspace.
+-d, --config-dir string
+Dir path where the output config will be stored (default "resources")
+--existing-pipeline-id string
+ID of the pipeline to generate config for
+-f, --force
+Force overwrite existing files in the output directory
+-s, --source-dir string
+Dir path where the downloaded files will be stored (default "src")
+Global flags
+Examples
+​
+The following example generates configuration for an existing pipeline:
+Bash
+databricks bundle generate pipeline --existing-pipeline-id abc-123-def
+databricks bundle init
+​
+Initialize a new bundle using a bundle template. Templates can be configured to prompt the user for values. See
+Declarative Automation Bundles
+project templates
+.
+databricks bundle init [TEMPLATE_PATH] [flags]
+Arguments
+​
+TEMPLATE_PATH
+Template to use for initialization (optional)
+Options
+​
+--branch string
+Git branch to use for template initialization
+--config-file string
+JSON file containing key value pairs of input parameters required for template initialization.
+--output-dir string
+Directory to write the initialized template to.
+--tag string
+Git tag to use for template initialization
+--template-dir string
+Directory path within a Git repository containing the template.
+Global flags
+Examples
+​
+The following example prompts with a list of default bundle templates from which to choose:
+Bash
+databricks bundle init
+The following example initializes a bundle using the default Python template:
+Bash
+databricks bundle init default-python
+To create a bundle using a custom bundle template, specify the custom template path:
+Bash
+databricks bundle init
+<
+project-template-local-path-or-url
+>
+\
+--output-dir
+=
+"</local/path/to/project/template/output>"
+The following example initializes a bundle from a Git repository:
+Bash
+databricks bundle init https://github.com/my/repository
+The following example initializes with a specific branch:
+Bash
+databricks bundle init
+--branch
+main
+databricks bundle open
+​
+Navigate to a bundle resource in the workspace, specifying the resource to open. If a resource key is not specified, this command outputs a list of the bundle's resources from which to choose.
+databricks bundle open [flags]
+Options
+​
+--force-pull
+Skip local cache and load the state from the remote workspace
+Global flags
+Examples
+​
+The following example launches a browser and navigates to the
+baby_gender_by_county
+dashboard in the bundle in the Databricks workspace that is configured for the bundle:
+Bash
+databricks bundle
+open
+baby_gender_by_county
+databricks bundle plan
+​
+Show the deployment plan for the current bundle configuration.
+This command builds the bundle and displays the actions which will be performed on resources that would be deployed, without making any changes. This allows you to preview changes before running
+bundle deploy
+.
+databricks bundle plan [flags]
+Options
+​
+-c, --cluster-id string
+Override cluster in the deployment with the given cluster ID.
+--force
+Force-override Git branch validation.
+--select strings
+Plan only the specified resource(s) (for example,
+my_job
+or
+jobs.my_job
+). Can be repeated or comma-separated.
+Global flags
+Examples
+​
+The following example outputs the deployment plan for a bundle that builds a Python wheel, and defines a job and a pipeline:
+Bash
+databricks bundle plan
+Output
+Building python_artifact...
+create jobs.my_bundle_job
+create pipelines.my_bundle_pipeline
+databricks bundle run
+​
+Run a job, pipeline, app, or script. If you don't specify a resource, the command prompts you to choose from the jobs, pipelines, apps, and scripts defined in the bundle. Alternatively, specify the job, pipeline, or app key or the script name declared within the bundle configuration files.
+databricks bundle run [flags] [KEY]
+Pass job parameters
+​
+To pass
+job parameters
+, use the
+--params
+option, followed by comma-separated key-value pairs, where the key is the parameter name. For example, the following command sets the parameter with the name
+message
+to
+HelloWorld
+for the job
+hello_job
+:
+Bash
+databricks bundle run
+--params
+message
+=
+HelloWorld hello_job
+note
+As shown in the following examples, you can pass parameters to job tasks using the job task options, but the
+--params
+option is the recommended method for passing job parameters. An error occurs if job parameters are specified for a job that doesn't have job parameters defined or if task parameters are specified for a job that has job parameters defined.
+You can also specify keyword or positional arguments. If the specified job uses job parameters or the job has a notebook task with parameters, flag names are mapped to the parameter names:
+Bash
+databricks bundle run hello_job --
+--key1
+value1
+--key2
+value2
+Or if the specified job does not use job parameters and the job has a Python file task or a Python wheel task:
+Bash
+databricks bundle run my_job -- value1 value2 value3
+For an example job definition with parameters, see
+Job with parameters
+.
+Run specific job tasks
+​
+To run only specific tasks in a job instead of the entire job, use the
+--only
+option with a comma-separated list of task keys. For example, the following command runs only
+task_a
+and
+task_b
+in the job
+hello_job
+:
+Bash
+databricks bundle run
+--only
+task_a,task_b hello_job
+To also run a task's dependencies, add a
++
+modifier to the task key:
+Prefix a task key with
++
+to also run its upstream tasks (the tasks it depends on).
+Suffix a task key with
++
+to also run its downstream tasks (the tasks that depend on it).
+For example, the following command runs
+task_b
+along with its upstream and downstream tasks:
+Bash
+databricks bundle run
+--only
++task_b+ hello_job
+Validate a pipeline
+​
+If you want to do a
+pipeline validation
+run, use the
+--validate-only
+option, as shown in the following example:
+Bash
+databricks bundle run --validate-only my_pipeline
+Run an app
+​
+For
+Databricks Apps
+,
+databricks bundle run
+starts or restarts the app with the most recently deployed source code. Unlike a job or a pipeline, which picks up new code the next time it runs, an app is a continuously running process that keeps serving the previously deployed code until it is restarted. Always run the app after deploying so that code changes take effect:
+Bash
+databricks bundle deploy
+-t
+prod
+databricks bundle run my_app
+-t
+prod
+The
+KEY
+for an app is the key under
+resources.apps
+in your bundle configuration, not the deployed app's
+name
+field.
+note
+databricks bundle run
+returns as soon as the app is signaled to start. The app can still fail later during startup, for example because of a missing dependency or environment variable. To verify that a stopped app reached a running state, poll its status after the command returns. See
+Step 5. Wait for the app to be healthy
+.
+Execute scripts
+​
+To execute scripts such as integration tests with a bundle's configured authentication credentials, you can either run scripts inline or run a script defined in the bundle configuration. Scripts are run using the same authentication context configured in the bundle.
+Append a double hyphen (
+--
+) after
+bundle run
+to run scripts inline. For example, the following command outputs the current user's current working directory:
+Bash
+databricks bundle run -- python3
+-c
+'import os; print(os.getcwd())'
+Alternatively, define a script within the
+scripts
+mapping in your bundle configuration, then use
+bundle run
+to run the script:
+YAML
+scripts
+:
+my_script
+:
+content
+:
+python3
+-
+c 'import os; print(os.getcwd())'
+Bash
+databricks bundle run my_script
+For more information about
+scripts
+configuration, see
+scripts
+.
+Bundle authentication information is passed to child processes using environment variables. See
+Databricks unified authentication
+.
+Arguments
+​
+KEY
+The unique identifier of the resource to run (optional)
+Options
+​
+--no-wait
+Don't wait for the run to complete.
+--restart
+Restart the run if it is already running.
+Global flags
+Job Flags
+​
+The following flags are job-level flags. For job parameters, see
+Configure job parameters
+.
+--only strings
+Comma-separated list of task keys to run. Prefix a key with
++
+to also run its upstream tasks. Suffix a key with
++
+to also run its downstream tasks.
+--params stringToString
+comma separated k=v pairs for job parameters (default
+[]
+)
+Job Task Flags
+​
+The following flags are task-level parameter flags. See
+Configure task parameters
+. Databricks recommends using job-level parameters (
+--params
+) over task-level parameters.
+--dbt-commands strings
+A list of commands to execute for jobs with DBT tasks.
+--jar-params strings
+A list of parameters for jobs with Spark JAR tasks.
+--notebook-params stringToString
+A map from keys to values for jobs with notebook tasks. (default
+[]
+)
+--pipeline-params stringToString
+A map from keys to values for jobs with pipeline tasks. (default
+[]
+)
+--python-named-params stringToString
+A map from keys to values for jobs with Python wheel tasks. (default
+[]
+)
+--python-params strings
+A list of parameters for jobs with Python tasks.
+--spark-submit-params strings
+A list of parameters for jobs with Spark submit tasks.
+--sql-params stringToString
+A map from keys to values for jobs with SQL tasks. (default
+[]
+)
+Pipeline Flags
+​
+The following flags are pipeline flags.
+--full-refresh strings
+List of tables to reset and recompute.
+--full-refresh-all
+Perform a full graph reset and recompute.
+--refresh strings
+List of tables to update.
+--refresh-all
+Perform a full graph update.
+--validate-only
+Perform an update to validate graph correctness.
+Examples
+​
+The following example runs a job
+hello_job
+in the default target:
+Bash
+databricks bundle run hello_job
+The following example runs a job
+hello_job
+within the context of a target declared with the name
+dev
+:
+Bash
+databricks bundle run
+-t
+dev hello_job
+The following example cancels and restarts an existing job run:
+Bash
+databricks bundle run
+--restart
+hello_job
+The following example runs a pipeline with full refresh:
+Bash
+databricks bundle run my_pipeline --full-refresh-all
+The following example starts or restarts an app
+my_app
+in the
+prod
+target:
+Bash
+databricks bundle run my_app
+-t
+prod
+The following example executes a command in the bundle context:
+Bash
+databricks bundle run --
+echo
+"hello, world"
+databricks bundle schema
+​
+Display JSON Schema for the bundle configuration.
+databricks bundle schema [flags]
+Options
+​
+Global flags
+Examples
+​
+The following example outputs the JSON schema for the bundle configuration:
+Bash
+databricks bundle schema
+To output the bundle configuration schema as a JSON file, run the
+bundle schema
+command and redirect the output to a JSON file. For example, you can generate a file named
+bundle_config_schema.json
+within the current directory:
+Bash
+databricks bundle schema
+>
+bundle_config_schema.json
+databricks bundle summary
+​
+Output a summary of a bundle's identity and resources, including deep links for resources so that you can easily navigate to the resource in the Databricks workspace.
+databricks bundle summary [flags]
+tip
+You can also use
+bundle open
+to navigate to a resource in the Databricks workspace. See
+databricks bundle open
+.
+Options
+​
+--force-pull
+Skip local cache and load the state from the remote workspace
+Global flags
+Examples
+​
+The following example outputs a summary of a bundle's deployed resources:
+Bash
+databricks bundle summary
+The following output is the summary of a bundle named
+my_pipeline_bundle
+that defines a job and a pipeline:
+Name: my_pipeline_bundle
+Target: dev
+Workspace:
+Host: https://myworkspace.cloud.databricks.com
+User: someone@example.com
+Path: /Users/someone@example.com/.bundle/my_pipeline/dev
+Resources:
+Jobs:
+my_project_job:
+Name: [dev someone] my_project_job
+URL:  https://myworkspace.cloud.databricks.com/jobs/206000809187888?o=6051000018419999
+Pipelines:
+my_project_pipeline:
+Name: [dev someone] my_project_pipeline
+URL:  https://myworkspace.cloud.databricks.com/pipelines/7f559fd5-zztz-47fa-aa5c-c6bf034b4f58?o=6051000018419999
+databricks bundle sync
+​
+Perform a one-way synchronization of a bundle's file changes within a local filesystem directory, to a directory within a remote
+Databricks
+workspace.
+note
+bundle sync
+commands cannot synchronize file changes from a directory within a remote
+Databricks
+workspace, back to a directory within a local filesystem.
+databricks bundle sync [flags]
+databricks bundle sync
+commands work in the same way as
+databricks sync
+commands and are provided as a productivity convenience. For command usage information, see
+sync
+command
+.
+Options
+​
+--dry-run
+Simulate sync execution without making actual changes
+--full
+Perform full synchronization (default is incremental)
+--interval duration
+File system polling interval (for
+--watch
+) (default 1s)
+--output type
+Type of the output format
+--watch
+Watch local file system for changes
+Global flags
+Examples
+​
+The following example performs a dry run sync:
+Bash
+databricks bundle
+sync
+--dry-run
+The following example watches for changes and syncs automatically:
+Bash
+databricks bundle
+sync
+--watch
+The following example performs a full synchronization:
+Bash
+databricks bundle
+sync
+--full
+databricks bundle validate
+​
+Validate bundle configuration files are syntactically correct.
+databricks bundle validate [flags]
+By default this command returns a summary of the bundle identity:
+Output
+Name: MyBundle
+Target: dev
+Workspace:
+Host: https://my-host.cloud.databricks.com
+User: someone@example.com
+Path: /Users/someone@example.com/.bundle/MyBundle/dev
+Validation OK!
+note
+The
+bundle validate
+command outputs warnings if resource properties are defined in the bundle configuration files that are not found in the corresponding object's schema.
+If you only want to output a summary of the bundle's identity and resources, use
+bundle summary
+.
+Options
+​
+Global flags
+Examples
+​
+The following example validates the bundle configuration:
+Bash
+databricks bundle validate
+Global flags
+​
+--debug
+Whether to enable debug logging.
+-h
+or
+--help
+Display help for the Databricks CLI or the related command group or the related command.
+--log-file
+string
+A string representing the file to write output logs to. If this flag is not specified then the default is to write output logs to stderr.
+--log-format
+format
+The log format type,
+text
+or
+json
+. The default value is
+text
+.
+--log-level
+string
+A string representing the log format level. If not specified then the log format level is disabled.
+-o, --output
+type
+The command output type,
+text
+or
+json
+. The default value is
+text
+.
+-p, --profile
+string
+The name of the profile in the
+~/.databrickscfg
+file to use to run the command. If this flag is not specified then if it exists, the profile named
+DEFAULT
+is used.
+--progress-format
+format
+The format to display progress logs:
+default
+,
+append
+,
+inplace
+, or
+json
+-t, --target
+string
+If applicable, the bundle target to use
+--var strings
+set values for variables defined in bundle config. Example:
+--var="foo=bar"
+On this page
+databricks bundle deploy
+Bundle target and identity
+databricks bundle deployment
+databricks bundle deployment bind
+databricks bundle deployment migrate
+databricks bundle deployment unbind
+databricks bundle-deployments
+databricks bundle-deployments get-deployment
+databricks bundle-deployments get-operation
+databricks bundle-deployments get-resource
+databricks bundle-deployments get-version
+databricks bundle-deployments list-deployments
+databricks bundle-deployments list-operations
+databricks bundle-deployments list-resources
+databricks bundle-deployments list-versions
+databricks bundle destroy
+databricks bundle generate
+databricks bundle generate app
+databricks bundle generate dashboard
+databricks bundle generate genie-space
+databricks bundle generate job
+databricks bundle generate pipeline
+databricks bundle init
+databricks bundle open
+databricks bundle plan
+databricks bundle run
+Pass job parameters
+Run specific job tasks
+Validate a pipeline
+Run an app
+Execute scripts
+databricks bundle schema
+databricks bundle summary
+databricks bundle sync
+databricks bundle validate
+Global flags

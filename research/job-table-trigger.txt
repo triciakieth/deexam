@@ -1,0 +1,240 @@
+On this page
+Last updated
+on
+Oct 2, 2026
+Trigger jobs when source tables are updated
+You can use
+table update triggers
+to trigger a run of your job when source tables are updated. Use this feature to run a job when new data is ready without the need for a continuously running cluster or knowledge of the processes that update a table.
+How table update triggers work
+​
+A table update trigger checks for table updates, and when a table is updated, the job is run. The trigger can run when one table updates, or when all tables being monitored by the trigger are updated. Table update triggers do not incur additional costs other than cloud provider costs associated with listing tables and reading updates from the storage location.
+A table update trigger can be configured to monitor one or more tables for data changes such as updates, merges, and deletes. These tables can be
+Unity Catalog
+Delta and Iceberg managed tables,
+Unity Catalog
+external tables backed by
+Delta Lake
+,
+materialized views
+,
+streaming tables
+, and
+Unity Catalog
+views or metric views that depend on supported tables. When selecting multiple tables, you can specify if a job is triggered when any or all of the tables are updated.
+You can also configure triggers on
+OpenSharing
+tables and views and on system tables. See
+Add a trigger to
+OpenSharing
+and system tables
+.
+Requirements
+​
+The principal configured in the job's
+Run as
+field must have
+SELECT
+permissions on every object the trigger monitors, because the trigger reads each object's metadata and change history to detect updates. This applies to all supported sources:
+Unity Catalog
+tables
+:
+SELECT
+on the table, plus
+USE CATALOG
+and
+USE SCHEMA
+on its catalog and schema.
+Unity Catalog
+views
+:
+SELECT
+on the view's underlying tables.
+OpenSharing
+shared objects and system tables
+:
+SELECT
+on the shared object or system table.
+If the
+Run as
+principal does not have
+SELECT
+on a monitored object, the trigger fails to evaluate and the job does not run. To review or change the identity a job runs as, see
+Configure the Run as user for job runs
+.
+Add a table update trigger
+​
+To add a table update trigger to an existing job:
+In the left navigation of your workspace, click
+Jobs & Pipelines
+.
+In the list of jobs, click the name of the job to which you want to add a trigger.
+On the right pane, under
+Schedules & Triggers
+, click
+Add trigger
+.
+In Trigger type, select
+Table update
+.
+Under
+Tables
+, add the tables you want to monitor for updates.
+If you select more than one table, configure an option under
+Trigger when
+to specify if you want a job run to be triggered when
+All tables are updated
+or when
+Any table is updated
+.
+(Optional) Configure advanced options, by clicking
+Advanced
+.
+Minimum time between triggers in seconds
+: The minimum time to wait to trigger a run after a previous run completes. Tables updated during this period trigger a run only after the waiting time expires.
+Databricks
+waits this amount of time before triggering a run, even if monitored tables are updated.
+Wait after last change in seconds
+: The time to wait to trigger a run after a table update. Additional table updates during this period reset the timer. This setting can be used when table updates come in batches, and the whole batch needs to be processed after all tables are updated.
+note
+If both options are used, then the trigger waits the minimum time between triggers, and then waits the set amount of time after the last change. For example, if you have a minimum time of 120 seconds, and a wait after last changes of 60 seconds, then it does not trigger the run until at least 120 seconds has elapsed, even if a table update happens within the first 60 seconds. Additionally, if one update comes in at 5 seconds, and then another at 115 seconds, then the wait after last change means that a run does not get triggered until after 175 seconds.
+To validate the configuration, click
+Test trigger
+.
+Click
+Save
+.
+note
+You can also configure table update triggers from the
+Jobs API
+. Add a
+trigger
+object to a
+jobs/create
+,
+jobs/update
+, or
+jobs/reset
+operation.
+To edit, pause, or remove this trigger later, use the
+Schedules & Triggers
+section of the
+Job details
+pane. See
+Manage existing triggers
+.
+Add a trigger to
+OpenSharing
+and system tables
+​
+In addition to local tables, you can configure table update triggers to monitor data shared with your workspace through
+OpenSharing
+and
+system tables
+. For example, you can trigger a job whenever new billing records land in a system table, or whenever a provider updates a shared table.
+You can trigger on the following shared objects:
+OpenSharing
+tables
+OpenSharing
+views
+OpenSharing
+metric views
+OpenSharing
+materialized views
+OpenSharing
+streaming tables
+System tables
+Follow the steps in
+Add a table update trigger
+and select the shared tables, views, or system tables you want to monitor.
+Table update triggers with file events
+​
+For best performance and scalability,
+enable file events
+on the external location where the tables are stored. This one-time setup step improves the efficiency of table update triggers and unlocks other features, including more performant
+Auto Loader
+and
+file arrival triggers
+.
+When file events are enabled, Databricks automatically tracks ingestion metadata using cloud provider change notifications, resulting in faster and more efficient table updates.
+If your tables are in the metastore root-level storage, first convert them to an
+external location
+, then
+enable file events
+on that location.
+For common questions about file events, see
+File events FAQ
+.
+Job parameters associated with table update triggers
+​
+When you use table update triggers for a job, three new dynamic value references are available to use as parameter values in the job.
+{{job.trigger.table_update.updated_tables}}
+- A JSON list of tables updated since the last job run.
+{{job.trigger.table_update.`<catalog.schema.table>`.commit_timestamp.iso_datetime}}
+- the most recent commit timestamp that triggered the job run.
+{{job.trigger.table_update.`<catalog.schema.table>`.version}}
+- the most recent commit version that triggered the job run.
+For
+commit_timestamp
+and
+version
+, there are multiple versions of the dynamic value reference. Each table monitored has a
+<catalog.schema.table>
+with the fully qualified name of the table for which you want data. If there is only one table being monitored in the trigger, you see a value without the
+<catalog.schema.table>
+. For example, you can use
+{{job.trigger.table_update.commit_timestamp.iso_datetime}}
+.
+For more information on job parameters, see
+Parameterize jobs
+.
+Receive notifications of failed table update triggers
+​
+To be notified if a table update trigger fails to evaluate, configure email or system destination notifications on job failure. See
+Add notifications on a job
+.
+Limitations
+​
+Table update triggers
+have the following limitations:
+You can select up to 10 managed or Delta tables per trigger.
+For tables residing in locations without
+file events
+, a maximum of 1,000 jobs can be configured with a table update trigger.
+A maximum of 1,000 table update triggers on
+OpenSharing
+objects or system tables can be created per workspace.
+Cross-regulatory-domain
+OpenSharing
+is not supported for table update triggers.
+Triggers on
+Unity Catalog
+views
+have the following additional limitations:
+Table update triggers only support monitoring
+Unity Catalog
+views or metric views that depend on tables that are also supported by table update triggers. Notably, the following views are not supported:
+Views that use
+read_files
+(they can read from a supported table that reads files, but cannot directly use
+read_files
+).
+Views that depend on tables that are not in
+Unity Catalog
+.
+Views that depend on federated tables.
+Creation of triggers for views containing unsupported dependencies still succeed, but no job runs are triggered when an unsupported dependency is updated.
+Table update triggers monitor changes to the dependent tables of a view and considers the view updated if any of the dependent tables is updated. It is possible for a job run to be triggered for data changes that are filtered out by the view definition.
+Source tables for a view are counted towards the limit of 10 tables per trigger.
+For example, if a view depends on 11 tables, it is not possible to use it in a table update trigger. Similarly a trigger with two views, each of which depends on 6 tables, counts as 12 tables.
+There is a separate limit of 10 dependent views per monitored view.
+For example, if a view depends on 11 other views, it is not possible to use it in a table update trigger, even if this does not break the 10 tables per trigger rule.
+On this page
+How table update triggers work
+Requirements
+Add a table update trigger
+Add a trigger to OpenSharing and system tables
+Table update triggers with file events
+Job parameters associated with table update triggers
+Receive notifications of failed table update triggers
+Limitations

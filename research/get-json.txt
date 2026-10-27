@@ -1,0 +1,163 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+get_json_object
+function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Extracts a JSON object from
+path
+.
+tip
+For new code,
+Databricks
+recommends using the
+VARIANT data type
+with the
+:
+operator
+to query JSON data.
+VARIANT
+offers better read and write performance, case-sensitive field access, and clearer semantics than string-based JSON parsing. See
+How is variant different than JSON strings?
+.
+Syntax
+​
+get_json_object(expr, path)
+Arguments
+​
+expr
+: A STRING expression containing well formed JSON.
+path
+: A STRING literal containing a JSONPath expression rooted at
+$
+. See
+Notes
+for supported syntax and
+Examples
+for common patterns.
+Returns
+​
+A STRING.
+If the object cannot be found null is returned.
+Examples
+​
+SQL
+-- Extract a top-level field
+>
+SELECT
+get_json_object
+(
+'{"a":"b"}'
+,
+'$.a'
+)
+;
+b
+-- Extract a nested field
+>
+SELECT
+get_json_object
+(
+'{"a":{"b":"c"}}'
+,
+'$.a.b'
+)
+;
+c
+-- Extract an array element by index
+>
+SELECT
+get_json_object
+(
+'{"items":["apple","pear"]}'
+,
+'$.items[0]'
+)
+;
+apple
+-- Extract a field whose name contains a space
+>
+SELECT
+get_json_object
+(
+'{"first name":"Ada"}'
+,
+'$["first name"]'
+)
+;
+Ada
+-- Extract a field whose name contains a dot, using bracket notation with double quotes
+>
+SELECT
+get_json_object
+(
+'{"ids":{"a.b":"42"}}'
+,
+'$.ids["a.b"]'
+)
+;
+42
+-- Extract a field from every element of an array
+>
+SELECT
+get_json_object
+(
+'{"items":[{"n":1},{"n":2}]}'
+,
+'$.items[*].n'
+)
+;
+[
+1
+,
+2
+]
+-- Returns NULL when the path does not match
+>
+SELECT
+get_json_object
+(
+'{"a":"b"}'
+,
+'$.missing'
+)
+;
+NULL
+Notes
+​
+get_json_object
+uses JSONPath syntax rooted at
+$
+. Field access by dot notation (
+.field
+) is case-insensitive; bracket notation (
+['field']
+or
+["field"]
+) is case-sensitive. This differs from the
+Databricks
+JSON path expression
+used with the
+:
+operator
+to query
+VARIANT
+and JSON strings, which is documented separately.
+Related functions
+​
+json_tuple
+table-valued generator function
+:
+(colon sign) operator
+variant_get
+function
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Notes
+Related functions

@@ -1,0 +1,708 @@
+On this page
+Last updated
+on
+Oct 26, 2026
+Unity Catalog
+managed tables for
+Delta Lake
+and
+Apache Iceberg
+Unity Catalog
+managed tables are the default and recommended table type in
+Databricks
+for
+Delta Lake
+and
+Apache Iceberg
+.
+Unity Catalog
+manages all read, write, storage, and optimization responsibilities. See
+Convert external or foreign
+Delta Lake
+tables to
+Unity Catalog
+managed tables
+.
+Data files for managed tables are stored in the schema or catalog containing them. See
+Specify a managed storage location in
+Unity Catalog
+.
+Compared to
+external
+and
+foreign
+tables, managed tables cost less to store and query, maintain and optimize themselves automatically, and stay accessible to external clients through open APIs.
+You can work with managed tables across all languages and products supported in
+Databricks
+. You need certain privileges to create, update, delete, or query managed tables. See
+Manage privileges in
+Unity Catalog
+.
+note
+This page only describes
+Unity Catalog
+managed tables. For managed tables in the legacy
+Hive metastore
+, see
+Database objects in the legacy
+Hive metastore
+.
+Benefits of
+Unity Catalog
+managed tables
+​
+Unity Catalog
+managed tables optimize storage costs and query speeds, and allow interoperability with third-party tools for
+Delta Lake
+and
+Apache Iceberg
+. To simplify data management and performance, these managed tables use AI-powered technologies, such as file size compaction and intelligent statistics collection.
+Managed tables support interoperability by allowing access from
+Delta Lake
+and
+Apache Iceberg
+clients. See
+Access Databricks data using external systems
+.
+The following features are unique to
+Unity Catalog
+managed tables, and aren't available for external tables and foreign tables:
+Feature
+Benefits
+Configuration
+Catalog commits
+Enables
+multi-statement transactions
+across tables, faster query planning, enforceable schema and constraint changes, and safe writes from external engines.
+Turned off by default. To turn on, set the
+delta.feature.catalogManaged
+table property. See
+Enable catalog commits
+.
+Predictive optimization
+Automatically optimizes data layout and compute using AI, without manual maintenance operations. Databricks recommends enabling predictive optimization for all managed tables to reduce storage and compute costs.
+Enabled by default for accounts created on or after November 11, 2024.
+Databricks
+is gradually enabling it for existing accounts. To configure, see
+Enable predictive optimization
+.
+Multi-statement transactions
+Run multiple SQL statements across one or more tables as a single atomic commit with ACID guarantees. All changes succeed together or roll back together. Use for
+stored procedures
+and
+SQL scripting
+.
+Turned off by default. To choose a transaction mode, see
+Transaction modes
+.
+Automatic liquid clustering
+For tables with
+predictive optimization
+, automatically selects and updates clustering keys as query patterns change to improve performance and lower costs.
+Turned off by default. To configure, see
+Enable liquid clustering
+.
+Metadata caching
+In-memory caching of transaction metadata improves query performance by minimizing requests to the transaction log stored in the cloud.
+Enabled by default. Not configurable.
+Full-text search indexes
+Accelerates substring and keyword lookups on text columns using the
+search
+and
+isearch
+functions.
+Databricks
+skips files that can't contain matching rows, reducing the amount of data scanned.
+Turned off by default. Create with
+CREATE SEARCH INDEX
+on tables with
+predictive optimization
+. Predictive optimization keeps the index up to date.
+In
+Beta
+. Requires
+Databricks Runtime
+18.3 and above.
+Automatic file deletion after a
+DROP TABLE
+command
+When you drop a managed table,
+Databricks
+deletes the data files in cloud storage after the recovery period expires (default 7 days), reducing storage costs. For external tables, you must manually delete the files from your storage bucket.
+Enabled by default. You can configure the recovery period at the catalog or schema level. See
+Drop a managed table
+.
+←
+✕
+Feature
+Benefits
+Configuration
+Catalog commits
+Enables
+multi-statement transactions
+across tables, faster query planning, enforceable schema and constraint changes, and safe writes from external engines.
+Turned off by default. To turn on, set the
+delta.feature.catalogManaged
+table property. See
+Enable catalog commits
+.
+Predictive optimization
+Automatically optimizes data layout and compute using AI, without manual maintenance operations. Databricks recommends enabling predictive optimization for all managed tables to reduce storage and compute costs.
+Enabled by default for accounts created on or after November 11, 2024.
+Databricks
+is gradually enabling it for existing accounts. To configure, see
+Enable predictive optimization
+.
+Multi-statement transactions
+Run multiple SQL statements across one or more tables as a single atomic commit with ACID guarantees. All changes succeed together or roll back together. Use for
+stored procedures
+and
+SQL scripting
+.
+Turned off by default. To choose a transaction mode, see
+Transaction modes
+.
+Automatic liquid clustering
+For tables with
+predictive optimization
+, automatically selects and updates clustering keys as query patterns change to improve performance and lower costs.
+Turned off by default. To configure, see
+Enable liquid clustering
+.
+Metadata caching
+In-memory caching of transaction metadata improves query performance by minimizing requests to the transaction log stored in the cloud.
+Enabled by default. Not configurable.
+Full-text search indexes
+Accelerates substring and keyword lookups on text columns using the
+search
+and
+isearch
+functions.
+Databricks
+skips files that can't contain matching rows, reducing the amount of data scanned.
+Turned off by default. Create with
+CREATE SEARCH INDEX
+on tables with
+predictive optimization
+. Predictive optimization keeps the index up to date.
+In
+Beta
+. Requires
+Databricks Runtime
+18.3 and above.
+Automatic file deletion after a
+DROP TABLE
+command
+When you drop a managed table,
+Databricks
+deletes the data files in cloud storage after the recovery period expires (default 7 days), reducing storage costs. For external tables, you must manually delete the files from your storage bucket.
+Enabled by default. You can configure the recovery period at the catalog or schema level. See
+Drop a managed table
+.
+Access Databricks data using external systems
+​
+Managed tables support
+interoperability
+by allowing access from
+Delta Lake
+and
+Apache Iceberg
+clients.
+Through open APIs and credential vending,
+Unity Catalog
+enables external engines such as Trino, DuckDB,
+Apache Spark
+, Daft, and Iceberg REST catalog-integrated engines, such as Dremio, to access managed tables. For external clients that don't support open APIs, you can use
+Compatibility Mode
+to read managed tables using any
+Delta Lake
+or
+Apache Iceberg
+client.
+OpenSharing
+, an open source protocol, enables secure, governed data sharing with external partners and platforms.
+See
+integrations
+for a list of supported external engines, or check your engine's documentation if it's not included in this list.
+The following open APIs allow external systems to access
+Unity Catalog
+managed tables:
+Unity REST API
+has read, write, and create access for
+Delta Lake
+clients to managed
+Delta Lake
+tables.
+Iceberg REST Catalog (IRC)
+has read, write, and create access for
+Apache Iceberg
+clients to managed tables using
+Apache Iceberg
+and read-only access to
+Delta Lake
+tables with
+Apache Iceberg
+reads enabled.
+Both APIs support
+credential vending
+, which provides temporary, scoped credentials that inherit the privileges of the requesting
+Databricks
+principal, maintaining governance and security controls.
+OpenSharing
+is an open source protocol that allows secure and governed data access to external partners and platforms. You can use
+OpenSharing
+to grant partners temporary, read-only access.
+All reads and writes to managed tables must use table names and catalog and schema names where they exist. For example,
+catalog_name.schema_name.table_name
+. Path-based access to
+Unity Catalog
+managed tables is not supported (except in
+Compatibility Mode
+) because it bypasses
+Unity Catalog
+access controls, and might result in possible data corruption or loss depending on your
+Databricks Runtime
+or OSS client version.
+Create a managed table
+​
+To create a managed table, you must have:
+USE SCHEMA
+on the table's parent schema.
+USE CATALOG
+on the table's parent catalog.
+CREATE TABLE
+on the table's parent schema.
+Use the following syntax to create an empty managed table. Replace the placeholder values:
+<catalog-name>
+: The name of the catalog that will contain the table.
+<schema-name>
+: The schema's name containing the table.
+<table-name>
+: A name for the table.
+<column-specification>
+: Each column's name and data type.
+SQL
+Python
+SQL
+-- Create a managed Delta table
+CREATE
+TABLE
+<
+catalog
+-
+name
+>
+.
+<
+schema
+-
+name
+>
+.
+<
+table
+-
+name
+>
+(
+<
+column
+-
+specification
+>
+)
+;
+-- Create a managed table using Iceberg
+CREATE
+TABLE
+<
+catalog
+-
+name
+>
+.
+<
+schema
+-
+name
+>
+.
+<
+table
+-
+name
+>
+(
+<
+column
+-
+specification
+>
+)
+USING
+iceberg
+;
+Create a managed
+Delta Lake
+table using
+saveAsTable()
+:
+Python
+from
+pyspark
+.
+sql
+.
+types
+import
+StructType
+,
+StructField
+,
+StringType
+schema
+=
+StructType
+(
+[
+StructField
+(
+"<column-name>"
+,
+StringType
+(
+)
+)
+]
+)
+spark
+.
+createDataFrame
+(
+[
+]
+,
+schema
+)
+.
+write \
+.
+saveAsTable
+(
+"<catalog-name>.<schema-name>.<table-name>"
+)
+Alternatively, use the
+DeltaTableBuilder
+API for Delta-specific options like generated columns and table properties:
+Python
+from
+delta
+.
+tables
+import
+DeltaTable
+DeltaTable
+.
+create
+(
+spark
+)
+\
+.
+tableName
+(
+"<catalog-name>.<schema-name>.<table-name>"
+)
+\
+.
+addColumn
+(
+"<column-name>"
+,
+"<data-type>"
+)
+\
+.
+property
+(
+"<key>"
+,
+"<value>"
+)
+\
+.
+execute
+(
+)
+Create a managed table using
+Apache Iceberg
+:
+Python
+from
+pyspark
+.
+sql
+.
+types
+import
+StructType
+,
+StructField
+,
+StringType
+schema
+=
+StructType
+(
+[
+StructField
+(
+"<column-name>"
+,
+StringType
+(
+)
+)
+]
+)
+spark
+.
+createDataFrame
+(
+[
+]
+,
+schema
+)
+.
+write \
+.
+format
+(
+"iceberg"
+)
+\
+.
+saveAsTable
+(
+"<catalog-name>.<schema-name>.<table-name>"
+)
+To maintain performance on reads and writes,
+Databricks
+periodically runs operations to optimize the metadata of managed tables using
+Apache Iceberg
+. This task is performed using serverless compute, which has
+MODIFY
+permissions on the table. This operation only writes to the table's metadata, and the compute only maintains permissions to the table for the duration of the job.
+note
+To create an
+Apache Iceberg
+table, explicitly specify
+USING iceberg
+. Otherwise,
+Databricks
+creates a
+Delta Lake
+table by default.
+You can create managed tables from query results or DataFrame write operations. The following articles demonstrate some of the many patterns you can use to create a managed table on
+Databricks
+:
+CREATE TABLE [USING]
+CREATE TABLE LIKE
+Create or modify a table using file upload
+To create a copy of an existing managed table, use clone. Managed
+Delta Lake
+tables support deep and shallow cloning. Managed tables using
+Apache Iceberg
+support only deep cloning. See
+Clone a table on
+Databricks
+and
+Clone a managed table that uses Iceberg
+.
+Drop a managed table
+​
+To drop a managed table, you must have:
+MANAGE
+on the table or you must be the table owner.
+USE SCHEMA
+on the table's parent schema.
+USE CATALOG
+on the table's parent catalog.
+To drop a managed table, run the following command:
+SQL
+Python
+SQL
+DROP
+TABLE
+IF
+EXISTS
+catalog_name
+.
+schema_name
+.
+table_name
+;
+Python
+spark
+.
+sql
+(
+"DROP TABLE IF EXISTS catalog_name.schema_name.table_name"
+)
+Alternatively, in
+Databricks Runtime
+18.2 and above, use
+spark.catalog.dropTable()
+:
+Python
+spark
+.
+catalog
+.
+dropTable
+(
+"catalog_name.schema_name.table_name"
+,
+ifExists
+=
+True
+)
+Unity Catalog
+supports the
+UNDROP TABLE
+command to recover accidentally dropped managed tables. By default, tables are recoverable for 7 days after being dropped. After the recovery period ends, an asynchronous purge process deletes the underlying data files from your cloud tenant.
+Configure the recovery period
+​
+Preview
+Configurable recovery period is in
+Public Preview
+.
+You can configure how long dropped managed tables remain recoverable at the catalog or schema level. If recovery periods are set at both levels, the schema-level setting takes precedence for tables in that schema.
+To configure the recovery period, you must have
+MANAGE
+privilege or ownership on the catalog or schema. This setting only applies to tables dropped after it is configured. It doesn't affect tables that were already dropped.
+The recovery period can be 0 hours, which disables recovery, or 7 to 30 days. A longer period protects against accidental drops of critical data, while a shorter period deletes dropped data faster to save storage costs in ETL pipelines that frequently create and drop tables. When set to 0, dropped tables can't be recovered with
+UNDROP
+. An asynchronous purge process deletes the data files from cloud storage after the drop.
+To set the recovery period, use
+ALTER CATALOG
+or
+ALTER SCHEMA
+with the
+RETAIN DROPPED TO
+clause:
+SQL
+Python
+SQL
+-- Set a 30-day recovery period on a catalog
+ALTER
+CATALOG my_catalog RETAIN DROPPED
+TO
+30
+DAYS
+;
+-- Set a 7-day recovery period on a schema (overrides the catalog setting)
+ALTER
+SCHEMA
+my_catalog
+.
+my_schema RETAIN DROPPED
+TO
+7
+DAYS
+;
+Python
+spark
+.
+sql
+(
+"ALTER CATALOG my_catalog RETAIN DROPPED TO 30 DAYS"
+)
+spark
+.
+sql
+(
+"ALTER SCHEMA my_catalog.my_schema RETAIN DROPPED TO 7 DAYS"
+)
+You can also set the recovery period when creating a catalog or schema with the
+RETAIN DROPPED FOR
+clause:
+SQL
+Python
+SQL
+CREATE
+CATALOG my_catalog RETAIN DROPPED
+FOR
+30
+DAYS
+;
+CREATE
+SCHEMA
+my_catalog
+.
+my_schema RETAIN DROPPED
+FOR
+7
+DAYS
+;
+Python
+spark
+.
+sql
+(
+"CREATE CATALOG my_catalog RETAIN DROPPED FOR 30 DAYS"
+)
+spark
+.
+sql
+(
+"CREATE SCHEMA my_catalog.my_schema RETAIN DROPPED FOR 7 DAYS"
+)
+To check the current recovery period, run
+DESCRIBE EXTENDED
+. The output includes a
+Recovery Period Hours
+row:
+SQL
+Python
+SQL
+DESCRIBE
+CATALOG
+EXTENDED
+my_catalog
+;
+DESCRIBE
+SCHEMA
+EXTENDED
+my_catalog
+.
+my_schema
+;
+Python
+spark
+.
+sql
+(
+"DESCRIBE CATALOG EXTENDED my_catalog"
+)
+.
+show
+(
+)
+spark
+.
+sql
+(
+"DESCRIBE SCHEMA EXTENDED my_catalog.my_schema"
+)
+.
+show
+(
+)
+On this page
+Benefits of Unity Catalog managed tables
+Access Databricks data using external systems
+Create a managed table
+Drop a managed table
+Configure the recovery period

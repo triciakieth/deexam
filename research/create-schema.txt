@@ -1,0 +1,283 @@
+On this page
+Last updated
+on
+Sep 16, 2026
+CREATE SCHEMA
+Applies to:
+Databricks SQL
+Databricks Runtime
+Creates a schema (database) with the specified name. If a schema with the same name already exists, an exception is thrown.
+Permissions
+​
+To create a schema in
+Unity Catalog
+, you must have
+CREATE SCHEMA
+and
+USE CATALOG
+privileges on the catalog where you create the schema.
+If you specify a managed location, you must also have the
+CREATE MANAGED STORAGE
+privilege on the
+external location
+that backs the managed path. You need this privilege only when you specify a managed location.
+Syntax
+​
+CREATE SCHEMA [ IF NOT EXISTS ] schema_name
+[ COMMENT schema_comment |
+DEFAULT COLLATION default_collation_name |
+{ LOCATION schema_directory | MANAGED LOCATION location_path } |
+RETAIN DROPPED FOR number { HOUR | HOURS | DAY | DAYS | WEEK | WEEKS } |
+WITH DBPROPERTIES ( { property_name = property_value } [ , ... ] ) ] [...]
+Parameters
+​
+schema_name
+The name of the schema to be created.
+Schemas created in the
+hive_metastore
+catalog can only contain alphanumeric ASCII characters and underscores (
+INVALID_SCHEMA_OR_RELATION_NAME
+).
+IF NOT EXISTS
+Creates a schema with the given name if it does not exist. If a schema with the same name already exists, nothing will happen.
+LOCATION
+schema_directory
+LOCATION
+is not supported in
+Unity Catalog
+. If you want to specify a storage location for a schema in
+Unity Catalog
+, use
+MANAGED LOCATION
+.
+schema_directory
+is a
+STRING
+literal. The path of the file system in which the specified schema is to be created.
+If the specified path does not exist in the underlying file system, creates a directory with the path. If the location is not specified, the schema is created in the default warehouse directory, whose path is configured by the static configuration
+spark.sql.warehouse.dir
+.
+warning
+If a schema (database) is registered in your workspace-level Hive metastore, dropping that schema using the
+CASCADE
+option causes all files in that schema location to be deleted recursively, regardless of the table type (managed or external).
+If the schema is registered to a
+Unity Catalog
+metastore, the files for
+Unity Catalog
+managed tables
+are deleted recursively. However, the files for
+external tables
+are not deleted. You must manage those files using the cloud storage provider directly.
+Therefore, to avoid accidental data loss, you should never register a schema in a Hive metastore to a location with existing data. Nor should you create new external tables in a location managed by Hive metastore schemas or containing
+Unity Catalog
+managed tables.
+COMMENT
+schema_comment
+A
+STRING
+literal. The description for the schema.
+DEFAULT COLLATION
+default_collation_name
+Applies to:
+Databricks SQL
+Databricks Runtime
+17.1 and above
+Optionally defines the default collation for objects defined within the schema. If not specified the default collation is inherited from the catalog.
+MANAGED LOCATION
+location_path
+MANAGED LOCATION
+is optional and requires
+Unity Catalog
+. If you want to specify a storage location for a schema registered in your workspace-level Hive or third-party metastore, use
+LOCATION
+instead.
+location_path
+must be a
+STRING
+literal.
+Specifies the path to a storage root location for the schema that is different from the catalog's or metastore's storage root location.
+This path must be defined in an
+external location configuration
+, and you must have the
+CREATE MANAGED STORAGE
+privilege on the external location configuration. You can use the path that is defined in the external location configuration or a subpath (in other words,
+'s3://depts/finance'
+or
+'s3://depts/finance/product'
+). Supported in
+Databricks SQL
+or on clusters running
+Databricks Runtime
+11.3 LTS and above.
+See also
+Unity Catalog
+managed tables for
+Delta Lake
+and
+Apache Iceberg
+and
+Create a
+Unity Catalog
+metastore
+.
+RETAIN DROPPED FOR number { HOUR | HOURS | DAY | DAYS | WEEK | WEEKS }
+Applies to:
+Databricks Runtime
+17.3 and above
+Unity Catalog
+only
+Preview
+This feature is in
+Public Preview
+.
+Optionally sets the recovery period for dropped managed tables in the schema, the period during which dropped tables can be recovered using the
+UNDROP TABLE
+command. If not specified, the schema inherits the recovery period from its parent catalog (default 7 days). The value must be 0 hours (to disable recovery) or between 7–30 days, inclusive.
+Setting the recovery period to 0 means dropped tables are not recoverable using
+UNDROP
+and data files are deleted from cloud storage within 48 hours.
+The schema-level recovery period takes precedence over any catalog-level setting for tables in the schema. This setting only applies to tables dropped after the recovery period is configured. After the recovery period ends, data files for managed tables are deleted from your cloud storage within 48 hours.
+See also
+Drop a managed table
+.
+WITH DBPROPERTIES ( { property_name = property_value } [ , … ] )
+The properties for the schema in key-value pairs.
+OPTIONS
+Sets connection-type specific parameters needed to identify the catalog at the connection.
+option
+The option key. The key can consist of one or more
+identifiers
+separated by a dot, or a
+STRING
+literal.
+Option keys must be unique and are case-sensitive.
+value
+The value for the option. The value must be a
+BOOLEAN
+,
+STRING
+,
+INTEGER
+, or
+DECIMAL
+constant expression
+.
+The value may also be a call to the
+SECRET
+SQL function. For example, the
+value
+for
+password
+may comprise
+secret('secrets.r.us', 'postgresPassword')
+as opposed to entering the literal password.
+Examples
+​
+SQL
+-- Create schema `customer_sc`. This throws exception if schema with name customer_sc
+-- already exists.
+>
+CREATE
+SCHEMA
+customer_sc
+;
+-- Create schema `customer_sc` only if schema with same name doesn't exist.
+>
+CREATE
+SCHEMA
+IF
+NOT
+EXISTS
+customer_sc
+;
+-- Create schema `experimental` with a case insensitive unicode default collation
+>
+CREATE
+SCHEMA
+experimental
+DEFAULT
+COLLATION UNICODE_CI
+;
+-- Create schema `customer_sc` only if schema with same name doesn't exist with
+-- `Comments`,`Specific Location` and `Database properties`. LOCATION is not supported in Unity Catalog.
+>
+CREATE
+SCHEMA
+IF
+NOT
+EXISTS
+customer_sc
+COMMENT
+'This is customer schema'
+LOCATION
+'/samplepath'
+WITH
+DBPROPERTIES
+(
+ID
+=
+001
+,
+Name
+=
+'John'
+)
+;
+-- Create schema with a different managed storage location than the metastore's. MANAGED LOCATION is supported only in Unity Catalog.
+>
+CREATE
+SCHEMA
+customer_sc MANAGED LOCATION
+'s3://depts/finance'
+;
+-- Create a schema with a 14-day recovery period for dropped managed tables.
+>
+CREATE
+SCHEMA
+customer_sc RETAIN DROPPED
+FOR
+14
+DAYS
+;
+-- Verify that properties are set.
+>
+DESCRIBE
+SCHEMA
+EXTENDED
+customer_sc
+;
+database_description_item database_description_value
+------------------------- --------------------------
+Database
+Name                customer_sc
+Description  This
+is
+customer
+schema
+Location      hdfs:
+//hacluster/samplepath
+Properties
+(
+(
+ID
+,
+001
+)
+,
+(
+Name
+,
+John
+)
+)
+Related articles
+​
+DESCRIBE SCHEMA
+DROP SCHEMA
+On this page
+Permissions
+Syntax
+Parameters
+Examples
+Related articles

@@ -1,0 +1,156 @@
+On this page
+Last updated
+on
+Oct 15, 2026
+What is a view?
+A view is a read-only object that is the result of a query over one or more tables and views in a
+Unity Catalog
+metastore. You can create a view from tables and from other views in multiple schemas and catalogs.
+This article describes the views that you can create in
+Databricks
+and provides an explanation of the permissions and compute required to query them.
+For information about creating views, see:
+Create views
+Create metric views
+Materialized views
+Dynamic views
+Views in
+Unity Catalog
+​
+In
+Unity Catalog
+, views sit at the third level of the three-level namespace (
+catalog.schema.view
+):
+A view stores the text of a query typically against one or more data sources or tables in the metastore. In
+Databricks
+, a view is equivalent to a Spark DataFrame persisted as an object in a schema. Unlike DataFrames, you can query views from anywhere in
+Databricks
+, assuming that you have permission to do so. Creating a view does not process or write any data. Only the query text is registered to the metastore in the associated schema.
+note
+Views might have different execution semantics if they're backed by data sources other than Delta tables. Databricks recommends that you always define views by referencing data sources using a table or view name. Defining views against datasets by specifying a path or URI can lead to confusing data governance requirements.
+Metric views
+​
+Metric views in
+Unity Catalog
+define reusable business metrics that are centrally maintained and accessible to all users in your workspace. A metric view abstracts the logic behind commonly used KPIs—such as revenue, customer count, or conversion rate—so they can be consistently queried across dashboards, notebooks, and reports. Each metric view specifies a set of measures and dimensions based on a source table, view, or SQL query. Metric views are defined in YAML and queried using SQL.
+Using metric views helps reduce inconsistencies in metric definitions that might otherwise be duplicated across multiple tools and workflows. See
+Metric views
+to learn more.
+Materialized views
+​
+Materialized views
+incrementally calculate and update the results returned by the defining query.
+Materialized views
+on
+Databricks
+are a special kind of Delta table. Whereas all other views on
+Databricks
+calculate results by evaluating the logic that defined the view when it is queried,
+materialized views
+process results and store them in an underlying table when updates are processed using either a refresh schedule or running a pipeline update.
+You can register
+materialized views
+in
+Unity Catalog
+using
+Databricks SQL
+or define them as part of
+Lakeflow pipelines
+. See
+Use standalone
+materialized views
+and
+Spark Declarative Pipelines on Lakeflow
+.
+Temporary views
+​
+A temporary view has limited scope and persistence and is not registered to a schema or catalog. The lifetime of a temporary view differs based on the environment you're using:
+In notebooks and jobs, temporary views are scoped to the notebook or script level. They cannot be referenced outside of the notebook in which they are declared, and no longer exist when the notebook detaches from the cluster.
+In
+Databricks SQL
+, temporary views are scoped to the query level. Multiple statements within the same query can use the temp view, but it cannot be referenced in other queries, even within the same dashboard.
+Dynamic views
+​
+Dynamic views can be used to provide row- and column-level access control, in addition to data masking. See
+Create a dynamic view
+.
+Views in the
+Hive metastore
+(legacy)
+​
+You can define legacy Hive views against any data source and register them in the legacy
+Hive metastore
+. Databricks recommends migrating all legacy Hive views to
+Unity Catalog
+. See
+Views in
+Hive metastore
+.
+Hive global temp view (legacy)
+​
+Global temp views are a legacy
+Databricks
+feature that allow you to register a temp view that is available to all workloads running against a compute resource. Global temp views are a legacy holdover of Hive and HDFS. Databricks recommends against using global temp views.
+Requirements for querying views
+​
+To read views that are registered in
+Unity Catalog
+, the permissions required depend on the compute type,
+Databricks Runtime
+version, and access mode.
+note
+For all views, permission checks are performed on both the view itself and the underlying tables and views that the view is built upon. The user whose permissions are checked for underlying tables and views depends on the compute. For the following,
+Unity Catalog
+checks the view owner's permissions on the underlying data:
+SQL warehouses.
+Standard compute (formerly shared compute).
+Dedicated compute (formerly single user compute) on
+Databricks Runtime
+15.4 LTS and above with fine-grained access control enabled.
+For dedicated compute on
+Databricks Runtime
+15.3 and below,
+Unity Catalog
+checks both the view owner's permissions and the view user's permissions on the underlying data.
+This behavior is reflected in the requirements listed below. In either case, the view owner must maintain permissions on the underlying data in order for view users to access the view.
+For all compute resources, you must have
+SELECT
+on the view itself,
+USE CATALOG
+on its parent catalog, and
+USE SCHEMA
+on its parent schema. This applies to all compute types that support
+Unity Catalog
+, including SQL warehouses, clusters in standard access mode, and clusters in dedicated access mode on
+Databricks Runtime
+15.4 and above.
+For clusters on
+Databricks Runtime
+15.3 and below that use dedicated access mode, you must also have
+SELECT
+on all tables and views that are referenced by the view, in addition to
+USE CATALOG
+on their parent catalogs and
+USE SCHEMA
+on their parent schemas.
+note
+If you're using a dedicated cluster on
+Databricks Runtime
+15.4 LTS and above and you want to avoid the requirement to have
+SELECT
+on the underlying tables and views, verify that
+your workspace is enabled for serverless compute
+.
+Serverless compute handles data filtering, which allows access to a view without requiring permissions on its underlying tables and views. Be aware that you might incur serverless compute charges when you use dedicated compute to query views. For more information, see
+Fine-grained access control on dedicated compute
+.
+On this page
+Views in Unity Catalog
+Metric views
+Materialized views
+Temporary views
+Dynamic views
+Views in the Hive metastore (legacy)
+Hive global temp view (legacy)
+Requirements for querying views

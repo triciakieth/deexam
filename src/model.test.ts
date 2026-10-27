@@ -1,9 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import {
   questions,
   byId,
   grade,
+  evaluate,
+  finishPractice,
+  summarizeSession,
   emptyProgress,
   filterQuestions,
   shuffle,
@@ -45,6 +49,7 @@ describe("real PDF import integrity", () => {
         ).toContain(key);
       for (const path of [
         ...q.promptImages,
+        ...(q.promptFigures ?? []),
         ...q.sourceImages,
         ...q.choices.map((c) => c.image),
       ])
@@ -68,10 +73,206 @@ describe("real PDF import integrity", () => {
     );
   });
 });
-describe("grading and study state", () => {
-  it("grades every real source key correctly and rejects incomplete/wrong selections", () => {
+describe("research completeness and cautious grading", () => {
+  it("retains per-option research, official references, and original keys for every real question", () => {
+    expect(report.researched).toBe(271);
+    expect(report.pendingResearch).toBe(0);
     for (const q of questions) {
-      const key = q.verifiedAnswer ?? q.originalAnswer;
+      expect(q.analysis?.length, q.id).toBeGreaterThan(60);
+      expect(q.reviewedAt, q.id).toBeTruthy();
+      expect(q.references.length, q.id).toBeGreaterThan(0);
+      expect(Object.keys(q.explanations).sort(), q.id).toEqual(
+        q.choices.map((c) => c.id).sort(),
+      );
+      for (const c of q.choices)
+        expect(q.explanations[c.id].length, q.id + c.id).toBeGreaterThan(70);
+      for (const ref of q.references)
+        expect(new URL(ref.url).hostname, q.id).toBe("docs.databricks.com");
+    }
+  });
+  it("does not score an unresolved source key or include it in wrong-answer filters", () => {
+    const q = questions.find((q) => q.verification !== "verified")!;
+    expect(evaluate(q, q.originalAnswer)).toBeNull();
+    const p = recordAttempt(emptyProgress(), q, q.originalAnswer, "practice");
+    expect(stats(p.history)).toEqual({
+      answered: 1,
+      correct: 0,
+      incorrect: 0,
+      ungraded: 1,
+      accuracy: 0,
+    });
+    expect(
+      filterQuestions(
+        {
+          banks: [1, 2, 3],
+          topic: "all",
+          status: "incorrect",
+          verification: "all",
+        },
+        p,
+      ),
+    ).toHaveLength(0);
+    const restored = parseBackup(
+      JSON.stringify({ ...p, history: [{ ...p.history[0], correct: true }] }),
+    );
+    expect(restored.history[0].correct).toBeNull();
+  });
+  it("separates verified success, failure, and ungraded attempts in the same exam", () => {
+    const good = questions.find((q) => q.verification === "verified")!,
+      bad = questions.find((q) => q.verification !== "verified")!;
+    const ids = [good.id, bad.id];
+    const p = completeExam({
+      ...emptyProgress(),
+      session: {
+        ids,
+        index: 0,
+        mode: "exam",
+        selections: {
+          [good.id]: good.verifiedAnswer!,
+          [bad.id]: bad.originalAnswer,
+        },
+        submitted: [],
+        finished: false,
+        expiresAt: null,
+      },
+    });
+    expect(stats(p.history)).toEqual({
+      answered: 2,
+      correct: 1,
+      incorrect: 0,
+      ungraded: 1,
+      accuracy: 100,
+    });
+    expect(
+      filterQuestions(
+        {
+          banks: [1, 2, 3],
+          topic: "all",
+          status: "correct",
+          verification: "all",
+        },
+        p,
+      ).map((q) => q.id),
+    ).toEqual([good.id]);
+  });
+  it("has a successful live documentation check for every cited URL", () => {
+    const checks = JSON.parse(
+      readFileSync("research/link-checks.json", "utf8"),
+    ) as { url: string; status?: number; error?: string }[];
+    for (const q of questions)
+      for (const ref of q.references)
+        expect(checks.find((r) => r.url === ref.url)?.status, ref.url).toBe(
+          200,
+        );
+  });
+});
+describe("session results and evidence integrity", () => {
+  it("archives submitted practice only, once, and preserves original attempt history", () => {
+    const good = questions[0],
+      unknown = questions.find((q) => q.verification !== "verified")!;
+    let p = recordAttempt(
+      emptyProgress(),
+      good,
+      good.verifiedAnswer!,
+      "practice",
+    );
+    p = {
+      ...p,
+      session: {
+        ids: [good.id, unknown.id],
+        index: 0,
+        mode: "practice",
+        selections: {
+          [good.id]: good.verifiedAnswer!,
+          [unknown.id]: unknown.originalAnswer,
+        },
+        submitted: [good.id],
+        finished: false,
+        expiresAt: null,
+      },
+    };
+    const done = finishPractice(p);
+    expect(done.history).toEqual(p.history);
+    expect(done.completedSessions).toHaveLength(1);
+    expect(summarizeSession(done.completedSessions[0])).toEqual({
+      total: 2,
+      answered: 1,
+      correct: 1,
+      incorrect: 0,
+      graded: 1,
+      ungraded: 0,
+      accuracy: 100,
+    });
+    expect(finishPractice(done).completedSessions).toHaveLength(1);
+    expect(parseBackup(JSON.stringify(done))).toEqual(done);
+  });
+  it("accepts old version-one backups without session summaries and rejects invented summary IDs", () => {
+    const old = { ...emptyProgress() } as Record<string, unknown>;
+    delete old.completedSessions;
+    expect(parseBackup(JSON.stringify(old)).completedSessions).toEqual([]);
+    expect(() =>
+      parseBackup(
+        JSON.stringify({
+          ...emptyProgress(),
+          completedSessions: [
+            {
+              ids: ["fake"],
+              mode: "exam",
+              selections: {},
+              submitted: [],
+              finishedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      ),
+    ).toThrow();
+  });
+  it("ties every citation to unchanged retrieved official text", () => {
+    for (const q of questions)
+      for (const ref of q.references) {
+        expect(ref.evidenceFile, ref.url).toBeTruthy();
+        expect(existsSync(ref.evidenceFile!), ref.url).toBe(true);
+        expect(
+          createHash("sha256")
+            .update(readFileSync(ref.evidenceFile!))
+            .digest("hex"),
+          ref.url,
+        ).toBe(ref.evidenceSha256);
+      }
+  });
+});
+describe("documented corrections", () => {
+  it.each([
+    ["b1-q74", "b", "d"],
+    ["b1-q91", "a", "d"],
+    ["b2-q6", "b", "a"],
+    ["b2-q12", "c", "a"],
+    ["b2-q15", "a", "c"],
+    ["b2-q35", "a", "b"],
+    ["b2-q46", "b", "d"],
+    ["b2-q53", "c", "a"],
+    ["b3-q70", "b", "c"],
+    ["b3-q76", "b", "c"],
+    ["b3-q82", "b", "c"],
+  ])(
+    "preserves original %s key %s while grading documented %s",
+    (id, original, correct) => {
+      const q = byId[id];
+      expect(q.originalAnswer).toEqual([original]);
+      expect(q.verifiedAnswer).toEqual([correct]);
+      expect(grade(q, [original])).toBe(false);
+      expect(grade(q, [correct])).toBe(true);
+    },
+  );
+});
+describe("grading and study state", () => {
+  it("grades only researched answers and rejects incomplete/wrong verified selections", () => {
+    for (const q of questions) {
+      if (q.verification !== "verified") {
+        expect(grade(q, q.originalAnswer), q.id).toBeNull();
+        continue;
+      }
+      const key = q.verifiedAnswer!;
       expect(grade(q, key)).toBe(true);
       expect(grade(q, [])).toBe(false);
       if (key.length > 1) expect(grade(q, key.slice(1))).toBe(false);
@@ -94,6 +295,7 @@ describe("grading and study state", () => {
       answered: 1,
       correct: 0,
       incorrect: 1,
+      ungraded: 0,
       accuracy: 0,
     });
     p = recordAttempt(p, q, q.verifiedAnswer ?? q.originalAnswer, "practice");
@@ -101,6 +303,7 @@ describe("grading and study state", () => {
       answered: 1,
       correct: 1,
       incorrect: 0,
+      ungraded: 0,
       accuracy: 100,
     });
     expect(p.history).toHaveLength(2);
@@ -173,6 +376,7 @@ describe("grading and study state", () => {
       answered: 3,
       correct: 1,
       incorrect: 2,
+      ungraded: 0,
       accuracy: 33,
     });
     expect(p.session?.finished).toBe(true);

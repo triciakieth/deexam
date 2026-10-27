@@ -1,0 +1,821 @@
+[
+  {
+    "url": "https://docs.databricks.com/aws/en/admin/account-settings/audit-log-delivery",
+    "finalUrl": "https://docs.databricks.com/aws/en/admin/account-settings/audit-log-delivery",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.768443+00:00",
+    "bytes": 43827
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/admin/workspace-settings/notification-destinations",
+    "finalUrl": "https://docs.databricks.com/aws/en/admin/workspace-settings/notification-destinations",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.761626+00:00",
+    "bytes": 34337
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/archive/connectors/jdbc",
+    "finalUrl": "https://docs.databricks.com/aws/en/archive/connectors/jdbc",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.768105+00:00",
+    "bytes": 149736
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/catalog-explorer/",
+    "finalUrl": "https://docs.databricks.com/aws/en/catalog-explorer/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.756323+00:00",
+    "bytes": 20908
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.706543+00:00",
+    "bytes": 22397
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/configure#single-node",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/configure#single-node",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.750525+00:00",
+    "bytes": 106131
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/photon",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/photon",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.857600+00:00",
+    "bytes": 29659
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/pools",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/pools",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.884526+00:00",
+    "bytes": 35311
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/serverless/limitations",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/serverless/limitations",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.880076+00:00",
+    "bytes": 36991
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/create",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/create",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.927484+00:00",
+    "bytes": 36389
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.927282+00:00",
+    "bytes": 32488
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "finalUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.881161+00:00",
+    "bytes": 33641
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/connect/streaming/kafka",
+    "finalUrl": "https://docs.databricks.com/aws/en/connect/streaming/kafka",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.991024+00:00",
+    "bytes": 117242
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage#external-locations",
+    "finalUrl": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage#external-locations",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:57.971811+00:00",
+    "bytes": 37185
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/managed-storage",
+    "finalUrl": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/managed-storage",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.003910+00:00",
+    "bytes": 54722
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.022726+00:00",
+    "bytes": 24956
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.133471+00:00",
+    "bytes": 173193
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/table-acls/object-privileges",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/table-acls/object-privileges",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.078510+00:00",
+    "bytes": 54915
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/create-metastore",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/create-metastore",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.058313+00:00",
+    "bytes": 37817
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.124479+00:00",
+    "bytes": 69687
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.169954+00:00",
+    "bytes": 50000
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges",
+    "finalUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.231079+00:00",
+    "bytes": 111197
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/delta/",
+    "finalUrl": "https://docs.databricks.com/aws/en/delta/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.172226+00:00",
+    "bytes": 35061
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/delta/merge",
+    "finalUrl": "https://docs.databricks.com/aws/en/delta/merge",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.240445+00:00",
+    "bytes": 163266
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.241039+00:00",
+    "bytes": 30585
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.300664+00:00",
+    "bytes": 97574
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/variables",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/variables",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.325142+00:00",
+    "bytes": 91860
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/cli/bundle-commands",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/cli/bundle-commands",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.456494+00:00",
+    "bytes": 166792
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.353830+00:00",
+    "bytes": 26185
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/requirements",
+    "finalUrl": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/requirements",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.390385+00:00",
+    "bytes": 40337
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/getting-started/dataframes",
+    "finalUrl": "https://docs.databricks.com/aws/en/getting-started/dataframes",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.400709+00:00",
+    "bytes": 188805
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/getting-started/high-level-architecture",
+    "finalUrl": "https://docs.databricks.com/aws/en/getting-started/high-level-architecture",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.426855+00:00",
+    "bytes": 30967
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.465845+00:00",
+    "bytes": 34524
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.478354+00:00",
+    "bytes": 216126
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.497546+00:00",
+    "bytes": 63961
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.546719+00:00",
+    "bytes": 85552
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.624324+00:00",
+    "bytes": 39738
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/salesforce-concepts",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/salesforce-concepts",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.668005+00:00",
+    "bytes": 45189
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-source-setup",
+    "finalUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-source-setup",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.638597+00:00",
+    "bytes": 22203
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/configure-job",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/configure-job",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.651169+00:00",
+    "bytes": 47024
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/file-arrival-triggers",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/file-arrival-triggers",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.673696+00:00",
+    "bytes": 52885
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/monitor",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/monitor",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.645326+00:00",
+    "bytes": 63104
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/notifications",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/notifications",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.740768+00:00",
+    "bytes": 49532
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/repair-job-failures",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/repair-job-failures",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.724727+00:00",
+    "bytes": 30679
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/run-if",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/run-if",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.787965+00:00",
+    "bytes": 24773
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/run-serverless-jobs",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/run-serverless-jobs",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.780925+00:00",
+    "bytes": 39422
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/scheduled",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/scheduled",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.770342+00:00",
+    "bytes": 21385
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/tasks/if-else",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/tasks/if-else",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.861709+00:00",
+    "bytes": 25109
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/jobs/trigger-table-update",
+    "finalUrl": "https://docs.databricks.com/aws/en/jobs/trigger-table-update",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.879590+00:00",
+    "bytes": 33446
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/lakehouse/",
+    "finalUrl": "https://docs.databricks.com/aws/en/lakehouse/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.888273+00:00",
+    "bytes": 26771
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/lakehouse/medallion",
+    "finalUrl": "https://docs.databricks.com/aws/en/lakehouse/medallion",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.925416+00:00",
+    "bytes": 42828
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/concepts/pipeline-mode",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/concepts/pipeline-mode",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.885867+00:00",
+    "bytes": 28115
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/concepts/streaming-tables",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/concepts/streaming-tables",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.866210+00:00",
+    "bytes": 28785
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/configure-pipeline",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/configure-pipeline",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.983222+00:00",
+    "bytes": 58789
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/python-dev",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/developer/python-dev",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.977025+00:00",
+    "bytes": 120397
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/python-ref",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/developer/python-ref",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.003028+00:00",
+    "bytes": 34346
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/sql-dev",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/developer/sql-dev",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.024797+00:00",
+    "bytes": 59295
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/expectations",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/expectations",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:58.996886+00:00",
+    "bytes": 90825
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+    "finalUrl": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.063157+00:00",
+    "bytes": 224390
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/notebooks/debugger",
+    "finalUrl": "https://docs.databricks.com/aws/en/notebooks/debugger",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.101155+00:00",
+    "bytes": 48321
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/notebooks/notebook-limitations",
+    "finalUrl": "https://docs.databricks.com/aws/en/notebooks/notebook-limitations",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.107445+00:00",
+    "bytes": 33527
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/notebooks/notebooks-code",
+    "finalUrl": "https://docs.databricks.com/aws/en/notebooks/notebooks-code",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.132937+00:00",
+    "bytes": 52323
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/opensharing/manage-egress",
+    "finalUrl": "https://docs.databricks.com/aws/en/opensharing/manage-egress",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.165433+00:00",
+    "bytes": 39943
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/opensharing/share-data-databricks",
+    "finalUrl": "https://docs.databricks.com/aws/en/opensharing/share-data-databricks",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.160228+00:00",
+    "bytes": 30525
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/opensharing/share-data-open",
+    "finalUrl": "https://docs.databricks.com/aws/en/opensharing/share-data-open",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.226886+00:00",
+    "bytes": 28492
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "finalUrl": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.187450+00:00",
+    "bytes": 46219
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/optimizations/predictive-optimization",
+    "finalUrl": "https://docs.databricks.com/aws/en/optimizations/predictive-optimization",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.258631+00:00",
+    "bytes": 51434
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+    "finalUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.228396+00:00",
+    "bytes": 20835
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/long-spark-stage-page",
+    "finalUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/long-spark-stage-page",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.326502+00:00",
+    "bytes": 24209
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/spark-memory-issues",
+    "finalUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/spark-memory-issues",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.263018+00:00",
+    "bytes": 22045
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/pandas/pyspark-pandas-conversion",
+    "finalUrl": "https://docs.databricks.com/aws/en/pandas/pyspark-pandas-conversion",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.293441+00:00",
+    "bytes": 26234
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query-federation/",
+    "finalUrl": "https://docs.databricks.com/aws/en/query-federation/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.333913+00:00",
+    "bytes": 31281
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query-federation/postgresql",
+    "finalUrl": "https://docs.databricks.com/aws/en/query-federation/postgresql",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.366799+00:00",
+    "bytes": 263948
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query-federation/sqldw",
+    "finalUrl": "https://docs.databricks.com/aws/en/query-federation/sqldw",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.351673+00:00",
+    "bytes": 232052
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query/formats/binary",
+    "finalUrl": "https://docs.databricks.com/aws/en/query/formats/binary",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.402340+00:00",
+    "bytes": 61988
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query/formats/csv",
+    "finalUrl": "https://docs.databricks.com/aws/en/query/formats/csv",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.421952+00:00",
+    "bytes": 122501
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/query/formats/parquet",
+    "finalUrl": "https://docs.databricks.com/aws/en/query/formats/parquet",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.446651+00:00",
+    "bytes": 70203
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/repos/git-operations-with-repos",
+    "finalUrl": "https://docs.databricks.com/aws/en/repos/git-operations-with-repos",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.441835+00:00",
+    "bytes": 84768
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/semi-structured/complex-types",
+    "finalUrl": "https://docs.databricks.com/aws/en/semi-structured/complex-types",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.484202+00:00",
+    "bytes": 70593
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/delta-delete-from",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/delta-delete-from",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.524060+00:00",
+    "bytes": 32064
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.541810+00:00",
+    "bytes": 50411
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count_if",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count_if",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.535593+00:00",
+    "bytes": 36636
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/filter",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/filter",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.544710+00:00",
+    "bytes": 33046
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/from_json",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/from_json",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.568431+00:00",
+    "bytes": 44181
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.597170+00:00",
+    "bytes": 37645
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/lteqgtsign",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/lteqgtsign",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.623556+00:00",
+    "bytes": 37643
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/sum",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/sum",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.657396+00:00",
+    "bytes": 50434
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-null-semantics",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-null-semantics",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.673304+00:00",
+    "bytes": 140372
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-describe-schema",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-describe-schema",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.652642+00:00",
+    "bytes": 39430
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-schema",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-schema",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.689932+00:00",
+    "bytes": 56775
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.761455+00:00",
+    "bytes": 279147
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.766303+00:00",
+    "bytes": 136188
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.753158+00:00",
+    "bytes": 166863
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.767898+00:00",
+    "bytes": 41039
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.780676+00:00",
+    "bytes": 259334
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-groupby",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-groupby",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.826100+00:00",
+    "bytes": 140032
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-hints",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-hints",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.857531+00:00",
+    "bytes": 73132
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-join",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-join",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.869041+00:00",
+    "bytes": 86133
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-pivot",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-pivot",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.901795+00:00",
+    "bytes": 125322
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-setops",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-setops",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.903719+00:00",
+    "bytes": 53520
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-window-functions",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-window-functions",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.891539+00:00",
+    "bytes": 76054
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/mv-st/materialized",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/mv-st/materialized",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.957333+00:00",
+    "bytes": 67844
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/user/alerts/",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/user/alerts/",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.991292+00:00",
+    "bytes": 22338
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/sql/user/queries/schedule-query",
+    "finalUrl": "https://docs.databricks.com/aws/en/sql/user/queries/schedule-query",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:12:59.983650+00:00",
+    "bytes": 22217
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+    "finalUrl": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.000957+00:00",
+    "bytes": 52231
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/concepts",
+    "finalUrl": "https://docs.databricks.com/aws/en/structured-streaming/concepts",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.022140+00:00",
+    "bytes": 22837
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/delta-lake",
+    "finalUrl": "https://docs.databricks.com/aws/en/structured-streaming/delta-lake",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.045402+00:00",
+    "bytes": 156509
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+    "finalUrl": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.064734+00:00",
+    "bytes": 35323
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+    "finalUrl": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.084763+00:00",
+    "bytes": 91516
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/clustering",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/clustering",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.092125+00:00",
+    "bytes": 183452
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/convert-to-managed",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/convert-to-managed",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.169379+00:00",
+    "bytes": 101938
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/history",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/history",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.158133+00:00",
+    "bytes": 79118
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/managed",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/managed",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.163066+00:00",
+    "bytes": 70855
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/operations/optimize",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/operations/optimize",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.189873+00:00",
+    "bytes": 34595
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/tables/operations/vacuum",
+    "finalUrl": "https://docs.databricks.com/aws/en/tables/operations/vacuum",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.197411+00:00",
+    "bytes": 49028
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/udf/python",
+    "finalUrl": "https://docs.databricks.com/aws/en/udf/python",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.218355+00:00",
+    "bytes": 134181
+  },
+  {
+    "url": "https://docs.databricks.com/aws/en/volumes/volume-files",
+    "finalUrl": "https://docs.databricks.com/aws/en/volumes/volume-files",
+    "status": 200,
+    "checkedAt": "2026-10-27T17:13:00.220412+00:00",
+    "bytes": 118517
+  }
+]

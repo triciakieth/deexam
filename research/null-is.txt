@@ -1,0 +1,150 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+isnull
+function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns
+true
+if
+expr
+is
+NULL
+. This function is a synonym for
+is null
+operator
+.
+Syntax
+​
+isnull(expr)
+Arguments
+​
+expr
+: An expression of any type.
+Returns
+​
+A
+BOOLEAN
+.
+If
+expr
+is a
+VARIANT
+result of a:
+JSON path expression
+with a valid path,
+parse_json
+function
+,
+variant_explode
+table-valued function
+, or
+variant_explode_outer
+table-valued function
+the result is always
+false
+.
+Use the
+is_variant_null
+function
+function to check if the
+VARIANT
+encoded value is
+NULL
+, or cast the
+VARIANT
+to a specific type and check if the result is
+NULL
+.
+Examples
+​
+SQL
+>
+SELECT
+isnull
+(
+1
+)
+;
+false
+>
+SELECT
+isnull
+(
+NULL
+:
+INTEGER
+)
+;
+true
+>
+SELECT
+isnull
+(
+parse_json
+(
+'{"key": null}'
+)
+:
+key
+)
+;
+false
+>
+SELECT
+isnull
+(
+parse_json
+(
+'{"key": null}'
+)
+:
+key
+::STRING
+)
+;
+true
+>
+SELECT
+isnull
+(
+parse_json
+(
+'{"key": null}'
+)
+:wrongkey
+)
+;
+true
+>
+SELECT
+is_variant_null
+(
+parse_json
+(
+'{"key": null}'
+)
+:
+key
+)
+;
+true
+Related functions
+​
+isnotnull
+function
+isnan
+function
+is null
+operator
+is_variant_null
+function
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Related functions

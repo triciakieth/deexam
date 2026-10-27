@@ -1,0 +1,131 @@
+On this page
+Last updated
+on
+Oct 9, 2024
+Data format options
+Databricks
+has built-in keyword bindings for all of the data formats natively supported by
+Apache Spark
+.
+Databricks
+uses
+Delta Lake
+as the default protocol for reading and writing data and tables, whereas
+Apache Spark
+uses Parquet. The following sections describe the options and configurations available when you query each data format on
+Databricks
+.
+Most formats support write compression via the
+compression
+option. For the supported values for each format, see
+DataFrameWriter
+options
+.
+Databricks
+can also directly read pre-compressed files in many formats, and you can
+unzip compressed files
+on
+Databricks
+if necessary.
+For more information about
+Apache Spark
+data sources, see
+Generic Load/Save Functions
+and
+Generic File Source Options
+.
+Open table formats
+​
+Table formats that support ACID transactions, schema evolution, and interoperability across engines.
+Delta Lake
+The default format for reading and writing data and tables on
+Databricks
+.
+Iceberg
+Read and write Iceberg tables and interoperate with external Iceberg engines.
+OpenSharing
+Read shared tables and data using the open sharing protocol.
+Columnar formats
+​
+Binary columnar formats optimized for analytical read performance and compression.
+Parquet
+The columnar format
+Apache Spark
+uses by default, with efficient compression and encoding.
+ORC
+A columnar format with built-in compression and support for lightweight indexes.
+Text-based formats
+​
+Human-readable formats for interchange, configuration, and records with flexible or evolving schemas.
+JSON
+Read and write JSON files, including options for multiline records and schema inference.
+CSV
+Read and write delimited text files, with options for headers, delimiters, and malformed records.
+XML
+Read and write XML files by specifying the row tag and schema.
+Text
+Read and write plain text files one line or one file at a time.
+Binary and specialized formats
+​
+Binary serialization formats and
+Databricks
+-specific data sources.
+Avro
+Read and write Avro files and work with Avro-encoded payloads in streaming.
+MLflow experiment
+Load MLflow experiment run data using the custom
+mlflow-experiment
+keyword.
+Unstructured data
+​
+Formats and types for storing and processing documents, images, audio, and other unstructured files.
+Work with unstructured data
+Store, govern, and process unstructured data such as documents, images, and audio.
+Binary
+Read files as raw binary records, including images and other unstructured data.
+Image
+Load image data for machine learning workloads. Databricks recommends loading images as
+binary
+data.
+FILE
+Store a governed reference to an unstructured file instead of using
+BINARY
+or
+STRING
+.
+Ingest files as the FILE type
+Ingest unstructured files into tables as
+FILE
+references using SQL, table-valued functions, and Auto Loader.
+Process files with UDFs
+Read file bytes, extract image and video metadata, and generate derived files with UDFs.
+FILE functions quickstart
+Get started with the
+FILE
+type and its functions in
+Databricks SQL
+and
+Databricks Runtime
+.
+Semi-structured data
+​
+Patterns and functions for working with nested and semi-structured data in the lakehouse.
+Model semi-structured data
+Choose between Variant, JSON strings, structs, and maps for storing semi-structured data.
+Variant
+Store semi-structured data using the
+VARIANT
+type for optimized reads and writes.
+Transform complex data types
+Work with structs, arrays, and maps in
+Apache Spark
+.
+Higher-order functions
+Transform arrays and maps using built-in higher-order functions.
+On this page
+Open table formats
+Columnar formats
+Text-based formats
+Binary and specialized formats
+Unstructured data
+Semi-structured data

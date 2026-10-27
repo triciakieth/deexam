@@ -6,6 +6,9 @@ import {
   emptyProgress,
   filterQuestions,
   grade,
+  evaluate,
+  finishPractice,
+  summarizeSession,
   latest,
   loadProgress,
   parseBackup,
@@ -48,8 +51,11 @@ function Explanation({ q, selected }: { q: Question; selected: string[] }) {
     <section className="explanation" aria-label="Answer review">
       <div className="eyebrow">Answer review</div>
       <h3>
-        {grade(q, selected) ? "Correct" : "Incorrect"}{" "}
-        {verified ? "" : "against the source key"}
+        {verified
+          ? grade(q, selected)
+            ? "Correct"
+            : "Incorrect"
+          : "Not graded — answer unresolved"}
       </h3>
       <p>
         Your answer:{" "}
@@ -61,11 +67,26 @@ function Explanation({ q, selected }: { q: Question; selected: string[] }) {
       </p>
       {!verified && (
         <div className="notice">
-          This answer comes from the PDF key and has not been independently
-          verified. Independent technical verification is incomplete for this
-          question. No technical explanation is asserted below.
+          This question is not scored because no single documentation-supported
+          answer has been established. The original key is shown for source
+          comparison only. Read the research notes below before relying on any
+          option.
         </div>
       )}
+      <div className="research-conclusion">
+        <h4>
+          {verified
+            ? "Why the documented answer fits"
+            : "Why this question remains unresolved"}
+        </h4>
+        <p>{q.analysis ?? q.keyConcept}</p>
+        {q.reviewedAt && (
+          <small>
+            Research reviewed {q.reviewedAt} ·{" "}
+            {q.reviewStatus?.replaceAll("-", " ")}
+          </small>
+        )}
+      </div>
       <div className="option-reviews">
         {q.choices.map((c) => (
           <div key={c.id}>
@@ -164,6 +185,7 @@ export default function App() {
   const [now, setNow] = useState(Date.now());
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [replaceSession, setReplaceSession] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [confirmImport, setConfirmImport] = useState<Progress | null>(null);
   const [storageBlocked, setStorageBlocked] = useState(Boolean(initial.error));
   const fileRef = useRef<HTMLInputElement>(null);
@@ -246,7 +268,14 @@ export default function App() {
     setConfirmFinish(false);
   }
   function submit() {
-    if (!question || !session || !selection.length || submitted) return;
+    if (
+      !question ||
+      !session ||
+      !selection.length ||
+      submitted ||
+      session.finished
+    )
+      return;
     setProgress((p) => {
       const updated = recordAttempt(p, question, selection, "practice");
       return {
@@ -280,23 +309,30 @@ export default function App() {
     return topics.map((t) => {
       const qs = questions.filter((q) => q.topic === t);
       const attempted = qs.filter((q) => last[q.id]);
-      const correct = attempted.filter((q) => last[q.id].correct).length;
+      const correct = attempted.filter(
+        (q) => last[q.id].correct === true,
+      ).length;
+      const graded = attempted.filter(
+        (q) => last[q.id].correct !== null,
+      ).length;
       return {
         topic: t,
         total: qs.length,
         answered: attempted.length,
         correct,
-        accuracy: attempted.length
-          ? Math.round((correct / attempted.length) * 100)
-          : 0,
+        graded,
+        accuracy: graded ? Math.round((correct / graded) * 100) : 0,
       };
     });
   }
+  const quizGraded = session
+    ? session.ids.filter((id) => byId[id].verification === "verified").length
+    : 0;
   const quizCorrect = session
     ? session.ids.filter(
         (id) =>
           session.selections[id]?.length &&
-          grade(byId[id], session.selections[id]),
+          evaluate(byId[id], session.selections[id]) === true,
       ).length
     : 0;
   return (
@@ -466,12 +502,14 @@ export default function App() {
                   [
                     "Correct answers",
                     total.correct,
-                    "Verified answers or source keys",
+                    "Documentation-verified grading only",
                   ],
                   [
                     "Accuracy",
-                    `${total.accuracy}%`,
-                    "Latest answer per question",
+                    total.correct + total.incorrect
+                      ? `${total.accuracy}%`
+                      : "—",
+                    "Excludes ungraded questions",
                   ],
                   [
                     "Bookmarked",
@@ -486,6 +524,13 @@ export default function App() {
                   </section>
                 ))}
               </div>
+              {total.ungraded > 0 && (
+                <div className="notice">
+                  {total.ungraded} answered questions remain ungraded because
+                  their answers are unresolved. Accuracy and wrong-answer counts
+                  use only documentation-verified questions.
+                </div>
+              )}
               <div className="dashboard-grid">
                 <section className="card study-card">
                   <div className="eyebrow">BUILD YOUR MOMENTUM</div>
@@ -562,9 +607,11 @@ export default function App() {
                           <strong>{t.topic}</strong>
                           <span>
                             {t.answered} / {t.total} answered ·{" "}
-                            {t.answered
-                              ? t.accuracy + "% accuracy"
-                              : "Not started"}
+                            {t.graded
+                              ? t.accuracy + "% verified accuracy"
+                              : t.answered
+                                ? "Not graded yet"
+                                : "Not started"}
                           </span>
                         </div>
                         <progress
@@ -579,9 +626,9 @@ export default function App() {
               </section>
               <section className="card">
                 <h2>Focus next · weakest topics</h2>
-                {topicRows().some((t) => t.answered) ? (
+                {topicRows().some((t) => t.graded) ? (
                   topicRows()
-                    .filter((t) => t.answered)
+                    .filter((t) => t.graded)
                     .sort((a, b) => a.accuracy - b.accuracy)
                     .slice(0, 3)
                     .map((t) => (
@@ -596,7 +643,7 @@ export default function App() {
                         <div>
                           <strong>{t.topic}</strong>
                           <span>
-                            {t.accuracy}% accuracy across {t.answered} answered
+                            {t.accuracy}% accuracy across {t.graded} graded
                             questions
                           </span>
                         </div>
@@ -607,6 +654,44 @@ export default function App() {
                   <p className="muted">
                     Answer a few questions to see where to focus your next
                     session.
+                  </p>
+                )}
+              </section>
+              <section className="card">
+                <h2>Previous quiz results</h2>
+                {progress.completedSessions.length ? (
+                  <ul className="recent-list">
+                    {progress.completedSessions
+                      .slice(-10)
+                      .reverse()
+                      .map((s, i) => {
+                        const r = summarizeSession(s);
+                        return (
+                          <li key={i}>
+                            <span>
+                              {s.mode === "exam" ? "Exam" : "Practice"}
+                              <small>
+                                {r.answered} / {r.total} answered · {r.ungraded}{" "}
+                                ungraded
+                              </small>
+                            </span>
+                            <strong>
+                              {r.correct} / {r.graded} verified ·{" "}
+                              {r.accuracy === null
+                                ? "Not scored"
+                                : r.accuracy + "%"}
+                            </strong>
+                            <time>
+                              {new Date(s.finishedAt).toLocaleString()}
+                            </time>
+                          </li>
+                        );
+                      })}
+                  </ul>
+                ) : (
+                  <p className="muted">
+                    Finish an exam or select Finish practice to save a session
+                    result. Existing individual attempts remain in your history.
                   </p>
                 )}
               </section>
@@ -626,16 +711,21 @@ export default function App() {
                         <li key={i}>
                           <span
                             className={
-                              a.correct ? "result correct" : "result incorrect"
+                              a.correct === null
+                                ? "result ungraded"
+                                : a.correct
+                                  ? "result correct"
+                                  : "result incorrect"
                             }
                           >
-                            {a.correct ? "✓" : "×"}
+                            {a.correct === null ? "—" : a.correct ? "✓" : "×"}
                           </span>
                           <span>
                             Bank {byId[a.questionId].bank} · Question{" "}
                             {byId[a.questionId].number}
                             <small>
                               {byId[a.questionId].topic} · {a.mode}
+                              {a.correct === null ? " · Not graded" : ""}
                             </small>
                           </span>
                           <time>{new Date(a.at).toLocaleString()}</time>
@@ -649,7 +739,13 @@ export default function App() {
           {view === "banks" && (
             <>
               <section className="card">
-                <h2>Import audit</h2>
+                <h2>Import and research audit</h2>
+                <p>
+                  {report.researched} / {report.total} researched ·{" "}
+                  {report.completedExplanations} with saved choice explanations
+                  · {report.correctedKeys} corrected keys ·{" "}
+                  {report.reviewedUnresolved} unresolved after review.
+                </p>
                 <p>
                   All numbered questions and answer keys were imported. PDF
                   images preserve original wording, code, tables, and choices.
@@ -690,9 +786,10 @@ export default function App() {
                 <div className="notice">
                   Documentation verification remains incomplete.{" "}
                   {report.verified} answers are verified; {report.unverified}{" "}
-                  remain unverified. Topic labels are automated study aids.
-                  Image-only choices and ambiguous source wording are flagged;
-                  original keys may be wrong or outdated.
+                  remain unverified. Topic labels are study aids and do not
+                  replace the current official exam guide. Image-only choices
+                  and ambiguous source wording are flagged; original keys may be
+                  wrong or outdated.
                 </div>
               </section>
               <section className="card">
@@ -723,7 +820,10 @@ export default function App() {
                       </summary>
                       <p>{q.text}</p>
                       <p>
-                        Unverified ·{" "}
+                        {q.verification === "verified"
+                          ? "Verified"
+                          : "Unverified"}{" "}
+                        ·{" "}
                         {q.type === "multiple"
                           ? "Multiple answers"
                           : "Single answer"}{" "}
@@ -812,6 +912,7 @@ export default function App() {
                     >
                       <option value="all">All questions</option>
                       <option value="unanswered">Unanswered</option>
+                      <option value="correct">Correctly answered</option>
                       <option value="incorrect">Incorrect answers</option>
                       <option value="bookmarked">Bookmarked</option>
                     </select>
@@ -974,9 +1075,11 @@ export default function App() {
                   {session.mode === "exam" && session.finished && (
                     <div className="exam-results" role="status">
                       <h3>
-                        Exam complete · {quizCorrect} / {session.ids.length}{" "}
-                        correct (
-                        {Math.round((quizCorrect / session.ids.length) * 100)}%)
+                        Exam complete · {quizCorrect} / {quizGraded} correct (
+                        {quizGraded
+                          ? Math.round((quizCorrect / quizGraded) * 100) + "%"
+                          : "not scored"}
+                        )
                       </h3>
                       <p>
                         {
@@ -984,9 +1087,9 @@ export default function App() {
                             (id) => !session.selections[id]?.length,
                           ).length
                         }{" "}
-                        unanswered · Graded against verified answers where
-                        available, otherwise unverified source keys. Review each
-                        question below.
+                        unanswered · {session.ids.length - quizGraded} ungraded
+                        questions excluded from the score. Only
+                        documentation-verified answers are scored.
                       </p>
                     </div>
                   )}
@@ -999,6 +1102,27 @@ export default function App() {
                       />
                     ))}
                   </div>
+                  {question.promptFigures?.length ? (
+                    <details className="source-scan">
+                      <summary>
+                        Original-resolution diagram or code (
+                        {question.promptFigures.length})
+                      </summary>
+                      {question.promptFigures.map((src) => (
+                        <a
+                          key={src}
+                          href={src}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img
+                            src={src}
+                            alt="Original-resolution figure preserved from the source PDF"
+                          />
+                        </a>
+                      ))}
+                    </details>
+                  ) : null}
                   <details className="source-scan">
                     <summary>
                       Full original question scan · open images to enlarge
@@ -1021,7 +1145,7 @@ export default function App() {
                       ? "Select all answers that apply."
                       : "Select one answer."}
                   </p>
-                  {question.issues.length > 0 && (
+                  {reveal && question.issues.length > 0 && (
                     <details className="source-note">
                       <summary>
                         Source review notes ({question.issues.length})
@@ -1031,12 +1155,22 @@ export default function App() {
                       ))}
                     </details>
                   )}
-                  <fieldset className="answer-choices" disabled={reveal}>
+                  <fieldset
+                    className="answer-choices"
+                    disabled={reveal || session.finished}
+                  >
                     <legend className="sr-only">Answer choices</legend>
                     {question.choices.map((c) => {
                       const chosen = selection.includes(c.id);
-                      const correct = reveal && answer(question).includes(c.id);
-                      const wrong = reveal && chosen && !correct;
+                      const correct =
+                        reveal &&
+                        question.verification === "verified" &&
+                        answer(question).includes(c.id);
+                      const wrong =
+                        reveal &&
+                        question.verification === "verified" &&
+                        chosen &&
+                        !correct;
                       return (
                         <label
                           key={c.id}
@@ -1095,10 +1229,17 @@ export default function App() {
                     })}
                   </fieldset>
                   <div className="question-actions">
+                    {session.mode === "practice" && !session.finished && (
+                      <button onClick={() => setProgress(finishPractice)}>
+                        Finish practice
+                      </button>
+                    )}
                     {session.mode === "practice" && (
                       <button
                         className="primary"
-                        disabled={!selection.length || submitted}
+                        disabled={
+                          !selection.length || submitted || session.finished
+                        }
                         onClick={submit}
                       >
                         {submitted ? "Answer submitted" : "Submit answer"}
@@ -1136,7 +1277,8 @@ export default function App() {
                       role="alertdialog"
                       aria-label="Finish exam confirmation"
                     >
-                      Submit this exam? Unanswered questions count as incorrect.{" "}
+                      Submit this exam? Unanswered verified questions count as
+                      incorrect. Unverified questions remain ungraded.{" "}
                       <button
                         className="primary"
                         onClick={() => {
@@ -1201,7 +1343,42 @@ export default function App() {
               )}
             </>
           )}
+          {confirmReset && (
+            <section
+              className="card"
+              role="alertdialog"
+              aria-label="Reset study progress"
+            >
+              <h2>Reset all study progress?</h2>
+              <p>
+                This removes attempts, bookmarks, and the current session from
+                this browser. Export a backup first if you want to keep them.
+              </p>
+              <button onClick={exportBackup}>Export backup before reset</button>
+              <button
+                className="primary"
+                onClick={() => {
+                  setProgress({ ...emptyProgress(), dark: progress.dark });
+                  setStorageBlocked(false);
+                  setConfirmReset(false);
+                  setView("dashboard");
+                  setMessage("Study progress reset.");
+                }}
+              >
+                Confirm reset
+              </button>
+              <button onClick={() => setConfirmReset(false)}>
+                Cancel reset
+              </button>
+            </section>
+          )}
           <footer>
+            <button
+              className="text-button"
+              onClick={() => setConfirmReset(true)}
+            >
+              Reset progress
+            </button>
             <span>
               Local-first learning. Your progress stays in this browser.
             </span>

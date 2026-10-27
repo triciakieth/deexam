@@ -1,0 +1,350 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+sum
+aggregate function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns the sum calculated from the values of a group.
+Syntax
+​
+sum ( [ALL | DISTINCT] expr ) [FILTER ( WHERE cond ) ]
+This function can also be invoked as a
+window function
+using the
+OVER
+clause.
+Arguments
+​
+expr
+: An expression that evaluates to a numeric or interval.
+cond
+: An optional Boolean expression filtering the rows used for aggregation.
+Returns
+​
+If
+expr
+is an integral number type, a
+BIGINT
+.
+If
+expr
+is
+DECIMAL(p, s)
+the result is
+DECIMAL(p + min(10, 31-p), s)
+.
+If
+expr
+is an interval the result type matches
+expr
+.
+Otherwise, a
+DOUBLE
+.
+If
+DISTINCT
+is specified only unique values are summed up.
+If the result overflows the result type
+Databricks
+raises an
+ARITHMETIC_OVERFLOW
+error.
+To return a
+NULL
+instead use
+try_sum
+.
+warning
+In
+Databricks Runtime
+, if
+spark.sql.ansi.enabled
+is
+false
+, an overflow of
+BIGINT
+does not cause an error but “wraps” the result instead.
+Common error conditions
+​
+ARITHMETIC_OVERFLOW
+INTERVAL_ARITHMETIC_OVERFLOW
+Examples
+​
+SQL
+>
+SELECT
+sum
+(
+col
+)
+FROM
+VALUES
+(
+5
+)
+,
+(
+10
+)
+,
+(
+15
+)
+AS
+tab
+(
+col
+)
+;
+30
+>
+SELECT
+sum
+(
+col
+)
+FILTER
+(
+WHERE
+col
+<
+15
+)
+FROM
+VALUES
+(
+5
+)
+,
+(
+10
+)
+,
+(
+15
+)
+AS
+tab
+(
+col
+)
+;
+15
+>
+SELECT
+sum
+(
+DISTINCT
+col
+)
+FROM
+VALUES
+(
+5
+)
+,
+(
+10
+)
+,
+(
+10
+)
+,
+(
+15
+)
+AS
+tab
+(
+col
+)
+;
+30
+>
+SELECT
+sum
+(
+col
+)
+FROM
+VALUES
+(
+NULL
+)
+,
+(
+10
+)
+,
+(
+15
+)
+AS
+tab
+(
+col
+)
+;
+25
+>
+SELECT
+sum
+(
+col
+)
+FROM
+VALUES
+(
+NULL
+)
+,
+(
+NULL
+)
+AS
+tab
+(
+col
+)
+;
+NULL
+-- try_sum overflows a BIGINT
+>
+SELECT
+try_sum
+(
+c1
+)
+FROM
+VALUES
+(
+5
+E18::
+BIGINT
+)
+,
+(
+5
+E18::
+BIGINT
+)
+AS
+tab
+(
+c1
+)
+;
+NULL
+-- In ANSI mode sum returns an error if it overflows BIGINT
+>
+SELECT
+sum
+(
+c1
+)
+FROM
+VALUES
+(
+5
+E18::
+BIGINT
+)
+,
+(
+5
+E18::
+BIGINT
+)
+AS
+tab
+(
+c1
+)
+;
+Error: ARITHMETIC_OVERFLOW
+-- try_sum overflows an INTERVAL
+>
+SELECT
+try_sum
+(
+c1
+)
+FROM
+VALUES
+(
+INTERVAL
+'100000000'
+YEARS
+)
+,
+(
+INTERVAL
+'100000000'
+YEARS
+)
+AS
+tab
+(
+c1
+)
+;
+NULL
+-- sum returns an error on INTERVAL overflow
+>
+SELECT
+sum
+(
+c1
+)
+FROM
+VALUES
+(
+INTERVAL
+'100000000'
+YEARS
+)
+,
+(
+INTERVAL
+'100000000'
+YEARS
+)
+AS
+tab
+(
+c1
+)
+;
+Error: ARITHMETIC_OVERFLOW
+Related
+​
+aggregate
+function
+avg
+aggregate function
+listagg
+aggregate function
+max
+aggregate function
+mean
+aggregate function
+min
+aggregate function
+string_agg
+aggregate function
+try_sum
+aggregate function
+Window functions
+try_avg
+aggregate function
+On this page
+Syntax
+Arguments
+Returns
+Common error conditions
+Examples
+Related

@@ -1,0 +1,1847 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Tutorial: Load and transform data using
+Apache Spark
+DataFrames
+This tutorial shows you how to load and transform data using the
+Apache Spark
+Python (PySpark) DataFrame API, the
+Apache Spark
+Scala DataFrame API, and the SparkR SparkDataFrame API in
+Databricks
+.
+note
+If you are using
+Databricks Free Edition
+, select the
+Python
+tab for all code examples in this tutorial. Free Edition does not support R or Scala. Additionally, Free Edition restricts outbound internet access, so you must upload the CSV file using the workspace UI instead of downloading it with code. See
+Step 1
+for detailed instructions.
+By the end of this tutorial, you will understand what a
+DataFrame
+is and be familiar with the following tasks:
+Python
+Scala
+R
+Define variables and copy public data into a Unity Catalog volume
+Create a DataFrame with Python
+Load data into a DataFrame from CSV file
+View and interact with a DataFrame
+Save the DataFrame
+Run SQL queries in PySpark
+See also
+Apache Spark PySpark API reference
+.
+Define variables and copy public data into a Unity Catalog volume
+Create a DataFrame with Scala
+Load data into a DataFrame from CSV file
+View and interacting with a DataFrame
+Save the DataFrame
+Run SQL queries in Apache Spark
+See also
+Apache Spark Scala API reference
+.
+Define variables and copy public data into a Unity Catalog volume
+Create a SparkR SparkDataFrames
+Load data into a DataFrame from CSV file
+View and interact with a DataFrame
+Save the DataFrame
+Run SQL queries in SparkR
+See also
+Apache SparkR API reference
+.
+What is a DataFrame?
+​
+A DataFrame is a two-dimensional labeled data structure with columns of potentially different types. You can think of a DataFrame like a spreadsheet, a SQL table, or a dictionary of series objects.
+Apache Spark
+DataFrames provide a rich set of functions (select columns, filter, join, aggregate) that allow you to solve common data analysis problems efficiently.
+Apache Spark
+DataFrames are an abstraction built on top of Resilient Distributed Datasets (RDDs). Spark DataFrames and Spark SQL use a unified planning and optimization engine, allowing you to get nearly identical performance across all supported languages on
+Databricks
+(Python, SQL, Scala, and R).
+Requirements
+​
+To complete the following tutorial, you must meet the following requirements:
+To use the examples in this tutorial, your workspace must have
+Unity Catalog
+enabled.
+Databricks
+Free Edition and free trial workspaces have
+Unity Catalog
+enabled by default.
+The examples in this tutorial use a
+Unity Catalog
+volume
+to store sample data. To use these examples, create a volume and use that volume's catalog, schema, and volume names to set the volume path used by the examples. Free Edition users have access to the workspace catalog and the
+default
+schema by default.
+You must have the following permissions in
+Unity Catalog
+:
+READ VOLUME
+and
+WRITE VOLUME
+for the volume used for this tutorial
+USE SCHEMA
+for the schema used for this tutorial
+USE CATALOG
+for the catalog used for this tutorial
+To set these permissions, see your
+Databricks
+administrator or
+Unity Catalog
+privileges reference
+. Free Edition users have these privileges on the workspace catalog and
+default
+schema by default.
+tip
+For a completed notebook for this article, see
+DataFrame tutorial notebooks
+.
+Step 1: Define variables and load CSV file
+​
+This step defines variables for use in this tutorial and then loads a CSV file containing baby name data from
+health.data.ny.gov
+into your
+Unity Catalog
+volume. You need the names of a
+Unity Catalog
+catalog, schema, and volume.
+tip
+If you don't know your catalog and schema names, click
+Catalog
+in the sidebar. The workspace catalog shares a name with your workspace and is listed in the catalog panel. Expand it to see available schemas. Free Edition and free trial users can use the workspace catalog and the
+default
+schema.
+If you don't have a volume, create one by running the following command in a notebook cell (replace
+<catalog_name>
+and
+<schema_name>
+with your values):
+SQL
+CREATE
+VOLUME
+IF
+NOT
+EXISTS
+<
+catalog_name
+>
+.
+<
+schema_name
+>
+.
+my_volume
+Open a new notebook by clicking the
+icon. To learn how to navigate
+Databricks
+notebooks, see
+Customize
+Databricks
+notebook appearance
+.
+Copy and paste the following code into the new empty notebook cell. Replace
+<catalog-name>
+,
+<schema-name>
+, and
+<volume-name>
+with the catalog, schema, and volume names for a
+Unity Catalog
+volume. Replace
+<table_name>
+with a table name of your choice. You load baby name data into this table later in this tutorial.
+Python
+Scala
+R
+Python
+catalog
+=
+"<catalog_name>"
+schema
+=
+"<schema_name>"
+volume
+=
+"<volume_name>"
+download_url
+=
+"https://health.data.ny.gov/api/views/jxy9-yhdk/rows.csv"
+file_name
+=
+"rows.csv"
+table_name
+=
+"<table_name>"
+path_volume
+=
+"/Volumes/"
++
+catalog
++
+"/"
++
+schema
++
+"/"
++
+volume
+path_table
+=
+catalog
++
+"."
++
+schema
+print
+(
+path_table
+)
+# Show the complete path
+print
+(
+path_volume
+)
+# Show the complete path
+Scala
+val
+catalog
+=
+"<catalog_name>"
+val
+schema
+=
+"<schema_name>"
+val
+volume
+=
+"<volume_name>"
+val
+downloadUrl
+=
+"https://health.data.ny.gov/api/views/jxy9-yhdk/rows.csv"
+val
+fileName
+=
+"rows.csv"
+val
+tableName
+=
+"<table_name>"
+val
+pathVolume
+=
+s
+"/Volumes/
+$
+catalog
+/
+$
+schema
+/
+$
+volume
+"
+val
+pathTable
+=
+s
+"
+$
+catalog
+.
+$
+schema
+"
+print
+(
+pathVolume
+)
+// Show the complete path
+print
+(
+pathTable
+)
+// Show the complete path
+R
+catalog
+<-
+"<catalog_name>"
+schema
+<-
+"<schema_name>"
+volume
+<-
+"<volume_name>"
+download_url
+<-
+"https://health.data.ny.gov/api/views/jxy9-yhdk/rows.csv"
+file_name
+<-
+"rows.csv"
+table_name
+<-
+"<table_name>"
+path_volume
+<-
+paste
+(
+"/Volumes/"
+,
+catalog
+,
+"/"
+,
+schema
+,
+"/"
+,
+volume
+,
+sep
+=
+""
+)
+path_table
+<-
+paste
+(
+catalog
+,
+"."
+,
+schema
+,
+sep
+=
+""
+)
+print
+(
+path_volume
+)
+# Show the complete path
+print
+(
+path_table
+)
+# Show the complete path
+Press
+Shift+Enter
+to run the cell and create a new blank cell.
+Load the CSV file into your volume. Choose one of the following methods:
+Upload using the workspace UI
+— Use this method if you are on
+Databricks Free Edition
+, or if the code download in option B fails with a network error. Free Edition and other serverless compute environments restrict outbound internet access, so you must upload the file from your local machine.
+Download using code
+— Use this method if your compute environment has outbound internet access.
+Option A: Upload using the workspace UI
+On your local machine, open
+health.data.ny.gov/api/views/jxy9-yhdk/rows.csv
+in your browser. The file downloads to your computer as
+rows.csv
+, which matches the
+file_name
+variable defined previously.
+Go back to your
+Databricks
+workspace. In the sidebar, click
+New > Add or upload data
+.
+Click
+Upload files to a volume
+.
+Click
+browse
+and select the
+rows.csv
+file, or drag and drop it into the upload area.
+Under
+Destination volume
+, select the volume you specified above.
+After the upload finishes, return to your notebook and continue with
+Step 2
+.
+For more details about uploading files, see
+Work with files in
+Unity Catalog
+volumes
+.
+Option B: Download using code
+Copy and paste the following code into the new empty notebook cell. This code copies the
+rows.csv
+file from
+health.data.ny.gov
+into your
+Unity Catalog
+volume using the
+Databricks dbutils
+command. Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Python
+Scala
+R
+Python
+dbutils
+.
+fs
+.
+cp
+(
+f"
+{
+download_url
+}
+"
+,
+f"
+{
+path_volume
+}
+/
+{
+file_name
+}
+"
+)
+Scala
+dbutils
+.
+fs
+.
+cp
+(
+downloadUrl
+,
+s
+"
+$
+pathVolume
+/
+$
+fileName
+"
+)
+R
+dbutils.fs.cp
+(
+download_url
+,
+paste
+(
+path_volume
+,
+"/"
+,
+file_name
+,
+sep
+=
+""
+)
+)
+Step 2: Create a DataFrame
+​
+This step creates a DataFrame named
+df1
+with test data and then displays its contents.
+Copy and paste the following code into the new empty notebook cell. This code creates the DataFrame with test data, and then displays the contents and the schema of the DataFrame.
+Python
+Scala
+R
+Python
+data
+=
+[
+[
+2021
+,
+"test"
+,
+"Albany"
+,
+"M"
+,
+42
+]
+]
+columns
+=
+[
+"Year"
+,
+"First_Name"
+,
+"County"
+,
+"Sex"
+,
+"Count"
+]
+df1
+=
+spark
+.
+createDataFrame
+(
+data
+,
+schema
+=
+"Year int, First_Name STRING, County STRING, Sex STRING, Count int"
+)
+display
+(
+df1
+)
+# The display() method is specific to Databricks notebooks and provides a richer visualization.
+# df1.show() The show() method is a part of the Apache Spark DataFrame API and provides basic visualization.
+Scala
+val
+data
+=
+Seq
+(
+(
+2021
+,
+"test"
+,
+"Albany"
+,
+"M"
+,
+42
+)
+)
+val
+columns
+=
+Seq
+(
+"Year"
+,
+"First_Name"
+,
+"County"
+,
+"Sex"
+,
+"Count"
+)
+val
+df1
+=
+data
+.
+toDF
+(
+columns
+:
+_
+*
+)
+display
+(
+df1
+)
+// The display() method is specific to Databricks notebooks and provides a richer visualization.
+// df1.show() The show() method is a part of the Apache Spark DataFrame API and provides basic visualization.
+R
+# Load the SparkR package that is already preinstalled on the cluster.
+library
+(
+SparkR
+)
+data
+<-
+data.frame
+(
+Year
+=
+as.integer
+(
+c
+(
+2021
+)
+)
+,
+First_Name
+=
+c
+(
+"test"
+)
+,
+County
+=
+c
+(
+"Albany"
+)
+,
+Sex
+=
+c
+(
+"M"
+)
+,
+Count
+=
+as.integer
+(
+c
+(
+42
+)
+)
+)
+df1
+<-
+createDataFrame
+(
+data
+)
+display
+(
+df1
+)
+# The display() method is specific to Databricks notebooks and provides a richer visualization.
+# head(df1) The head() method is a part of the Apache SparkR DataFrame API and provides basic visualization.
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Step 3: Load data into a DataFrame from CSV file
+​
+This step creates a DataFrame named
+df_csv
+from the CSV file that you previously loaded into your
+Unity Catalog
+volume. See
+spark.read.csv
+.
+Copy and paste the following code into the new empty notebook cell. This code loads baby name data into DataFrame
+df_csv
+from the CSV file and then displays the contents of the DataFrame.
+Python
+Scala
+R
+Python
+df_csv
+=
+spark
+.
+read
+.
+csv
+(
+f"
+{
+path_volume
+}
+/
+{
+file_name
+}
+"
+,
+header
+=
+True
+,
+inferSchema
+=
+True
+,
+sep
+=
+","
+)
+display
+(
+df_csv
+)
+Scala
+val
+dfCsv
+=
+spark
+.
+read
+.
+option
+(
+"header"
+,
+"true"
+)
+.
+option
+(
+"inferSchema"
+,
+"true"
+)
+.
+option
+(
+"delimiter"
+,
+","
+)
+.
+csv
+(
+s
+"
+$
+pathVolume
+/
+$
+fileName
+"
+)
+display
+(
+dfCsv
+)
+R
+df_csv
+<-
+read.df
+(
+paste
+(
+path_volume
+,
+"/"
+,
+file_name
+,
+sep
+=
+""
+)
+,
+source
+=
+"csv"
+,
+header
+=
+TRUE
+,
+inferSchema
+=
+TRUE
+,
+delimiter
+=
+","
+)
+display
+(
+df_csv
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+You can load data from many
+supported file formats
+.
+Step 4: View and interact with your DataFrame
+​
+View and interact with your baby names DataFrames using the following methods.
+Print the DataFrame schema
+​
+Learn how to display the schema of an
+Apache Spark
+DataFrame.
+Apache Spark
+uses the term
+schema
+to refer to the names and data types of the columns in the DataFrame.
+note
+Databricks
+also uses the term schema to describe a collection of tables registered to a catalog.
+Copy and paste the following code into an empty notebook cell. This code shows the schema of your DataFrames with the
+.printSchema()
+method to view the schemas of the two DataFrames - to prepare to union the two DataFrames.
+Python
+Scala
+R
+Python
+df_csv
+.
+printSchema
+(
+)
+df1
+.
+printSchema
+(
+)
+Scala
+dfCsv
+.
+printSchema
+(
+)
+df1
+.
+printSchema
+(
+)
+R
+printSchema
+(
+df_csv
+)
+printSchema
+(
+df1
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Rename column in the DataFrame
+​
+Learn how to rename a column in a DataFrame.
+Copy and paste the following code into an empty notebook cell. This code renames a column in the
+df1_csv
+DataFrame to match the respective column in the
+df1
+DataFrame. This code uses the
+Apache Spark
+withColumnRenamed()
+method.
+Python
+Scala
+R
+Python
+df_csv
+=
+df_csv
+.
+withColumnRenamed
+(
+"First Name"
+,
+"First_Name"
+)
+df_csv
+.
+printSchema
+(
+)
+Scala
+val
+dfCsvRenamed
+=
+dfCsv
+.
+withColumnRenamed
+(
+"First Name"
+,
+"First_Name"
+)
+// when modifying a DataFrame in Scala, you must assign it to a new variable
+dfCsvRenamed
+.
+printSchema
+(
+)
+R
+df_csv
+<-
+withColumnRenamed
+(
+df_csv
+,
+"First Name"
+,
+"First_Name"
+)
+printSchema
+(
+df_csv
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Combine DataFrames
+​
+Learn how to create a new DataFrame that adds the rows of one DataFrame to another.
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+union()
+method to combine the contents of your first DataFrame
+df
+with DataFrame
+df_csv
+containing the baby names data loaded from the CSV file.
+Python
+Scala
+R
+Python
+df
+=
+df1
+.
+union
+(
+df_csv
+)
+display
+(
+df
+)
+Scala
+val
+df
+=
+df1
+.
+union
+(
+dfCsvRenamed
+)
+display
+(
+df
+)
+R
+display
+(
+df
+<-
+union
+(
+df1
+,
+df_csv
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Filter rows in a DataFrame
+​
+Discover the most popular baby names in your data set by filtering rows, using the
+Apache Spark
+.filter()
+or
+.where()
+methods. Use filtering to select a subset of rows to return or modify in a DataFrame. There is no difference in performance or syntax, as seen in the following examples.
+Using .filter() method
+​
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+.filter()
+method to display those rows in the DataFrame with a count of more than 50.
+Python
+Scala
+R
+Python
+display
+(
+df
+.
+filter
+(
+df
+[
+"Count"
+]
+>
+50
+)
+)
+Scala
+display
+(
+df
+.
+filter
+(
+df
+(
+"Count"
+)
+>
+50
+)
+)
+R
+display
+(
+filteredDF
+<-
+filter
+(
+df
+,
+df
+$
+Count
+>
+50
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Using .where() method
+​
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+.where()
+method to display those rows in the DataFrame with a count of more than 50.
+Python
+Scala
+R
+Python
+display
+(
+df
+.
+where
+(
+df
+[
+"Count"
+]
+>
+50
+)
+)
+Scala
+display
+(
+df
+.
+where
+(
+df
+(
+"Count"
+)
+>
+50
+)
+)
+R
+display
+(
+filtered_df
+<-
+where
+(
+df
+,
+df
+$
+Count
+>
+50
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Select columns from a DataFrame and order by frequency
+​
+Learn about which baby name frequency with the
+select()
+method to specify the columns from the DataFrame to return. Use the
+Apache Spark
+orderby
+and
+desc
+functions to order the results.
+The pyspark.sql module for
+Apache Spark
+provides support for SQL functions. Among these functions that we use in this tutorial are the
+Apache Spark
+orderBy()
+,
+desc()
+, and
+expr()
+functions. You enable the use of these functions by importing them into your session as needed.
+Copy and paste the following code into an empty notebook cell. This code imports the
+desc()
+function and then uses the
+Apache Spark
+select()
+method and
+Apache Spark
+orderBy()
+and
+desc()
+functions to display the most common names and their counts in descending order.
+Python
+Scala
+R
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+desc
+display
+(
+df
+.
+select
+(
+"First_Name"
+,
+"Count"
+)
+.
+orderBy
+(
+desc
+(
+"Count"
+)
+)
+)
+Scala
+import
+org
+.
+apache
+.
+spark
+.
+sql
+.
+functions
+.
+desc
+display
+(
+df
+.
+select
+(
+"First_Name"
+,
+"Count"
+)
+.
+orderBy
+(
+desc
+(
+"Count"
+)
+)
+)
+R
+display
+(
+arrange
+(
+select
+(
+df
+,
+df
+$
+First_Name
+,
+df
+$
+Count
+)
+,
+desc
+(
+df
+$
+Count
+)
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Create a subset DataFrame
+​
+Learn how to create a subset DataFrame from an existing DataFrame.
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+filter
+method to create a new DataFrame restricting the data by year, count, and sex. It uses the
+Apache Spark
+select()
+method to limit the columns. It also uses the
+Apache Spark
+orderBy()
+and
+desc()
+functions to sort the new DataFrame by count.
+Python
+Scala
+R
+Python
+subsetDF
+=
+df
+.
+filter
+(
+(
+df
+[
+"Year"
+]
+==
+2009
+)
+&
+(
+df
+[
+"Count"
+]
+>
+100
+)
+&
+(
+df
+[
+"Sex"
+]
+==
+"F"
+)
+)
+.
+select
+(
+"First_Name"
+,
+"County"
+,
+"Count"
+)
+.
+orderBy
+(
+desc
+(
+"Count"
+)
+)
+display
+(
+subsetDF
+)
+Scala
+val
+subsetDF
+=
+df
+.
+filter
+(
+(
+df
+(
+"Year"
+)
+==
+=
+2009
+)
+&&
+(
+df
+(
+"Count"
+)
+>
+100
+)
+&&
+(
+df
+(
+"Sex"
+)
+==
+=
+"F"
+)
+)
+.
+select
+(
+"First_Name"
+,
+"County"
+,
+"Count"
+)
+.
+orderBy
+(
+desc
+(
+"Count"
+)
+)
+display
+(
+subsetDF
+)
+R
+subsetDF
+<-
+select
+(
+filter
+(
+df
+,
+(
+df
+$
+Count
+>
+100
+)
+&
+(
+df
+$
+year
+==
+2009
+)
+&
+df
+[
+"Sex"
+]
+==
+"F"
+)
+)
+,
+"First_Name"
+,
+"County"
+,
+"Count"
+)
+display
+(
+subsetDF
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Step 5: Save the DataFrame
+​
+Learn how to save a DataFrame,. You can either save your DataFrame to a table or write the DataFrame to a file or multiple files.
+Save the DataFrame to a table
+​
+Databricks
+uses the
+Delta Lake
+format for all tables by default. To save your DataFrame, you must have
+CREATE
+table privileges on the catalog and schema.
+Copy and paste the following code into an empty notebook cell. This code saves the contents of the DataFrame to a table using the variable you defined at the start of this tutorial.
+Python
+Scala
+R
+Python
+df
+.
+write
+.
+mode
+(
+"overwrite"
+)
+.
+saveAsTable
+(
+f"
+{
+path_table
+}
+.
+{
+table_name
+}
+"
+)
+Scala
+df
+.
+write
+.
+mode
+(
+"overwrite"
+)
+.
+saveAsTable
+(
+s
+"
+$
+pathTable
+"
++
+"."
++
+s
+"
+$
+tableName
+"
+)
+R
+saveAsTable
+(
+df
+,
+paste
+(
+path_table
+,
+"."
+,
+table_name
+)
+,
+mode
+=
+"overwrite"
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Most
+Apache Spark
+applications work on large data sets and in a distributed fashion.
+Apache Spark
+writes out a directory of files rather than a single file.
+Delta Lake
+splits the Parquet folders and files. Many data systems can read these directories of files.
+Databricks
+recommends using tables over file paths for most applications.
+Save the DataFrame to JSON files
+​
+Copy and paste the following code into an empty notebook cell. This code saves the DataFrame to a directory of JSON files.
+Python
+Scala
+R
+Python
+df
+.
+write
+.
+format
+(
+"json"
+)
+.
+mode
+(
+"overwrite"
+)
+.
+save
+(
+"/tmp/json_data"
+)
+Scala
+df
+.
+write
+.
+format
+(
+"json"
+)
+.
+mode
+(
+"overwrite"
+)
+.
+save
+(
+"/tmp/json_data"
+)
+R
+write.df
+(
+df
+,
+path
+=
+"/tmp/json_data"
+,
+source
+=
+"json"
+,
+mode
+=
+"overwrite"
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Read the DataFrame from a JSON file
+​
+Learn how to use the
+Apache Spark
+spark.read.format()
+method to read JSON data from a directory into a DataFrame.
+Copy and paste the following code into an empty notebook cell. This code displays the JSON files you saved in the previous example.
+Python
+Scala
+R
+Python
+display
+(
+spark
+.
+read
+.
+format
+(
+"json"
+)
+.
+json
+(
+"/tmp/json_data"
+)
+)
+Scala
+display
+(
+spark
+.
+read
+.
+format
+(
+"json"
+)
+.
+json
+(
+"/tmp/json_data"
+)
+)
+R
+display
+(
+read.json
+(
+"/tmp/json_data"
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Additional tasks: Run SQL queries in PySpark, Scala, and R
+​
+Apache Spark
+DataFrames provide the following options to combine SQL with PySpark, Scala, and R. You can run the following code in the same notebook that you created for this tutorial.
+Specify a column as a SQL query
+​
+Learn how to use the
+Apache Spark
+selectExpr()
+method. This is a variant of the
+select()
+method that accepts SQL expressions and return an updated DataFrame. This method allows you to use a SQL expression, such as
+upper
+.
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+selectExpr()
+method and the SQL
+upper
+expression to convert a string column to upper case (and rename the column).
+Python
+Scala
+R
+Python
+display
+(
+df
+.
+selectExpr
+(
+"Count"
+,
+"upper(County) as big_name"
+)
+)
+Scala
+display
+(
+df
+.
+selectExpr
+(
+"Count"
+,
+"upper(County) as big_name"
+)
+)
+R
+display
+(
+df_selected
+<-
+selectExpr
+(
+df
+,
+"Count"
+,
+"upper(County) as big_name"
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Use
+expr()
+to use SQL syntax for a column
+​
+Learn how to import and use the
+Apache Spark
+expr()
+function to use SQL syntax anywhere a column would be specified.
+Copy and paste the following code into an empty notebook cell. This code imports the
+expr()
+function and then uses the
+Apache Spark
+expr()
+function and the SQL
+lower
+expression to convert a string column to lower case (and rename the column).
+Python
+Scala
+R
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+expr
+display
+(
+df
+.
+select
+(
+"Count"
+,
+expr
+(
+"lower(County) as little_name"
+)
+)
+)
+Scala
+import
+org
+.
+apache
+.
+spark
+.
+sql
+.
+functions
+.
+{
+col
+,
+expr
+}
+// Scala requires us to import the col() function as well as the expr() function
+display
+(
+df
+.
+select
+(
+col
+(
+"Count"
+)
+,
+expr
+(
+"lower(County) as little_name"
+)
+)
+)
+R
+display
+(
+df_selected
+<-
+selectExpr
+(
+df
+,
+"Count"
+,
+"lower(County) as little_name"
+)
+)
+# expr() function is not supported in R, selectExpr in SparkR replicates this functionality
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+Run an arbitrary SQL query using spark.sql() function
+​
+Learn how to use the
+Apache Spark
+spark.sql()
+function to run arbitrary SQL queries.
+Copy and paste the following code into an empty notebook cell. This code uses the
+Apache Spark
+spark.sql()
+function to query a SQL table using SQL syntax.
+Python
+Scala
+R
+Python
+display
+(
+spark
+.
+sql
+(
+f"SELECT * FROM
+{
+path_table
+}
+.
+{
+table_name
+}
+"
+)
+)
+Scala
+display
+(
+spark
+.
+sql
+(
+s
+"SELECT * FROM
+$
+pathTable
+.
+$
+tableName
+"
+)
+)
+R
+display
+(
+sql
+(
+paste
+(
+"SELECT * FROM"
+,
+path_table
+,
+"."
+,
+table_name
+)
+)
+)
+Press
+Shift+Enter
+to run the cell and then move to the next cell.
+DataFrame tutorial notebooks
+​
+The following notebooks include the examples queries from this tutorial.
+Python
+Scala
+R
+DataFrames tutorial using Python
+Open notebook in new tab
+Open in Databricks
+DataFrames tutorial using Scala
+Open notebook in new tab
+Open in Databricks
+DataFrames tutorial using R
+Open notebook in new tab
+Open in Databricks
+Additional resources
+​
+PySpark on
+Databricks
+Reference for Apache Spark APIs
+Convert between PySpark and pandas DataFrames
+Pandas API on Spark
+On this page
+What is a DataFrame?
+Requirements
+Step 1: Define variables and load CSV file
+Step 2: Create a DataFrame
+Step 3: Load data into a DataFrame from CSV file
+Step 4: View and interact with your DataFrame
+Print the DataFrame schema
+Rename column in the DataFrame
+Combine DataFrames
+Filter rows in a DataFrame
+Select columns from a DataFrame and order by frequency
+Create a subset DataFrame
+Step 5: Save the DataFrame
+Save the DataFrame to a table
+Save the DataFrame to JSON files
+Read the DataFrame from a JSON file
+Additional tasks: Run SQL queries in PySpark, Scala, and R
+Specify a column as a SQL query
+Use
+expr()
+to use SQL syntax for a column
+Run an arbitrary SQL query using spark.sql() function
+DataFrame tutorial notebooks
+Additional resources

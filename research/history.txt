@@ -1,0 +1,751 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Work with table history
+For
+Apache Iceberg
+and
+Delta Lake
+tables, each operation that modifies a table creates a new table version. Use history information to audit operations, roll back a table, or query a table at a specific point in time using time travel.
+note
+Don't use table history as a long-term backup solution for data archival. Use only the past 7 days for time travel operations unless you have set both data and log retention configurations to a larger value.
+Retrieve table history
+​
+Run the
+DESCRIBE HISTORY
+command to retrieve information including the operations, user, and timestamp for each write to a table. The operations are returned in reverse chronological order.
+For the columns that
+DESCRIBE HISTORY
+returns, the values in the
+operationParameters
+column, and the per-operation metrics in the
+operationMetrics
+column, see
+Table history schema and operation metrics
+.
+Table history retention is determined by the table setting
+logRetentionDuration
+, which is 30 days by default.
+note
+Time travel and table history are controlled by different retention thresholds. See
+Time travel
+.
+SQL
+DESCRIBE
+HISTORY table_name
+-- get the full history of the table
+DESCRIBE
+HISTORY table_name
+LIMIT
+1
+-- get the last operation only
+For Spark SQL syntax details, see
+DESCRIBE HISTORY
+.
+For Scala, Java, and Python syntax details, see the
+Delta Lake
+API documentation
+.
+Catalog Explorer
+shows table history visually on the
+History
+tab.
+Identify the type of
+OPTIMIZE
+operation
+​
+Auto compaction, liquid clustering, and Z-ordering all appear in table history as
+OPTIMIZE
+operations. To determine which one ran, inspect the
+operationParameters
+column.
+To classify every
+OPTIMIZE
+operation in a table's history, run the following:
+SQL
+SELECT
+version
+,
+timestamp
+,
+CASE
+WHEN
+operationParameters
+.
+clusterBy
+IS
+NOT
+NULL
+AND
+operationParameters
+.
+clusterBy
+<>
+'[]'
+THEN
+'Liquid clustering'
+WHEN
+operationParameters
+.
+zOrderBy
+IS
+NOT
+NULL
+AND
+operationParameters
+.
+zOrderBy
+<>
+'[]'
+THEN
+'Z-ordering'
+WHEN
+operationParameters
+.
+auto
+=
+'true'
+THEN
+'Auto compaction'
+ELSE
+'Manual OPTIMIZE'
+END
+AS
+optimize_type
+,
+operationParameters
+.
+auto
+AS
+is_auto_compaction
+,
+operationParameters
+.
+clusterBy
+AS
+cluster_by
+,
+operationParameters
+.
+zOrderBy
+AS
+z_order_by
+,
+operationMetrics
+.
+numRemovedFiles
+AS
+files_compacted
+,
+operationMetrics
+.
+numAddedFiles
+AS
+files_added
+,
+operationMetrics
+.
+numRemovedBytes
+AS
+bytes_removed
+,
+operationMetrics
+.
+numAddedBytes
+AS
+bytes_added
+FROM
+(
+DESCRIBE
+HISTORY table_name
+)
+WHERE
+operation
+=
+'OPTIMIZE'
+ORDER
+BY
+version
+DESC
+;
+The following sections describe each
+operationParameters
+value in detail. For definitions of the
+operationMetrics
+keys that the preceding query selects, see
+Operation metrics
+.
+Auto compaction
+​
+Auto compaction sets the
+auto
+parameter to
+true
+.
+Databricks
+triggers auto compaction automatically after a write. When
+auto
+is
+false
+, a user or scheduled job ran the
+OPTIMIZE
+command.
+For example, an auto compaction operation shows the following:
+Text
+operationParameters: {
+"auto": "true"
+}
+For more information about auto compaction, see
+Auto compaction
+.
+Liquid clustering
+​
+Liquid clustering populates the
+clusterBy
+parameter with the clustering column names. An empty
+clusterBy
+array (
+[]
+) indicates file compaction only.
+For example, an operation that clustered data by the
+date
+and
+region
+columns shows the following:
+Text
+operationParameters: {
+"clusterBy": "[\"date\",\"region\"]"
+}
+For more information about liquid clustering, see
+Use liquid clustering for tables
+.
+Z-ordering
+​
+Z-ordering populates the
+zOrderBy
+parameter with the Z-order column names. An empty
+zOrderBy
+array (
+[]
+) indicates that the operation didn't apply Z-ordering.
+For example, an operation that applied Z-ordering on the
+date
+column shows the following:
+Text
+operationParameters: {
+"zOrderBy": "[\"date\"]"
+}
+Operation scope
+​
+The
+predicate
+parameter indicates whether the operation ran on the full table or only part of it:
+An empty
+predicate
+array (
+[]
+) means the operation ran on the entire table.
+A populated
+predicate
+array means a targeted
+OPTIMIZE table_name WHERE <partition_predicate>
+command ran on only the partitions that match the predicate.
+For example, an operation targeted at the partitions matching
+year = 2024
+shows the following:
+Text
+operationParameters: {
+"predicate": "[\"'year = 2024\"]"
+}
+Time travel
+​
+Time travel supports querying previous table versions based on timestamp or table version (as recorded in the transaction log). You can use time travel for applications such as the following:
+Re-creating analyses, reports, or outputs, such as the output of a machine learning model. This might be useful for debugging or auditing, especially in regulated industries.
+Writing complex temporal queries.
+Fixing mistakes in your data.
+Providing snapshot isolation for a set of queries for fast changing tables.
+note
+In
+Databricks Runtime
+18.0 and above, time travel queries are blocked if they request a version older than the
+deletedFileRetentionDuration
+table property (default 7 days). For
+Unity Catalog
+managed tables, this applies to
+Databricks Runtime
+12.2 and above.
+Time travel syntax
+​
+You query a table with time travel by adding a clause after the table name specification.
+timestamp_expression
+can be any one of:
+'2018-10-18T22:15:12.013Z'
+, that is, a string that can be cast to a timestamp
+cast('2018-10-18 13:36:32 CEST' as timestamp)
+'2018-10-18'
+, that is, a date string
+current_timestamp() - interval 12 hours
+date_sub(current_date(), 1)
+Any other expression that is or can be cast to a timestamp
+version
+is a long value that can be obtained from the output of
+DESCRIBE HISTORY table_spec
+.
+Neither
+timestamp_expression
+nor
+version
+can be subqueries.
+Only date or timestamp strings are accepted. For example,
+"2019-01-01"
+and
+"2019-01-01T00:00:00.000Z"
+. See the following code for example syntax:
+SQL
+Python
+SQL
+SELECT
+*
+FROM
+people10m
+TIMESTAMP
+AS
+OF
+'2018-10-18T22:15:12.013Z'
+;
+SELECT
+*
+FROM
+people10m VERSION
+AS
+OF
+123
+;
+Python
+df1
+=
+spark
+.
+read
+.
+option
+(
+"timestampAsOf"
+,
+"2019-01-01"
+)
+.
+table
+(
+"people10m"
+)
+df2
+=
+spark
+.
+read
+.
+option
+(
+"versionAsOf"
+,
+123
+)
+.
+table
+(
+"people10m"
+)
+You can also use the
+@
+syntax to specify the timestamp or version as part of the table name. The timestamp must be in
+yyyyMMddHHmmssSSS
+format. You can specify a version with
+@v
+. See the following code for example syntax:
+SQL
+Python
+SQL
+-- Timestamp version
+SELECT
+*
+FROM
+people10m
+@20190101000000000
+-- Version number
+SELECT
+*
+FROM
+people10m
+@v123
+Python
+# Timestamp version
+spark
+.
+read
+.
+table
+(
+"people10m@20190101000000000"
+)
+# Version number
+spark
+.
+read
+.
+table
+(
+"people10m@v123"
+)
+Configure data retention for time travel queries
+​
+To query a previous table version, you must retain
+both
+the log and the data files for that version:
+Data files are deleted when
+VACUUM
+runs against a table.
+Log files are removed automatically after checkpointing table versions.
+To increase the data retention threshold for tables, you must configure the following table properties, replacing
+<format>
+with either
+delta
+or
+iceberg
+:
+<format>.logRetentionDuration = "interval <interval>"
+: controls how long the history for a table is kept. The default is
+interval 30 days
+.
+In
+Databricks Runtime
+18.0 and above,
+logRetentionDuration
+must be greater than or equal to
+deletedFileRetentionDuration
+. For
+Unity Catalog
+managed tables, this applies to
+Databricks Runtime
+12.2 and above.
+<format>.deletedFileRetentionDuration = "interval <interval>"
+: determines the threshold
+VACUUM
+uses to remove data files no longer referenced in the current table version. The default is
+interval 7 days
+.
+For example, to access 30 days of historical data, set
+delta.deletedFileRetentionDuration = "interval 30 days"
+, which matches the default setting for
+delta.logRetentionDuration
+.
+important
+Increasing data retention threshold can cause your storage costs to go up, as more data files are maintained.
+You can specify table properties during table creation or set them with an
+ALTER TABLE
+statement. See
+Table properties reference
+.
+Time travel examples
+​
+To fix accidental deletes to a table for the user
+111
+:
+SQL
+INSERT
+INTO
+my_table
+SELECT
+*
+FROM
+my_table
+TIMESTAMP
+AS
+OF
+date_sub
+(
+current_date
+(
+)
+,
+1
+)
+WHERE
+userId
+=
+111
+To fix accidental incorrect updates to a table:
+SQL
+MERGE
+INTO
+my_table target
+USING
+my_table
+TIMESTAMP
+AS
+OF
+date_sub
+(
+current_date
+(
+)
+,
+1
+)
+source
+ON
+source
+.
+userId
+=
+target
+.
+userId
+WHEN
+MATCHED
+THEN
+UPDATE
+SET
+*
+To query the number of new customers added over the last week:
+SQL
+SELECT
+(
+SELECT
+count
+(
+distinct
+userId
+)
+FROM
+my_table
+)
+-
+(
+SELECT
+count
+(
+distinct
+userId
+)
+FROM
+my_table
+TIMESTAMP
+AS
+OF
+date_sub
+(
+current_date
+(
+)
+,
+7
+)
+)
+AS
+new_customers
+Transaction log checkpoints
+​
+The transaction log records table versions as JSON files within the transaction log directory alongside table data.
+To optimize checkpoint querying, table versions are aggregated to Parquet checkpoint files, which improves performance by preventing the need to read all JSON versions of table history. Users don't need to interact with checkpoints directly.
+Databricks
+optimizes checkpointing frequency for data size and workload. The checkpoint frequency is subject to change without notice.
+Restore a table to an earlier state
+​
+Use the
+RESTORE
+command to restore a table to a previous version or timestamp, including for these scenarios:
+You can restore an already restored table.
+You can restore a
+cloned
+table.
+Consider the following requirements:
+To restore a table, you must have
+MODIFY
+permission for the table.
+After data files are deleted, manually or by
+VACUUM
+, you can't restore a table to an older version that references those files. Restoring to this version partially is still possible if
+spark.sql.files.ignoreMissingFiles
+is set to
+true
+.
+To restore by timestamp, use the formats
+yyyy-MM-dd HH:mm:ss
+or
+yyyy-MM-dd
+.
+SQL
+RESTORE
+TABLE
+target_table
+TO
+VERSION
+AS
+OF
+<
+version
+>
+;
+RESTORE
+TABLE
+target_table
+TO
+TIMESTAMP
+AS
+OF
+<
+timestamp
+>
+;
+For syntax details, see
+RESTORE
+.
+Streaming behavior
+​
+Restore is a data-changing operation and might result in duplicate data for downstream workloads. Log entries added by the
+RESTORE
+command contain
+dataChange
+set to true.
+For downstream workloads, such as a
+Structured streaming
+job that processes the updates to a table, the data change log entries added by the restore operation are considered new data updates, and processing them may result in duplicate data.
+For example:
+Table version
+Operation
+Log updates
+Records in data change log updates
+0
+INSERT
+AddFile(/path/to/file-1, dataChange = true)
+(name = Viktor, age = 29), (name = George, age = 55)
+1
+INSERT
+AddFile(/path/to/file-2, dataChange = true)
+(name = George, age = 39)
+2
+OPTIMIZE
+AddFile(/path/to/file-3, dataChange = false), RemoveFile(/path/to/file-1), RemoveFile(/path/to/file-2)
+No records.
+OPTIMIZE
+compaction does not change the data in the table.
+3
+RESTORE(version=1)
+RemoveFile(/path/to/file-3), AddFile(/path/to/file-1, dataChange = true), AddFile(/path/to/file-2, dataChange = true)
+(name = Viktor, age = 29), (name = George, age = 55), (name = George, age = 39)
+←
+✕
+Table version
+Operation
+Log updates
+Records in data change log updates
+0
+INSERT
+AddFile(/path/to/file-1, dataChange = true)
+(name = Viktor, age = 29), (name = George, age = 55)
+1
+INSERT
+AddFile(/path/to/file-2, dataChange = true)
+(name = George, age = 39)
+2
+OPTIMIZE
+AddFile(/path/to/file-3, dataChange = false), RemoveFile(/path/to/file-1), RemoveFile(/path/to/file-2)
+No records.
+OPTIMIZE
+compaction does not change the data in the table.
+3
+RESTORE(version=1)
+RemoveFile(/path/to/file-3), AddFile(/path/to/file-1, dataChange = true), AddFile(/path/to/file-2, dataChange = true)
+(name = Viktor, age = 29), (name = George, age = 55), (name = George, age = 39)
+In the preceding example, the
+RESTORE
+command results in updates that were previously seen when reading the table version 0 and 1. If a streaming query reads this table again, then these files are considered as newly added data and are processed again.
+Restore metrics
+​
+After completing,
+RESTORE
+reports the following metrics as a single row DataFrame:
+table_size_after_restore
+: The size of the table after restoring.
+num_of_files_after_restore
+: The number of files in the table after restoring.
+num_removed_files
+: Number of files removed (logically deleted) from the table.
+num_restored_files
+: Number of files restored due to rolling back.
+removed_files_size
+: Total size in bytes of the files that are removed from the table.
+restored_files_size
+: Total size in bytes of the files that are restored.
+Find the last commit version
+​
+To get the version number of the last commit written by the current
+SparkSession
+across all threads and all tables, query the SQL configuration
+spark.databricks.<format>.lastCommitVersionInSession
+. Replace
+<format>
+with either
+delta
+or
+iceberg
+, depending on your table's format.
+For example:
+SQL
+Python
+Scala
+SQL
+SET
+spark
+.
+databricks
+.
+delta
+.
+lastCommitVersionInSession
+Python
+spark
+.
+conf
+.
+get
+(
+"spark.databricks.delta.lastCommitVersionInSession"
+)
+Scala
+spark
+.
+conf
+.
+get
+(
+"spark.databricks.delta.lastCommitVersionInSession"
+)
+If no commits have been made by the
+SparkSession
+, querying the key returns an empty value.
+note
+If you share the same
+SparkSession
+across multiple threads, it's similar to sharing a variable
+across multiple threads. You might encounter race conditions for concurrent updates to the configuration value.
+On this page
+Retrieve table history
+Identify the type of
+OPTIMIZE
+operation
+Auto compaction
+Liquid clustering
+Z-ordering
+Operation scope
+Time travel
+Time travel syntax
+Configure data retention for time travel queries
+Time travel examples
+Transaction log checkpoints
+Restore a table to an earlier state
+Streaming behavior
+Restore metrics
+Find the last commit version

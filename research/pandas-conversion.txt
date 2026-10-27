@@ -1,0 +1,136 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Convert between PySpark and pandas DataFrames
+Learn how to convert
+Apache Spark
+DataFrames to and from pandas DataFrames using Apache Arrow in
+Databricks
+.
+Apache Arrow and PyArrow
+​
+Apache Arrow
+is an in-memory columnar data format used in
+Apache Spark
+to efficiently transfer data between JVM and Python processes. This is beneficial to Python developers who work with pandas and NumPy data. However, its usage requires some minor configuration or code changes to ensure compatibility and gain the most benefit.
+PyArrow is a Python binding for Apache Arrow and is installed in
+Databricks Runtime
+. For information on the version of PyArrow available in each
+Databricks Runtime
+version, see the
+Databricks Runtime
+release notes versions and compatibility
+.
+Supported SQL types
+​
+All Spark SQL data types are supported by Arrow-based conversion except
+ArrayType
+of
+TimestampType
+.
+MapType
+and
+ArrayType
+of nested
+StructType
+are only supported when using PyArrow 2.0.0 and above.
+StructType
+is represented as a
+pandas.DataFrame
+instead of
+pandas.Series
+.
+Convert PySpark DataFrames to and from pandas DataFrames
+​
+Arrow is available as an optimization when converting a PySpark DataFrame to a pandas DataFrame with
+toPandas()
+and when creating a PySpark DataFrame from a pandas DataFrame with
+createDataFrame(pandas_df)
+.
+To use Arrow for these methods, set the
+Spark configuration
+spark.sql.execution.arrow.pyspark.enabled
+to
+true
+. This configuration is enabled by default except for High Concurrency clusters as well as user isolation clusters in workspaces that are
+Unity Catalog
+enabled.
+In addition, optimizations enabled by
+spark.sql.execution.arrow.pyspark.enabled
+could fall back to a non-Arrow implementation if an error occurs before the computation within Spark. You can control this behavior using the Spark configuration
+spark.sql.execution.arrow.pyspark.fallback.enabled
+.
+Example
+​
+Python
+import
+numpy
+as
+np
+import
+pandas
+as
+pd
+# Enable Arrow-based columnar data transfers
+spark
+.
+conf
+.
+set
+(
+"spark.sql.execution.arrow.pyspark.enabled"
+,
+"true"
+)
+# Generate a pandas DataFrame
+pdf
+=
+pd
+.
+DataFrame
+(
+np
+.
+random
+.
+rand
+(
+100
+,
+3
+)
+)
+# Create a Spark DataFrame from a pandas DataFrame using Arrow
+df
+=
+spark
+.
+createDataFrame
+(
+pdf
+)
+# Convert the Spark DataFrame back to a pandas DataFrame using Arrow
+result_pdf
+=
+df
+.
+select
+(
+"*"
+)
+.
+toPandas
+(
+)
+Using the Arrow optimizations produces the same results as when Arrow is not enabled. Even with Arrow,
+toPandas()
+results in the collection of all records in the DataFrame to the driver program and should be done on a small subset of the data.
+In addition, not all Spark data types are supported and an error can be raised if a column has an unsupported type. If an error occurs during
+createDataFrame()
+, Spark creates the DataFrame without Arrow.
+On this page
+Apache Arrow and PyArrow
+Supported SQL types
+Convert PySpark DataFrames to and from pandas DataFrames
+Example

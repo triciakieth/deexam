@@ -1,0 +1,128 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+GRANT
+Applies to:
+Databricks SQL
+Databricks Runtime
+Grants a
+privilege
+on an
+securable object
+to a
+principal
+.
+note
+Modifying access to the
+samples
+catalog is not supported. This catalog is available to all workspaces, but is read-only.
+Use
+GRANT ON SHARE
+to grant
+recipients
+access to
+shares
+.
+Syntax
+​
+GRANT privilege_types ON securable_object TO principal
+privilege_types
+{ ALL PRIVILEGES |
+privilege_type [, ...] }
+Parameters
+​
+privilege types
+This identifies one or more privileges to be granted to the
+principal
+.
+ALL PRIVILEGES
+Grant all privileges applicable to the
+securable_object
+. In
+Unity Catalog
+,
+ALL PRIVILEGES
+expands to all available privileges at the time permissions checks are made. It does not individually grant all of the applicable privileges at the time of the grant. To avoid accidental data exfiltration or privilege escalation,
+ALL PRIVILEGES
+does not include the
+EXTERNAL USE SCHEMA
+,
+EXTERNAL USE LOCATION
+,
+MANAGE
+, or
+READ METADATA
+privileges.
+privilege type
+A specific privilege to be granted on the
+securable_object
+to the
+principal
+.
+securable_object
+The object on which the privileges are granted to the principal.
+principal
+A user, service principal, or group to which the privileges are granted. You must enclose users, service principals, and group names with
+special characters
+in backticks (
+` `
+).
+Examples
+​
+SQL
+>
+GRANT
+CREATE
+ON
+SCHEMA
+my_schema
+TO
+`
+alf@melmak.et
+`
+;
+>
+GRANT
+ALL
+PRIVILEGES
+ON
+TABLE
+forecasts
+TO
+finance
+;
+>
+GRANT
+SELECT
+ON
+TABLE
+sample_data
+TO
+`
+alf@melmak.et
+`
+;
+-- Granting a privilege to the service principal fab9e00e-ca35-11ec-9d64-0242ac120002
+>
+GRANT
+SELECT
+ON
+TABLE
+t
+TO
+`
+fab9e00e-ca35-11ec-9d64-0242ac120002
+`
+;
+Related articles
+​
+GRANT ON SHARE
+REPAIR PRIVILEGES
+REVOKE
+SHOW GRANTS
+On this page
+Syntax
+Parameters
+Examples
+Related articles

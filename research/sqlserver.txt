@@ -1,0 +1,52 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Configure Microsoft SQL Server for ingestion into
+Databricks
+Preview the source setup tasks ingestion from SQL Server into
+Databricks
+using
+Lakeflow Connect
+.
+Change tracking vs. change data capture
+​
+Change tracking and change data capture (CDC) enable
+Databricks
+to track changes in the source tables. Databricks recommends using change tracking for any table that has a primary key to minimize the load on the source database. If change tracking and CDC are both enabled, the SQL Server connector uses change tracking.
+Method
+Description
+Change tracking
+Captures the fact that rows in a table have changed, but doesn't capture the actual operations. Change tracking does require that a table has a primary key, but it's a lightweight process that doesn't have a large impact on the source database.
+Change data capture
+Captures every operation on a table and contains a historical view on the changes made over time. CDC doesn't require that a table have a primary key, but it can have more of an impact on the performance of the source database.
+←
+✕
+Method
+Description
+Change tracking
+Captures the fact that rows in a table have changed, but doesn't capture the actual operations. Change tracking does require that a table has a primary key, but it's a lightweight process that doesn't have a large impact on the source database.
+Change data capture
+Captures every operation on a table and contains a historical view on the changes made over time. CDC doesn't require that a table have a primary key, but it can have more of an impact on the performance of the source database.
+For more information about these options, see
+Track data changes (SQL Server)
+in the SQL Server documentation.
+Overview of source setup
+​
+You must complete the following tasks in SQL Server before you ingest data into
+Databricks
+:
+Confirm that you meet the SQL Server version requirements:
+To use change tracking, you must have SQL Server 2012 or above.
+To use CDC, you must have SQL Server 2012 service pack 1 (SP1) cumulative update package 3 (CU3) or above. For versions earlier than SQL Server 2016, Enterprise Edition is also required.
+Configure firewall settings, if needed.
+AWS SQL Database
+Create a database user in SQL Server that is dedicated to Databricks ingestion and meets the
+privilege requirements
+.
+Set up the source database, including permission management, change tracking enablement, and CDC enablement. See
+Prepare SQL Server for ingestion using the utility objects script
+.
+On this page
+Change tracking vs. change data capture
+Overview of source setup

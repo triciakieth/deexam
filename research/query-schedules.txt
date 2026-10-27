@@ -1,0 +1,58 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Schedule a query
+You can use scheduled query executions to update your dashboards or enable routine alerts. By default, your queries do not have a schedule.
+note
+If an alert uses your query, the alert runs on its own refresh schedule and does not use the query schedule.
+To set the schedule:
+In the SQL editor, click
+Schedule
+>
+Add schedule
+to open a menu with schedule settings.
+Choose when to run the query.
+Use the dropdown pickers to specify the frequency, period, starting time, and time zone. Optionally, select the
+Show cron syntax
+checkbox to edit the schedule in
+Quartz Cron Syntax
+.
+Choose
+More options
+to show optional settings. You can also choose:
+A name for the schedule.
+A SQL warehouse to power the query. By default, the SQL warehouse used for ad hoc query execution is also used for a scheduled job. Use this optional setting to select a different warehouse to run the scheduled query.
+Click
+Create
+.
+Your query will run automatically according to the schedule. If you experience a scheduled query not executing according to its schedule, you should manually trigger the query to make sure it doesn't fail.
+If a query execution fails during a scheduled run,
+Databricks
+retries with a back-off algorithm. This means that retries happen less frequently as failures persist. With persistent failures, the next retry might exceed the scheduled interval.
+After you create a schedule, the label on the
+Schedule
+button reads
+Schedule(#)
+, where the
+#
+is the number of scheduled events that are visible to you. You cannot see schedules that have not been shared with you.
+important
+New schedules are not automatically shared with other users, even if those users have access to the query. To make scheduled runs and results visible to other users, use the sharing settings described in the next step.
+Share the schedule
+Query permissions are not linked to schedule permissions. After creating your scheduled run interval, edit the schedule permissions to provide access to other users.
+Click
+Schedule(#)
+.
+Click the
+kebab menu and select
+Edit schedule permissions
+.
+Choose a user or group from the drop-down menu in the dialog.
+Choose CAN VIEW to allow the selected users to view the results of scheduled runs.
+Refresh behavior and execution context
+​
+When a query is “Run as Owner” and a schedule is added, the query owner's credential is used for execution, and anyone with at least CAN RUN sees the results of those refreshed queries.
+When a query is “Run as Viewer” and a schedule is added, the schedule owner's credential is used for execution. Only the users with appropriate schedule permissions see the results of the refreshed queries; all other viewers must manually refresh to see updated query results.
+On this page
+Refresh behavior and execution context

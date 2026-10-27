@@ -1,0 +1,249 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Configure audit log delivery
+note
+Databricks recommends using the audit log system table (
+system.access.audit
+) to access your account's audit logs. See
+Audit log system table reference
+. Databricks highly discourages you from moving this data outside the platform because it can expose sensitive data and put your deployment at risk. Due to the nature of audit log contents, you are reminded that you are responsible to maintain the security, and prevent misuse, of any exported audit logs.
+This article explains how to configure low-latency delivery of audit logs in JSON file format to an Amazon S3 storage bucket.
+When your audit logs gets delivered to an S3 storage bucket, you can make the data available for usage analysis.
+Databricks
+delivers a separate JSON file for each workspace in your account and a separate file for account-level events. For more information on the file schema and audit events, see
+Audit
+log reference
+.
+You can optionally deliver logs to an AWS account other than the account used for the IAM role that you create for log delivery. This allows flexibility, for example setting up workspaces from multiple AWS accounts to deliver to the same S3 bucket. This option requires that you configure an S3 bucket policy that references a cross-account IAM role. Instructions and a policy template are provided for you in
+Step 3: cross-account support
+.
+In addition to delivery of logs for running workspaces, logs are delivered for
+cancelled workspaces
+to ensure that logs are properly delivered that represent the final day of the workspace.
+Requirements
+​
+To configure audit log delivery using these instructions, you must:
+Be an account admin.
+Authenticate the Databricks CLI to run account-level commands. See
+Authentication for the Databricks CLI
+.
+High-level flow
+​
+This section describes the high-level flow of audit log delivery.
+Step 1: Configure storage
+: In AWS, create a new S3 bucket. Using Databricks APIs, create a storage configuration object that uses the bucket name.
+Step 2: Configure credentials
+: In AWS, create the appropriate AWS IAM role. Using Databricks APIs, create a credentials configuration object that uses the IAM role's ARN.
+(Optional)
+Step 3: cross-account support
+: To deliver logs to an AWS account other than the account of the IAM role that you create for log delivery, add an S3 bucket policy. This policy references IDs for the cross-account IAM role that you created in the previous step.
+Step 4: Call the log delivery API
+: Create a log delivery configuration that uses the credential and storage configuration objects from previous steps.
+After you complete these steps, you can access the JSON files. The delivery location is in the following format:
+<bucket-name>/<delivery-path-prefix>/workspaceId=<workspaceId>/date=<yyyy-mm-dd>/auditlogs_<internal-id>.json
+note
+If you configure audit log delivery for the entire account, account-level audit events that are not associated with any single workspace are delivered to the
+workspaceId=0
+partition.
+Considerations based on your number of workspaces
+​
+Your delivery configuration might vary depending on how many workspaces you have and where they are located:
+If you have one workspace in your
+Databricks
+account:
+Follow the instructions as outlined in the high-level flow, creating a single configuration object for your workspace.
+If you have multiple workspaces in the same
+Databricks
+account:
+Do one of the following:
+Share the same configuration (log delivery S3 bucket and IAM role) for all workspaces in the account. This is the only configuration option that also delivers account-level audit logs. It is the default option.
+Use separate configurations for each workspace in the account.
+Use separate configurations for different groups of workspaces, each sharing a configuration.
+If you have multiple workspaces, each associated with a separate
+Databricks
+account:
+Create unique storage and credential configuration objects for each account. You can reuse an S3 bucket or IAM role between these configuration objects.
+note
+You can configure log delivery with the Account API even if the workspace wasn't created using the Account API.
+Audit delivery details
+​
+After logging is enabled for your account,
+Databricks
+automatically sends audit logs in human-readable format to your delivery location on a periodic basis.
+Latency
+: After initial setup or other configuration changes, expect some delay before your changes take effect. For initial setup of audit log delivery, it takes up to one hour for log delivery to begin. After log delivery begins, auditable events are typically logged within 15 minutes. Additional configuration changes typically take an hour to take effect.
+Encryption
+:
+Databricks
+encrypts audit logs using Amazon S3 server-side encryption.
+Format
+:
+Databricks
+delivers audit logs in JSON format.
+Location
+: The delivery location is
+<bucket-name>/<delivery-path-prefix>/workspaceId=<workspaceId>/date=<yyyy-mm-dd>/auditlogs_<internal-id>.json
+. New JSON files are delivered every few minutes, potentially overwriting existing files. The delivery path is defined as part of the configuration. Account-level audit events that are not associated with any single workspace are delivered to the
+workspaceId=0
+partition, if you configured audit logs delivery for the entire account.
+Databricks
+can overwrite the delivered log files in your bucket at any time. If a file is overwritten, the existing content remains, but there might be additional lines for more auditable events.
+Overwriting ensures exactly-once semantics without requiring read or delete access to your account.
+Use the log delivery APIs
+​
+The
+log delivery APIs
+have the following additional features:
+Get all log delivery configurations
+.
+Get a log delivery configuration by ID
+.
+Enable or disable a log delivery configuration by ID
+.
+Log delivery configuration status can be found in the API response's
+log_delivery_status
+object. With
+log_delivery_status
+, you can check the status (success or failure) and the last time of an attempt or successful delivery.
+Audit log delivery limitations
+​
+There is a limit on the number of log delivery configurations available per account (each limit applies separately to each log type including billable usage and audit logs). You can create a maximum of two enabled account-level delivery configurations (configurations without a workspace filter) per type. Additionally, you can create and enable two workspace level delivery configurations per workspace for each log type, meaning the same workspace ID can occur in the workspace filter for no more than two delivery configurations per log type.
+You cannot delete a log delivery configuration, but you can disable it. You can re-enable a disabled configuration, but the request fails if it violates the limits previously described.
+Audit
+log schema considerations
+​
+If actions take a long time, the request and response are logged separately but the request and response pair have the same
+requestId
+.
+Automated actions, such as resizing a cluster due to autoscaling or launching a job due to scheduling, are performed by the user
+System-User
+.
+The
+requestParams
+field is subject to truncation. If the size of its JSON representation exceeds 100 KB, values are truncated and the string
+... truncated
+is appended to truncated entries. In rare cases where a truncated map is still larger than 100 KB, a single
+TRUNCATED
+key with an empty value is present instead.
+Audit
+log example schema
+​
+Audit logs delivered to cloud storage output events in JSON. The
+serviceName
+and
+actionName
+properties identify the event. The naming convention follows the Databricks
+REST API
+.
+The following example is for a
+createMetastoreAssignment
+event.
+JSON
+{
+"version"
+:
+"2.0"
+,
+"auditLevel"
+:
+"ACCOUNT_LEVEL"
+,
+"timestamp"
+:
+1629775584891
+,
+"orgId"
+:
+"3049056262456431186970"
+,
+"shardName"
+:
+"test-shard"
+,
+"accountId"
+:
+"77636e6d-ac57-484f-9302-f7922285b9a5"
+,
+"sourceIPAddress"
+:
+"10.2.91.100"
+,
+"userAgent"
+:
+"curl/7.64.1"
+,
+"sessionId"
+:
+"f836a03a-d360-4792-b081-baba525324312"
+,
+"userIdentity"
+:
+{
+"email"
+:
+"someone@example.com"
+,
+"subjectName"
+:
+null
+}
+,
+"serviceName"
+:
+"unityCatalog"
+,
+"actionName"
+:
+"createMetastoreAssignment"
+,
+"requestId"
+:
+"ServiceMain-da7fa5878f40002"
+,
+"requestParams"
+:
+{
+"workspace_id"
+:
+"30490590956351435170"
+,
+"metastore_id"
+:
+"abc123456-8398-4c25-91bb-b000b08739c7"
+,
+"default_catalog_name"
+:
+"main"
+}
+,
+"response"
+:
+{
+"statusCode"
+:
+200
+,
+"errorMessage"
+:
+null
+,
+"result"
+:
+null
+}
+,
+"MAX_LOG_MESSAGE_LENGTH"
+:
+16384
+}
+On this page
+Requirements
+High-level flow
+Considerations based on your number of workspaces
+Audit delivery details
+Use the log delivery APIs
+Audit log delivery limitations
+Audit log schema considerations
+Audit log example schema

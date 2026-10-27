@@ -1,0 +1,231 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Salesforce
+ingestion connector
+Databricks
+Lakeflow Connect
+provides a built-in connector for ingesting data directly from the
+Salesforce
+Platform into
+Databricks
+. Data teams can easily build efficient, incremental pipelines at scale, and businesses can derive rich insights by unifying all their data and AI assets on the
+Data + AI Platform
+.
+An organization might want to use
+Salesforce
+data to predict customer churn. The following video demonstrates how a retailer can do this by ingesting their customer order data, analyzing it, and then combining it with customer interactions across other channels for a holistic customer view.
+Feature availability
+​
+Feature
+Availability
+UI-based pipeline authoring
+Supported
+API-based pipeline authoring
+Supported
+Declarative Automation Bundles
+Supported
+Incremental ingestion
+Supported
+By default, formula fields require full snapshots. To enable incremental ingestion for formula fields, see
+Ingest
+Salesforce
+formula fields incrementally
+.
+Unity Catalog
+governance
+Supported
+Orchestration using Databricks Workflows
+Supported
+SCD type 2
+Supported
+API-based column selection and deselection
+Supported
+API-based row filtering
+Supported
+Automated schema evolution: New and deleted columns
+Supported
+Automated schema evolution: Data type changes
+Not supported
+Automated schema evolution: Column renames
+Supported
+Treated as a new column (new name) and deleted column (old name).
+Automated schema evolution: New tables
+N/A
+Maximum number of tables per pipeline
+250
+←
+✕
+Feature
+Availability
+UI-based pipeline authoring
+Supported
+API-based pipeline authoring
+Supported
+Declarative Automation Bundles
+Supported
+Incremental ingestion
+Supported
+By default, formula fields require full snapshots. To enable incremental ingestion for formula fields, see
+Ingest
+Salesforce
+formula fields incrementally
+.
+Unity Catalog
+governance
+Supported
+Orchestration using Databricks Workflows
+Supported
+SCD type 2
+Supported
+API-based column selection and deselection
+Supported
+API-based row filtering
+Supported
+Automated schema evolution: New and deleted columns
+Supported
+Automated schema evolution: Data type changes
+Not supported
+Automated schema evolution: Column renames
+Supported
+Treated as a new column (new name) and deleted column (old name).
+Automated schema evolution: New tables
+N/A
+Maximum number of tables per pipeline
+250
+Authentication methods
+​
+Authentication method
+Availability
+OAuth U2M
+Supported
+OAuth mTLS (mutual TLS)
+Supported
+OAuth M2M
+Not supported
+OAuth (manual refresh token)
+Not supported
+Basic authentication (username/password)
+Not supported
+Basic authentication (API key)
+Not supported
+Basic authentication (service account JSON key)
+Not supported
+←
+✕
+Authentication method
+Availability
+OAuth U2M
+Supported
+OAuth mTLS (mutual TLS)
+Supported
+OAuth M2M
+Not supported
+OAuth (manual refresh token)
+Not supported
+Basic authentication (username/password)
+Not supported
+Basic authentication (API key)
+Not supported
+Basic authentication (service account JSON key)
+Not supported
+What to know before you start
+​
+Topic
+Why it matters
+Databricks
+user persona
+The workflow depends on your
+Databricks
+user persona:
+Single-user: An admin user creates a
+Unity Catalog
+connection and an ingestion pipeline.
+Multi-user: An admin user creates a connection for non-admin users to create pipelines with.
+Authentication method
+The steps to create a connection depend on the authentication method you choose.
+Interface
+The steps to create a pipeline depend on the interface.
+Ingestion frequency
+The pipeline schedule depends on your latency and cost requirements.
+Common patterns
+Depending on your ingestion needs, the pipeline might use configurations like history tracking, column selection, and row filtering. Supported configurations vary by connector. See
+Feature availability
+.
+←
+✕
+Topic
+Why it matters
+Databricks
+user persona
+The workflow depends on your
+Databricks
+user persona:
+Single-user: An admin user creates a
+Unity Catalog
+connection and an ingestion pipeline.
+Multi-user: An admin user creates a connection for non-admin users to create pipelines with.
+Authentication method
+The steps to create a connection depend on the authentication method you choose.
+Interface
+The steps to create a pipeline depend on the interface.
+Ingestion frequency
+The pipeline schedule depends on your latency and cost requirements.
+Common patterns
+Depending on your ingestion needs, the pipeline might use configurations like history tracking, column selection, and row filtering. Supported configurations vary by connector. See
+Feature availability
+.
+Start ingesting from
+Salesforce
+​
+The following table provides an overview of the end-to-end
+Salesforce
+ingestion flow, based on user type:
+User
+Steps
+Admin
+Either:
+Use Catalog Explorer to create a connection to
+Salesforce
+so that non-admins can create pipelines. See
+Create a
+Salesforce
+connection
+.
+Use the data ingestion UI to create a connection and a pipeline at the same time. See
+Ingest data from
+Salesforce
+.
+Non-admin
+Use any supported interface to create a pipeline from an existing connection. See
+Ingest data from
+Salesforce
+.
+←
+✕
+User
+Steps
+Admin
+Either:
+Use Catalog Explorer to create a connection to
+Salesforce
+so that non-admins can create pipelines. See
+Create a
+Salesforce
+connection
+.
+Use the data ingestion UI to create a connection and a pipeline at the same time. See
+Ingest data from
+Salesforce
+.
+Non-admin
+Use any supported interface to create a pipeline from an existing connection. See
+Ingest data from
+Salesforce
+.
+On this page
+Feature availability
+Authentication methods
+What to know before you start
+Start ingesting from Salesforce

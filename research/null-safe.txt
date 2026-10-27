@@ -1,0 +1,159 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+<=>
+(lt eq gt sign) operator
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns the same result as the
+EQUAL(=)
+for non-null operands, but returns
+true
+if both are
+NULL
+,
+false
+if one of the them is
+NULL
+. This operator is a synonym for
+expr1 is not distinct from expr2
+.
+Syntax
+​
+expr1 <=> expr2
+Arguments
+​
+expr1
+: An expression of a comparable type.
+expr2
+: An expression that shares a
+least common type
+with
+expr1
+.
+Returns
+​
+A BOOLEAN.
+Examples
+​
+SQL
+>
+SELECT
+2
+<=>
+2
+;
+true
+>
+SELECT
+1
+<=>
+'1'
+;
+true
+>
+SELECT
+true
+<=>
+NULL
+;
+false
+>
+SELECT
+NULL
+<=>
+NULL
+;
+true
+-- By default string comparisons are trailing space sensitive
+-- This can be overridden by using the COLLATE clause
+>
+SELECT
+'hello'
+<=>
+'hello  '
+AS
+default
+,
+'hello'
+<=>
+'hello  '
+COLLATE
+UTF8_BINARY
+AS
+utf8_binary
+,
+'hello'
+<=>
+'hello  '
+COLLATE
+UTF8_BINARY_RTRIM
+AS
+rtrim
+;
+default
+utf8_binary rtrim
+------- ----------- -----
+false
+false
+true
+-- String comparisons are trailing space sensitive by default
+-- Use the COLLATE clause to override the default
+>
+SELECT
+'world  '
+<=>
+'world     '
+AS
+default
+,
+'world  '
+<=>
+'world     '
+COLLATE
+UTF8_BINARY
+AS
+utf8_binary
+,
+'world  '
+<=>
+'world     '
+COLLATE
+UTF8_BINARY_RTRIM
+AS
+rtrim
+;
+default
+utf8_binary rtrim
+------- ----------- -----
+false
+false
+true
+Related
+​
+!=
+(bangeq sign) operator
+<
+(lt sign) operator
+>
+(gt sign) operator
+>=
+(gt eq sign) operator
+<=
+(lt eq sign) operator
+=
+(eq sign) operator
+<>
+(lt gt sign) operator
+is distinct
+operator
+SQL data type rules
+Collation
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Related

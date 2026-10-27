@@ -1,0 +1,718 @@
+On this page
+Last updated
+on
+Oct 15, 2026
+Use standalone
+materialized views
+Standalone
+materialized views
+pre-compute and cache query results to improve performance and reduce the cost of your data processing and analysis workloads.
+You can create and refresh standalone
+materialized views
+from a
+Databricks SQL
+warehouse, or from a notebook running on serverless general compute. For details on the differences between the two compute options, see
+Requirements for standalone pipelines
+.
+To create and refresh standalone
+materialized views
+with Python from a notebook, see
+Use Python with standalone pipelines
+.
+What are standalone
+materialized views
+?
+​
+A standalone
+materialized view
+is a
+Unity Catalog
+managed table that physically stores the results of a query, defined outside of a
+Lakeflow pipeline
+. Unlike standard views, which compute results on demand,
+materialized views
+cache the results and update them as the underlying source tables change, either on a schedule or automatically.
+Materialized views
+are well-suited for serving precomputed results to dashboards and reports, and for transformations that clean, enrich, and denormalize base tables. By precomputing expensive or frequently used queries,
+Materialized views
+lower query latency and resource consumption. In many cases, they can
+incrementally compute changes
+from source tables, further improving efficiency and end-user experience.
+For batch extract, transform, and load (ETL) workloads that periodically overwrite a time window or a partition, such as corrections, late-arriving data, and compliance deletions, use a
+REPLACE WHERE flow
+instead. See
+When to use REPLACE WHERE vs.
+materialized views
+.
+The following are common use cases for
+materialized views
+:
+Keeping a BI dashboard up to date with minimal end-user query latency.
+Building complex, layered transformations.
+Any use cases that demand consistent performance with up-to-date insights.
+When you create a
+materialized view
+in a
+Databricks SQL
+warehouse, a
+serverless pipeline
+is created to process the create and refreshes to the
+materialized view
+. You can monitor the status of refresh operations in
+Catalog Explorer
+. See
+View details with
+DESCRIBE EXTENDED
+.
+Requirements
+​
+For compute options, permissions, and other requirements for creating, refreshing, and querying standalone
+materialized views
+, see
+Requirements for standalone pipelines
+.
+To learn about other restrictions on using
+materialized views
+, see
+Limitations
+.
+Create a
+materialized view
+​
+Standalone
+materialized view
+CREATE
+operations use a
+Databricks SQL
+warehouse to create and load data in the
+materialized view
+. Creating a
+materialized view
+is a synchronous operation, which means that the
+CREATE MATERIALIZED VIEW
+command blocks until the
+materialized view
+is created and the initial data load finishes. A serverless pipeline is automatically created for every standalone
+materialized view
+. When the
+materialized view
+is
+refreshed
+, the pipeline processes the refresh.
+To create a
+materialized view
+, use the
+CREATE MATERIALIZED VIEW
+statement. To submit a create statement, use the SQL editor in the
+Databricks
+UI, the
+Databricks SQL CLI
+, or the
+Databricks SQL API
+.
+The user who creates a
+materialized view
+is the
+materialized view
+owner.
+Ad-hoc materialized view
+​
+The following example creates the
+materialized view
+mv1
+from the base table
+base_table1
+:
+SQL
+-- This query defines the materialized view:
+CREATE
+OR
+REPLACE
+MATERIALIZED
+VIEW
+mv1
+AS
+SELECT
+date
+,
+sum
+(
+sales
+)
+AS
+sum_of_sales
+FROM
+base_table1
+GROUP
+BY
+date
+;
+On-trigger materialized view
+​
+The following example creates a
+materialized view
+that automatically refreshes whenever the upstream source data changes using
+TRIGGER ON UPDATE
+. Use this approach for production workloads, especially when upstream dependencies don't run on predictable schedules.
+SQL
+-- Refresh automatically when the source table is updated.
+CREATE
+OR
+REPLACE
+MATERIALIZED
+VIEW
+mv_trigger
+TRIGGER
+ON
+UPDATE
+AS
+SELECT
+date
+,
+sum
+(
+sales
+)
+AS
+sum_of_sales
+FROM
+base_table1
+GROUP
+BY
+date
+;
+Scheduled materialized view
+​
+The following example creates a
+materialized view
+with a daily CRON refresh schedule at 3:30 AM UTC. Expressions and aggregates in the
+SELECT
+clause must use aliases.
+GROUP BY
+column references don't require aliases.
+SQL
+-- Refresh nightly at 3:30 AM UTC.
+-- The cron expression uses six space-separated fields: seconds minutes hours day-of-month month day-of-week
+-- Use '?' for either day-of-month or day-of-week to leave it unspecified.
+CREATE
+OR
+REPLACE
+MATERIALIZED
+VIEW
+daily_revenue_by_region
+SCHEDULE CRON
+'0 30 3 * * ?'
+AT
+TIME
+ZONE
+'UTC'
+AS
+SELECT
+date_trunc
+(
+'day'
+,
+order_time
+)
+AS
+sales_date
+,
+region
+,
+sum
+(
+revenue
+)
+AS
+total_revenue
+,
+count
+(
+*
+)
+AS
+order_count
+FROM
+orders
+GROUP
+BY
+sales_date
+,
+region
+;
+For more scheduling options, including
+SCHEDULE EVERY
+syntax and additional CRON examples, see
+Schedule refreshes
+.
+When you create a
+materialized view
+using the
+CREATE OR REPLACE MATERIALIZED VIEW
+statement, the initial data refresh and population begins immediately. This does not consume SQL warehouse compute. Instead, a serverless pipeline is used for creation and subsequent refreshes. See
+How are standalone
+materialized views
+refreshed?
+.
+Column comments on a base table are automatically propagated to the new
+materialized view
+on create only. To add a schedule, table constraints, or other properties, modify the
+materialized view
+definition (the SQL query).
+The same SQL statement refreshes a
+materialized view
+if called a subsequent time, or on a schedule. A refresh done in this way acts as any other refresh. For details, see
+Refresh a
+materialized view
+.
+To learn more about configuring a
+materialized view
+, see
+Configure standalone
+materialized views
+. To learn about the complete syntax for creating a
+materialized view
+, see
+CREATE MATERIALIZED VIEW
+. To learn about loading data in different formats and from different places, see
+Load data in pipelines
+.
+Load data from external systems
+​
+Materialized views
+can be created on external data using Lakehouse Federation for
+supported data sources
+. For information on loading data from sources not supported by Lakehouse Federation, see
+Data format options
+. For general information about loading data, including examples, see
+Load data in pipelines
+.
+Hide sensitive data
+​
+You can use
+materialized views
+to hide sensitive data from users accessing the table. One way to do this is to create the query so it doesn't include that data in the first place. But you can also mask columns or filter rows based on the permissions of the querying user. For example, you could hide the
+tax_id
+column for users that are not in the group
+HumanResourcesDept
+. To do this, use the
+ROW FILTER
+and
+MASK
+syntax during the creation of the
+materialized view
+. For more information, see
+Row filters and column masks
+.
+Refresh a
+materialized view
+​
+Refreshing a
+materialized view
+updates the view to reflect the latest changes to the base table at the time of the refresh.
+When you define a
+materialized view
+, the
+CREATE OR REPLACE MATERIALIZED VIEW
+statement is used both to create the view, and to refresh it for any scheduled refreshes. You can also use the
+REFRESH MATERIALIZED VIEW
+statement to refresh the
+materialized view
+without needing to supply the query again. See
+REFRESH (MATERIALIZED VIEW or STREAMING TABLE)
+for details on the SQL syntax and parameters for this command. To learn more about the types of
+materialized views
+that can be incrementally refreshed, see
+Incremental refresh for
+materialized views
+.
+To submit a refresh statement, use the SQL editor in the
+Databricks
+UI, a notebook attached to a SQL warehouse, the
+Databricks SQL CLI
+, or the
+Databricks SQL API
+.
+The owner, and any user who has been granted the
+REFRESH
+privilege on the table, can refresh the
+materialized view
+.
+The following example refreshes the
+mv1
+materialized view
+:
+SQL
+REFRESH MATERIALIZED
+VIEW
+mv1
+;
+The operation is synchronous by default, meaning that the command blocks until the refresh operation is complete. To refresh
+asynchronously
+, you can add the
+ASYNC
+keyword:
+SQL
+REFRESH MATERIALIZED
+VIEW
+mv1 ASYNC
+;
+To learn how to schedule a refresh, see
+Schedule refreshes
+.
+How are standalone
+materialized views
+refreshed?
+​
+Materialized views
+automatically create and use serverless pipelines to process refresh operations. The refresh is managed by the pipeline and the update is monitored by the
+Databricks SQL
+warehouse used to create the
+materialized view
+.
+Materialized views
+can be updated using a pipeline that runs on a
+schedule
+. Standalone
+materialized views
+run only in triggered mode. See
+Triggered vs. continuous pipeline mode
+.
+Scheduled refreshes can have update
+notifications
+, and you can set the
+performance mode
+for the refresh.
+Incremental refresh
+​
+Materialized views
+are refreshed using one of two methods.
+Incremental refresh
+- The system evaluates the view's query to identify changes that happened after the last update and merges only the new or modified data.
+Full refresh
+- If an incremental refresh can't be performed or is not cost-effective, the system runs the entire query and replaces the existing data in the
+materialized view
+with the new results.
+The structure of the query and the type of source data determine whether incremental refresh is supported. To support incremental refresh, source data should be stored in Delta tables with row tracking enabled. Enabling change data feed is recommended for better incremental refresh performance. To see if a query is incrementalizable, use the
+Databricks SQL
+EXPLAIN CREATE MATERIALIZED VIEW
+statement. After you create a
+materialized view
+, you can monitor its refresh behavior to verify whether it is updated incrementally or through a full refresh.
+By default,
+Databricks
+uses a cost model to choose the more cost-effective option between full and incremental refresh. You can override this behavior to prefer either incremental or full refreshes by setting a
+REFRESH POLICY
+in your SQL definition of the
+materialized view
+.
+For details on refresh types, and how to optimize for incremental refreshes, see
+Incremental refresh for
+materialized views
+.
+Asynchronous refreshes
+​
+By default, refresh operations are performed synchronously. You can also set a refresh operation to occur asynchronously. This can be set using the refresh command with the
+ASYNC
+keyword. See
+REFRESH (MATERIALIZED VIEW or STREAMING TABLE)
+. The behavior associated with each approach is as follows:
+Synchronous
+: A synchronous refresh prevents other operations from proceeding until the refresh is complete. If the result is needed for the next step, such as when sequencing refresh operations in orchestration tools like Lakeflow Jobs, use a synchronous refresh. To orchestrate
+materialized views
+with a job, use the
+SQL
+task type. See
+Lakeflow Jobs
+.
+Asynchronous
+: An asynchronous refresh starts a background job on serverless compute when a
+materialized view
+refresh begins, allowing the command to return before the data load completes. This refresh type can save on cost because the operation doesn't necessarily hold compute capacity in the warehouse where the command is initiated. If the refresh becomes idle and no other tasks are running, the warehouse can shut down while the refresh uses other available compute. Additionally, asynchronous refreshes support starting multiple operations in parallel.
+Permanently delete records from a
+materialized view
+with deletion vectors enabled
+​
+Preview
+Support for the
+REORG
+statement with
+materialized views
+is in
+Public Preview
+.
+note
+Using a
+REORG
+statement with a
+materialized view
+requires
+Databricks Runtime
+15.4 and above.
+Although you can use the
+REORG
+statement with any
+materialized view
+, it's only required when deleting records from a
+materialized view
+with
+deletion vectors
+enabled. The command has no effect when used with a
+materialized view
+without deletion vectors enabled.
+To physically delete records from the underlying storage for a
+materialized view
+with deletion vectors enabled, such as for GDPR compliance, additional steps must be taken to ensure that a
+VACUUM
+operation runs on the
+materialized view
+'s data.
+To physically delete records:
+Run a
+REORG
+statement against the
+materialized view
+, specifying the
+APPLY (PURGE)
+parameter. For example
+REORG TABLE <materialized-view-name> APPLY (PURGE);
+. See
+REORG TABLE
+.
+Wait for the
+materialized view
+'s data retention period to pass. The default data retention period is seven days, but it can be configured with the
+delta.deletedFileRetentionDuration
+table property. See
+Configure data retention for time travel queries
+.
+REFRESH
+the
+materialized view
+. See
+Refresh a
+materialized view
+. Within 24 hours of the
+REFRESH
+operation, pipeline maintenance tasks, including the
+VACUUM
+operation which is required to ensure records are permanently deleted, are run automatically.
+Drop a
+materialized view
+​
+note
+To submit the command to drop a
+materialized view
+, you must be the owner of that
+materialized view
+or have the
+MANAGE
+privilege on the
+materialized view
+.
+To drop a
+materialized view
+, use the
+DROP VIEW
+statement. To submit a
+DROP
+statement, you can use the SQL editor in the
+Databricks
+UI, the
+Databricks SQL CLI
+, or the
+Databricks SQL API
+. The following example drops the
+mv1
+materialized view
+:
+SQL
+DROP
+MATERIALIZED
+VIEW
+mv1
+;
+You can also use the Catalog Explorer to drop a
+materialized view
+.
+Click
+Catalog
+in the sidebar.
+In the Catalog Explorer tree at the left, open the catalog and select the schema where your
+materialized view
+is located.
+Open the
+Tables
+item under the schema you selected, and click the
+materialized view
+.
+On the kebab menu
+, select
+Delete
+.
+Understand the costs of a
+materialized view
+​
+When you run
+CREATE MATERIALIZED VIEW
+or
+REFRESH MATERIALIZED VIEW
+,
+Databricks
+automatically creates and runs a serverless pipeline to process the operation. This pipeline is independent of the
+Databricks SQL
+warehouse or compute resource from which you submitted the command. The cluster size of your warehouse does not limit the compute or cost used by the refresh.
+The refresh pipeline runs on serverless compute, billed as
+serverless Lakeflow pipelines
+DBUs.
+The serverless pipeline is separate from your warehouse. Compute from your warehouse is only used to coordinate the operation, not to perform the data processing.
+Cost scales with the volume of data processed, not the size of your SQL warehouse.
+To monitor
+Materialized view
+refresh costs, use system tables. See
+What is the DBU consumption of a
+materialized view
+or
+streaming table
+?
+.
+To view the underlying pipeline that manages your
+materialized view
+:
+Click
+Jobs & Pipelines
+in the left sidebar of your
+Databricks
+workspace.
+Click
+Pipeline type
+. Then, select
+MV/ST
+to see standalone
+materialized views
+.
+note
+You might incur serverless compute charges even when the originating warehouse uses dedicated compute.
+Enabling row tracking
+​
+To support incremental refreshes from Delta tables, row tracking must be enabled for those source tables. If you recreate a source table, you must re-enable row tracking.
+The following example shows how to enable row tracking on a table:
+SQL
+ALTER
+TABLE
+source_table
+SET
+TBLPROPERTIES
+(
+delta
+.
+enableRowTracking
+=
+true
+)
+;
+For more details, see
+Row tracking in
+Databricks
+Limitations
+​
+For compute options and workspace requirements, see
+Requirements for standalone pipelines
+.
+For incremental refresh requirements, see
+Incremental refresh for
+materialized views
+.
+Materialized views
+do not support identity columns or surrogate keys.
+If a
+materialized view
+uses a sum aggregate over a
+NULL
+-able column and only
+NULL
+values remain in that column, the
+materialized views
+resultant aggregate value is zero instead of
+NULL
+.
+You cannot read a
+change data feed
+from a
+materialized view
+, unless you enable the change data feed on each
+materialized view
+that you need it on. See
+Read a change data feed from a
+materialized view
+(Beta).
+Time travel queries are not supported on
+materialized views
+.
+The underlying files supporting
+materialized views
+might include data from upstream tables (including possible personally identifiable information) that do not appear in the
+materialized view
+definition. This data is automatically added to the underlying storage to support incremental refreshing of
+materialized views
+. Because the underlying files of a
+materialized view
+might risk exposing data from upstream tables not part of the
+materialized view
+schema, Databricks recommends not sharing the underlying storage with untrusted downstream consumers. For example, suppose the definition of a
+materialized view
+includes a
+COUNT(DISTINCT field_a)
+clause. Even though the
+materialized view
+definition only includes the aggregate
+COUNT DISTINCT
+clause, the underlying files contain a list of the actual values of
+field_a
+.
+You might incur some serverless compute charges, even when using these features on dedicated compute.
+If you need to use an AWS PrivateLink connection with your
+materialized view
+, contact your Databricks representative.
+Access
+materialized views
+from external clients
+​
+To access
+materialized views
+from external
+Delta Lake
+or Iceberg clients that don't support open APIs, you can use
+Compatibility Mode
+. Compatibility Mode creates a read-only version of your
+materialized view
+that can be accessed by any
+Delta Lake
+or Iceberg client.
+Additional resources
+​
+Configure standalone
+materialized views
+Monitor standalone
+materialized views
+Use standalone
+streaming tables
+On this page
+What are standalone materialized views?
+Requirements
+Create a materialized view
+Ad-hoc materialized view
+On-trigger materialized view
+Scheduled materialized view
+Load data from external systems
+Hide sensitive data
+Refresh a materialized view
+How are standalone materialized views refreshed?
+Asynchronous refreshes
+Permanently delete records from a materialized view with deletion vectors enabled
+Drop a materialized view
+Understand the costs of a materialized view
+Enabling row tracking
+Limitations
+Access materialized views from external clients
+Additional resources

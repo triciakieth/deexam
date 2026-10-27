@@ -1,0 +1,290 @@
+On this page
+Last updated
+on
+Oct 22, 2026
+Serverless compute limitations
+This article explains the current limitations of serverless compute for notebooks and jobs. It starts with an overview of the most important considerations and then provides a comprehensive reference list of limitations.
+Language and API support
+​
+R is not supported.
+Only Spark Connect APIs are supported. Spark RDD APIs are not supported.
+Spark Connect, which is used by serverless compute, defers analysis and name resolution to execution time, which may change the behavior of your code. See
+Compare Spark Connect to Spark Classic
+.
+ANSI mode is enabled by default. Invalid casts, arithmetic overflow, and malformed input raise runtime errors instead of silently returning
+NULL
+or an incorrect result. For information on how to handle operations that change behavior and the limits on opting out, see the
+SQL behavior differences section
+of the migration guide.
+The default session time zone is
+Etc/UTC
+(Coordinated Universal Time). To use a different time zone, set
+spark.sql.session.timeZone
+. See
+Configure Spark properties for serverless notebooks and jobs
+.
+When creating a DataFrame from local data using
+spark.createDataFrame
+, row sizes cannot exceed 128MB.
+Data access and storage
+​
+You must use
+Unity Catalog
+to connect to external data sources. Use
+external locations
+to access cloud storage.
+Access to DBFS is limited. Use
+Unity Catalog
+volumes
+or
+workspace files
+instead.
+The working directory for notebooks and job tasks is not guaranteed, so relative file paths and relative Python imports can fail. Use absolute paths to reference files, and import shared Python code as workspace files instead of relative modules. See
+Work with Python and R modules
+.
+Maven coordinates are not supported.
+Global temp views are not supported. When cross-session data passing is required, Databricks recommends using
+session temporary views
+or creating tables.
+DBFS mounts with AWS instance profiles
+are not supported.
+User-defined functions (UDFs)
+​
+User-defined functions (UDFs) cannot access the internet. Because of this, the
+CREATE FUNCTION (External)
+command is not supported. Databricks recommends using
+CREATE FUNCTION (SQL and Python)
+to create UDFs.
+User-defined custom code, such as UDFs,
+map
+, and
+mapPartitions
+, cannot exceed 1 GB in memory usage.
+Scala UDFs cannot be used inside
+higher-order functions
+.
+UI and logging
+​
+The Spark UI is not available. Instead, use the query profile to view information about your Spark queries. See
+Query profile
+.
+Spark logs are not available. Users only have access to client-side application logs.
+Networking and workspace access
+​
+Cross-workspace access is allowed only if the workspaces are in the same region and the destination workspace does not have an IP ACL or front-end PrivateLink configured.
+Databricks Container Services
+is not supported.
+Serverless compute
+can't connect to resources that are reachable only over IPv6. Resources must be reachable over IPv4.
+Streaming limitations
+​
+Serverless compute
+for notebooks and jobs supports the following
+Structured Streaming
+triggers
+:
+Trigger.AvailableNow()
+. Databricks recommends this trigger mode for serverless compute.
+Trigger.Once()
+. This deprecated mode is supported but not recommended.
+The following triggers are not supported in serverless notebooks or jobs:
+Trigger.Continuous(interval)
+.
+Trigger.ProcessingTime(interval)
+.
+By default, if you don't specify a trigger mode,
+Apache Spark
+sets the trigger to
+Trigger.ProcessingTime("0 seconds")
+. You must set a supported trigger on serverless compute.
+If you attempt to use an unsupported trigger, the query raises an error
+INFINITE_STREAMING_TRIGGER_NOT_SUPPORTED
+.
+These trigger restrictions do not apply to
+Lakeflow pipelines
+processing modes. For continuous streaming workloads, use a
+serverless pipeline
+in
+continuous mode
+, or use
+Trigger.AvailableNow()
+in a
+continuous job
+.
+Real-time mode in
+Lakeflow pipelines
+supports sub-second operational workloads, with specific runtime, source, sink, and operator requirements.
+For a decision guide that maps streaming use cases to the right serverless product, see
+Streaming on serverless compute
+.
+All limitations for streaming on standard access mode also apply. See
+Streaming limitations
+.
+Notebooks limitations
+​
+Scala and R are not supported in notebooks.
+JAR libraries are not supported in notebooks. For workarounds, see
+Best practices for serverless compute
+. JAR tasks in jobs are supported. See
+JAR task for jobs
+.
+Notebook-scoped libraries are not cached across development sessions.
+Sharing TEMP tables and views when sharing a notebook among users is not supported.
+Autocomplete and Variable Explorer
+for dataframes in notebooks are not supported.
+By default, new notebooks are saved in
+.ipynb
+format. If your notebook is saved in source format, serverless metadata might not be captured correctly, and some features might not function as expected.
+Notebook tags are not supported. Use
+serverless usage policies
+to tag serverless usage.
+Job limitations
+​
+Task logs are not isolated per task run. Logs will contain the output from multiple tasks.
+Task libraries are not supported for notebook tasks. Use notebook-scoped libraries instead. See
+Notebook-scoped Python libraries
+.
+By default, serverless jobs have no query execution timeout. You can set an execution timeout for job queries using the
+spark.databricks.execution.timeout
+property. For more details, see
+Configure Spark properties for serverless notebooks and jobs
+.
+Serverless compute has a maximum runtime of 7 days. Runs that exceed 7 days are terminated by the platform and are not retried. To run workloads longer than 7 days, break them into smaller runs or use classic compute.
+Compute-specific limitations
+​
+The following compute-specific features are not supported:
+Compute policies
+Compute-scoped init scripts. To install packages or configure the Python environment, use a base environment or notebook dependencies instead. See
+Configure the serverless environment
+.
+Compute-scoped libraries, including custom data sources and Spark extensions. Use
+notebook-scoped libraries
+instead.
+Instance pools
+Compute event logs
+Most Apache Spark compute configurations. For a list of supported configurations, see
+Configure Spark properties for serverless notebooks and jobs
+.
+Compute-scoped environment variables. To pass environment variables to the application code in serverless Lakeflow Jobs tasks, use the job-level environment variables feature (Beta). See
+Configure environment variables for serverless jobs
+. You can also use
+widgets
+to create
+job and task parameters
+.
+Caching limitations
+​
+Metadata is cached in serverless compute sessions. Because of this, the session context might not fully reset when switching catalogs. To clear the session context, reset the serverless compute resource or start a new session.
+df.cache()
+,
+df.persist()
+, and
+df.unpersist()
+are supported. See
+Cache DataFrames on
+serverless compute
+.
+The following cache APIs and SQL commands are not supported on
+serverless compute
+. Using any of these APIs or SQL commands results in an exception.
+df.checkpoint()
+spark.catalog.cacheTable()
+spark.catalog.uncacheTable()
+spark.catalog.clearCache()
+CACHE TABLE
+UNCACHE TABLE
+REFRESH TABLE
+CLEAR CACHE
+The Spark ML model cache is limited to 1 GB (1073741824 bytes) per session, and a single model is limited to 100 MB. Both limits are lower on serverless compute than on classic compute, and neither can be changed. Exceeding the session limit raises
+ML_CACHE_SIZE_OVERFLOW_EXCEPTION
+. Exceeding the per-model limit raises
+MODEL_SIZE_OVERFLOW_EXCEPTION
+. To free space in the cache, delete the Python references to models you no longer use. Models left unused for 15 minutes move to local disk and still count toward the session limit.
+Hive limitations
+​
+Hive SerDe tables
+are not supported. Additionally, the corresponding
+LOAD DATA
+command which loads data into a Hive SerDe table is not supported. Using the command will result in an exception.
+Support for data sources is limited to AVRO, BINARYFILE, CSV, DELTA, JSON, KAFKA, ORC, PARQUET, TEXT, and XML.
+Hive variables
+(for example
+${env:var}
+,
+${configName}
+,
+${system:var}
+, and
+spark.sql.variable
+) or config variable references using the
+${var}
+syntax are not supported. Using Hive variables will result in an exception.
+Instead, use
+DECLARE VARIABLE
+,
+SET VARIABLE
+, and
+SQL session variable references
+and parameter markers ('?', or '
+:var
+') to declare, modify, and reference session state. You can also use the
+IDENTIFIER clause
+to parameterize object names in many cases.
+Supported data sources
+​
+Serverless compute supports the following data sources for DML operations (write, update, delete):
+CSV
+JSON
+AVRO
+DELTA
+KAFKA
+PARQUET
+ORC
+TEXT
+UNITY_CATALOG
+BINARYFILE
+XML
+SIMPLESCAN
+ICEBERG
+Serverless compute supports the following data sources for read operations:
+CSV
+JSON
+AVRO
+DELTA
+KAFKA
+PARQUET
+ORC
+TEXT
+UNITY_CATALOG
+BINARYFILE
+XML
+SIMPLESCAN
+ICEBERG
+MYSQL
+POSTGRESQL
+SQLSERVER
+REDSHIFT
+SNOWFLAKE
+SQLDW
+(Azure Synapse)
+DATABRICKS
+BIGQUERY
+ORACLE
+SALESFORCE
+SALESFORCE_DATA_CLOUD
+TERADATA
+WORKDAY_RAAS
+MONGODB
+On this page
+Language and API support
+Data access and storage
+User-defined functions (UDFs)
+UI and logging
+Networking and workspace access
+Streaming limitations
+Notebooks limitations
+Job limitations
+Compute-specific limitations
+Caching limitations
+Hive limitations
+Supported data sources

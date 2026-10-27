@@ -1,0 +1,123 @@
+On this page
+Last updated
+on
+Sep 14, 2026
+Triggered vs. continuous pipeline mode
+Triggered and continuous pipeline modes control how a pipeline processes data: triggered mode refreshes available data and stops, while continuous mode keeps tables fresh as new data arrives. For workloads that require millisecond latency, see
+Use real-time mode in
+Lakeflow pipelines
+.
+Pipeline mode is independent of the type of table being computed. Both
+materialized views
+and
+streaming tables
+can be updated in either pipeline mode.
+note
+Refresh operations for standalone
+materialized views
+and
+streaming tables
+always run using triggered pipeline mode.
+What is triggered pipeline mode?
+​
+If the pipeline uses
+triggered
+mode, the system stops after refreshing all tables based on the data available when the update started.
+What is continuous pipeline mode?
+​
+If the pipeline uses
+continuous
+execution, it processes new data as it arrives in data sources to keep tables throughout the pipeline fresh.
+To avoid unnecessary processing in continuous execution mode, pipelines automatically monitor dependent Delta tables and perform an update only when the contents of those dependent tables have changed.
+To control when platform-initiated updates and restarts happen on a continuous pipeline, configure a maintenance window on the job that runs the pipeline. See
+Manage updates for continuous pipelines
+.
+Choose a data pipeline mode
+​
+The following table highlights the differences between triggered and continuous pipeline modes:
+Key questions
+Triggered
+Continuous
+When does the update stop?
+Automatically when complete.
+Runs continuously until manually stopped.
+What data is processed?
+Data available when the update starts.
+All data as it arrives at configured sources.
+What data freshness requirements is this best for?
+Data updates run every 10 minutes, hourly, or daily.
+Data updates are desired between every 10 seconds and a few minutes.
+←
+✕
+Key questions
+Triggered
+Continuous
+When does the update stop?
+Automatically when complete.
+Runs continuously until manually stopped.
+What data is processed?
+Data available when the update starts.
+All data as it arrives at configured sources.
+What data freshness requirements is this best for?
+Data updates run every 10 minutes, hourly, or daily.
+Data updates are desired between every 10 seconds and a few minutes.
+Triggered pipelines can reduce resource consumption and expense because the cluster runs only long enough to update the pipeline. However, new data is not processed until the pipeline is triggered. Continuous pipelines require an always-running cluster, which is more expensive but reduces processing latency.
+Run a continuous pipeline with a continuous job
+​
+Databricks recommends running continuous pipelines with a
+continuous job
+rather than setting the value of
+Pipeline mode
+to continuous. When a continuous job orchestrates a pipeline, the job manages the pipeline's execution lifecycle and unlocks serverless
+performance modes
+, such as Standard mode, that the pipeline's built-in continuous mode doesn't support.
+note
+Job orchestration controls the execution mode only for
+Lakeflow pipelines
+. Standalone
+materialized views
+and
+streaming tables
+always run in triggered mode, regardless of job orchestration.
+When a job orchestrates a pipeline, the job determines the execution mode and takes precedence over the pipeline's
+Pipeline mode
+setting. A continuous job runs its pipeline continuously even if the pipeline's
+Pipeline mode
+is triggered, and a triggered or scheduled job runs its pipeline as a single update even if the pipeline's
+Pipeline mode
+is continuous.
+Because the job overrides the pipeline mode setting, set the pipeline's
+Pipeline mode
+to triggered (the default) when you wrap it in a continuous job. This avoids unexpected behavior if the pipeline runs outside the job.
+To configure a continuous job for a pipeline, see
+Run a pipeline continuously with a continuous job
+.
+Run a pipeline with the built-in continuous mode
+​
+The pipeline's built-in continuous setting is not being removed, but Databricks discourages its use for new pipelines in favor of the continuous job pattern. To change between triggered and continuous, use the
+Pipeline mode
+option in the pipeline settings while creating or editing a pipeline. See
+Configure pipelines
+.
+Set trigger interval for continuous pipelines
+​
+When configuring pipelines for continuous mode, you can set trigger intervals to control how frequently the pipeline starts an update for each flow. The trigger interval is a pipeline configuration that applies whether the pipeline runs in continuous mode through its own
+Pipeline mode
+setting or through a continuous job.
+You can use
+pipelines.trigger.interval
+to control the trigger interval for a flow updating a table or an entire pipeline. Because a triggered pipeline processes each table a single time, the
+pipelines.trigger.interval
+is used only with continuous pipelines. Databricks recommends setting it on individual tables, because streaming and batch queries have different defaults. Set the value on a pipeline only when processing requires controlling updates for the entire pipeline graph.
+For the default values by flow type and examples of setting
+pipelines.trigger.interval
+in SQL, Python, and the pipeline configuration, see
+Pipelines trigger interval
+.
+On this page
+What is triggered pipeline mode?
+What is continuous pipeline mode?
+Choose a data pipeline mode
+Run a continuous pipeline with a continuous job
+Run a pipeline with the built-in continuous mode
+Set trigger interval for continuous pipelines

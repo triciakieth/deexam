@@ -1129,3 +1129,25 @@ input {
   padding: 7px 10px;
   font-size: 16px;
 }
+.result.ungraded {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.research-conclusion {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.research-conclusion small {
+  color: var(--muted);
+}
+.option-reviews p {
+  white-space: pre-line;
+}
+@media (max-width: 760px) {
+  .recent-list li {
+    flex-wrap: wrap;
+  }
+  .recent-list strong {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,294 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Specify a managed storage location in
+Unity Catalog
+A managed storage location specifies a location in cloud object storage for storing data for managed tables and managed volumes.
+You can associate a managed storage location with a metastore, catalog, or schema. Managed storage locations at lower levels in the hierarchy override storage locations defined at higher levels when managed tables or managed volumes are created.
+Databricks recommends that you assign managed storage at the catalog level for logical data isolation, with metastore-level and schema-level as options.
+New workspaces that are enabled for
+Unity Catalog
+automatically are created without a metastore-level managed storage location. To decide whether you need metastore-level storage, see
+Get started with
+Unity Catalog
+and
+Add managed storage to an existing metastore
+.
+What is a managed storage location?
+​
+Managed storage locations have the following properties:
+Managed tables and managed volumes store data and metadata files in managed storage locations.
+Managed storage locations cannot overlap with external tables or external volumes.
+The following table describes how a managed storage location is declared and associated with
+Unity Catalog
+objects:
+Associated Unity Catalog object
+How to set
+Relation to external locations
+Metastore
+Configured by account administrator during metastore creation.
+Cannot overlap an external location.
+Standard catalog
+Specified during catalog creation using the
+MANAGED LOCATION
+keyword, or changed after creation using
+ALTER CATALOG SET MANAGED LOCATION
+.
+Must be contained within an external location.
+Foreign catalog
+Specified after catalog creation using Catalog Explorer.
+Must be contained within an external location.
+Schema
+Specified during schema creation using the
+MANAGED LOCATION
+keyword, or changed after creation using
+ALTER SCHEMA SET MANAGED LOCATION
+.
+Must be contained within an external location.
+←
+✕
+Associated Unity Catalog object
+How to set
+Relation to external locations
+Metastore
+Configured by account administrator during metastore creation.
+Cannot overlap an external location.
+Standard catalog
+Specified during catalog creation using the
+MANAGED LOCATION
+keyword, or changed after creation using
+ALTER CATALOG SET MANAGED LOCATION
+.
+Must be contained within an external location.
+Foreign catalog
+Specified after catalog creation using Catalog Explorer.
+Must be contained within an external location.
+Schema
+Specified during schema creation using the
+MANAGED LOCATION
+keyword, or changed after creation using
+ALTER SCHEMA SET MANAGED LOCATION
+.
+Must be contained within an external location.
+note
+When
+Unity Catalog
+is automatically enabled for a workspace,
+Databricks
+creates a workspace catalog with a managed storage location. All workspace users can create managed tables and volumes in the
+default
+schema of the workspace catalog. For more information about workspace catalogs, see
+Get started with
+Unity Catalog
+.
+The managed storage location that stores data and metadata for managed tables and managed volumes uses the following rules:
+If the containing schema has a managed location, the data is stored in the schema managed location.
+If the containing schema does not have a managed location but the catalog has a managed location, the data is stored in the catalog managed location.
+If neither the containing schema nor the containing catalog have a managed location, data is stored in the metastore managed location.
+Unity Catalog
+prevents overlap of location governance. See
+Path rules and access in
+Unity Catalog
+volumes
+.
+Managed storage location, storage root, and storage location
+​
+When you specify a
+MANAGED LOCATION
+for a catalog or schema, the provided location is tracked as the
+Storage Root
+in
+Unity Catalog
+. To ensure that all managed entities have a unique location,
+Unity Catalog
+adds hashed subdirectories to the specified location, using the following format:
+Object
+Path
+Schema
+<storage-root>/__unitystorage/schemas/00000000-0000-0000-0000-000000000000
+Catalog
+<storage-root>/__unitystorage/catalogs/00000000-0000-0000-0000-000000000000
+←
+✕
+Object
+Path
+Schema
+<storage-root>/__unitystorage/schemas/00000000-0000-0000-0000-000000000000
+Catalog
+<storage-root>/__unitystorage/catalogs/00000000-0000-0000-0000-000000000000
+The fully qualified path for the managed storage location is tracked as the
+Storage Location
+in
+Unity Catalog
+.
+You can specify the same managed storage location for multiple schemas and catalogs.
+Required privileges
+​
+Users who have the
+CREATE MANAGED STORAGE
+privilege on an external location can configure managed storage locations during catalog or schema creation.
+Account admins can add an optional managed storage location at the metastore level.
+Users with the
+MANAGE
+privilege and catalog owners can add a managed storage location to a foreign catalog.
+To alter the managed storage location for a standard catalog or schema, you must be the owner of the catalog or schema or have
+MANAGE
+privilege on it, and have
+CREATE MANAGED STORAGE
+privilege on the target external location.
+Set a managed storage location for a metastore
+​
+To set a managed storage location for a metastore, see
+Add managed storage to an existing metastore
+.
+Set a managed storage location for a standard catalog
+​
+Set a managed storage location for a standard catalog by using the
+MANAGED LOCATION
+keyword during catalog creation, as in the following example:
+SQL
+CREATE
+CATALOG
+<
+catalog
+-
+name
+>
+MANAGED LOCATION
+'s3://<external-location-bucket-path>/<directory>'
+;
+The
+MANAGED LOCATION
+string, including the URI scheme and path. Must be 150 characters or fewer.
+You can also use Catalog Explorer to set the managed storage location for a catalog. See
+Create catalogs
+.
+Alter the managed storage location for a standard catalog
+​
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.1 and above
+To change the managed storage location for an existing catalog, use
+ALTER CATALOG SET MANAGED LOCATION
+.
+note
+Altering the managed storage location affects only new managed tables and volumes created after the change. Existing managed objects are not moved to the new location.
+SQL
+ALTER
+CATALOG
+<
+catalog
+-
+name
+>
+SET
+MANAGED LOCATION
+'s3://<external-location-bucket-path>/<directory>'
+;
+The
+MANAGED LOCATION
+string, including the URI scheme and path. Must be 150 characters or fewer.
+Set a managed storage location for a foreign catalog
+​
+You can set a managed storage location for a foreign catalog using Catalog Explorer.
+Log in to a workspace that is linked to the metastore.
+Click
+Catalog
+.
+In the
+Catalog
+pane, find the catalog and click its name.
+Under
+Storage location
+, click
+Add storage location
+.
+In
+Select external location
+, select an external location or create a new one and specify the path.
+Click
+Save
+.
+Set a managed storage location for a schema
+​
+Set a managed storage location for a schema by using the
+MANAGED LOCATION
+keyword during schema creation, as in the following example:
+SQL
+CREATE
+SCHEMA
+<
+catalog
+>
+.
+<
+schema
+-
+name
+>
+MANAGED LOCATION
+'s3://<external-location-bucket-path>/<directory>'
+;
+The
+MANAGED LOCATION
+string, including the URI scheme and path. Must be 150 characters or fewer.
+You can also use Catalog Explorer to set the managed storage location for a schema. See
+Create schemas
+.
+Alter the managed storage location for a schema
+​
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.1 and above
+To change the managed storage location for an existing schema, use
+ALTER SCHEMA SET MANAGED LOCATION
+.
+note
+Altering the managed storage location affects only new managed tables and volumes created after the change. Existing managed objects are not moved to the new location.
+SQL
+ALTER
+SCHEMA
+<
+catalog
+>
+.
+<
+schema
+-
+name
+>
+SET
+MANAGED LOCATION
+'s3://<external-location-bucket-path>/<directory>'
+;
+The
+MANAGED LOCATION
+string, including the URI scheme and path. Must be 150 characters or fewer.
+Next steps
+​
+Unity Catalog
+uses managed storage locations automatically when you create managed tables and managed volumes. See
+Unity Catalog
+managed tables for
+Delta Lake
+and
+Apache Iceberg
+and
+What are
+Unity Catalog
+volumes?
+.
+On this page
+What is a managed storage location?
+Managed storage location, storage root, and storage location
+Required privileges
+Set a managed storage location for a metastore
+Set a managed storage location for a standard catalog
+Alter the managed storage location for a standard catalog
+Set a managed storage location for a foreign catalog
+Set a managed storage location for a schema
+Alter the managed storage location for a schema
+Next steps

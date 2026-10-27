@@ -1,0 +1,2234 @@
+On this page
+Last updated
+on
+Oct 7, 2026
+Configure
+Auto Loader
+streams in file notification mode
+This page describes how to configure
+Auto Loader
+streams to use file notification mode to incrementally discover and ingest cloud data.
+In file notification mode,
+Auto Loader
+automatically sets up a notification service and queue service that subscribes to file events from the input directory. You can use file notifications to scale
+Auto Loader
+to ingest millions of files an hour. When compared to directory listing mode, file notification mode is faster and more scalable. Also, you can switch between file notifications and directory listing at any time and still maintain exactly-once data processing guarantees.
+For a complete reference of all
+Auto Loader
+configuration settings, including file notification options and cloud-specific authentication options, see
+Auto Loader
+.
+note
+Although file notification mode with file events improves cost and scalability, it does not guarantee the order in which files are discovered or processed. Design your pipelines to handle out-of-order file arrivals. For guidance, see
+Handle out-of-order data
+.
+File notification mode with and without file events enabled on external locations
+​
+There are two ways to configure
+Auto Loader
+to use file notification mode:
+(Recommended) File events
+: You use a single file notification queue for all streams that process files from a given
+external location
+. This approach has the following advantages over the classic file notification mode:
+Databricks
+can set up subscriptions and file events in your cloud storage account for you without requiring that you supply additional credentials to
+Auto Loader
+using a service credential or other cloud-specific authentication options. See
+Set up file events for an external location
+.
+You have fewer
+IAM role
+policies to create in your cloud storage account.
+Because you no longer need to create a queue for each
+Auto Loader
+stream, it's easier to avoid hitting the cloud provider notification limits listed in
+Cloud resources used in classic
+Auto Loader
+file notification mode
+.
+Databricks
+automatically manages the tuning of resource requirements, so you don't need to tune parameters such as
+cloudFiles.fetchParallelism
+.
+Cleanup functionality means that you don't need to worry as much about the lifecycle of notifications that are created in the cloud, such as when a stream is deleted or fully refreshed.
+Classic file notification mode
+: You manage file notification queues for each
+Auto Loader
+stream separately.
+Auto Loader
+automatically sets up a notification service and queue service that subscribes to file events from the input directory. This is the classic approach.
+If you use
+Auto Loader
+in directory listing mode, Databricks recommends migrating to file notification mode with file events.
+Auto Loader
+with file events offers significant performance improvements. Start by
+enabling file events
+for your external location, then set
+cloudFiles.useManagedFileEvents
+in your
+Auto Loader
+stream configuration.
+Use file notification mode with file events
+​
+This section describes how to create and update
+Auto Loader
+streams to use file events.
+Requirements
+​
+Setting up file events requires:
+A
+Databricks
+workspace that is enabled for
+Unity Catalog
+.
+Permission to create storage credential and external location objects in
+Unity Catalog
+.
+Auto Loader
+streams with file events require:
+Compute on
+Databricks Runtime
+14.3 LTS or above.
+Configuration instructions
+​
+The following instructions apply whether you are creating new
+Auto Loader
+streams or migrating existing streams to use the upgraded file notification mode with file events:
+Create a
+storage credential
+and
+external location
+in
+Unity Catalog
+that grant access to the source location in cloud storage for your
+Auto Loader
+streams.
+Enable file events for the external location. See
+Set up file events for an external location
+.
+When you create a new
+Auto Loader
+stream or edit an existing one to work with the external location:
+If you have existing
+notifications-based Auto Loader streams
+that consume data from the external location, switch them off and delete the associated notification resources.
+Ensure that
+pathRewrites
+is not set (this is not a common option).
+Review the
+list of settings
+that
+Auto Loader
+ignores when it manages file notifications using file events. Avoid them in new
+Auto Loader
+streams and remove them from existing streams that you are migrating to this mode.
+Set the option
+cloudFiles.useManagedFileEvents
+to
+true
+in your
+Auto Loader
+code.
+For example:
+Python
+autoLoaderStream
+=
+(
+spark
+.
+readStream
+.
+format
+(
+"cloudFiles"
+)
+.
+.
+.
+.
+options
+(
+"cloudFiles.useManagedFileEvents"
+,
+True
+)
+.
+.
+.
+)
+If you're using
+Lakeflow pipelines
+and you already have a pipeline with a
+streaming table
+, update it to include the
+useManagedFileEvents
+option:
+SQL
+CREATE
+OR
+REFRESH STREAMING LIVE
+TABLE
+<
+table
+-
+name
+>
+AS
+SELECT
+<
+select
+clause expressions
+>
+FROM
+STREAM read_files
+(
+'abfss://path/to/external/location/or/volume'
+,
+format
+=
+>
+'<format>'
+,
+useManagedFileEvents
+=
+>
+'True'
+.
+.
+.
+)
+;
+Unsupported
+Auto Loader
+settings
+​
+The following
+Auto Loader
+settings are unsupported when streams use file events:
+Setting
+Change
+useIncremental
+You no longer need to decide between the efficiency of file notifications and the simplicity of directory listing.
+Auto Loader
+with file events comes in one mode.
+useNotifications
+There is only one queue and storage event subscription per external location.
+cloudFiles.fetchParallelism
+Auto Loader
+with file events does not offer a manual parallelism optimization.
+cloudFiles.backfillInterval
+Databricks
+handles backfill automatically for external locations that are enabled for file events.
+cloudFiles.pathRewrites
+This option applies only when you mount external data locations to the DBFS, which is deprecated.
+resourceTags
+You should set resource tags using the cloud console.
+←
+✕
+Setting
+Change
+useIncremental
+You no longer need to decide between the efficiency of file notifications and the simplicity of directory listing.
+Auto Loader
+with file events comes in one mode.
+useNotifications
+There is only one queue and storage event subscription per external location.
+cloudFiles.fetchParallelism
+Auto Loader
+with file events does not offer a manual parallelism optimization.
+cloudFiles.backfillInterval
+Databricks
+handles backfill automatically for external locations that are enabled for file events.
+cloudFiles.pathRewrites
+This option applies only when you mount external data locations to the DBFS, which is deprecated.
+resourceTags
+You should set resource tags using the cloud console.
+For managed file events best practices, see
+Best practices for
+Auto Loader
+with file events
+.
+Limitations on
+Auto Loader
+with file events
+​
+The file events service optimizes file discovery by caching the most recently created files. If
+Auto Loader
+runs infrequently, this cache can expire, and
+Auto Loader
+falls back to directory listing to discover files and update the cache. To avoid this scenario, invoke
+Auto Loader
+at least once every seven days.
+For a general list of limitations on file events, see
+File events limitations
+.
+Manage file notification queues for each
+Auto Loader
+stream separately (classic)
+​
+In classic file notification mode,
+Auto Loader
+automatically sets up a dedicated notification service and queue for each stream. This approach requires you to manage notification queues per stream and supply authentication credentials for cloud resource creation. Databricks recommends file notification mode for new workloads.
+note
+Auto Loader
+consumes messages from the notification queue as it processes files, deleting each message from the queue after the corresponding file is read. This is normal operation and is the reason that
+Auto Loader
+requires
+sqs:DeleteMessage
+(Amazon S3),
+Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete
+(Azure), and equivalent message-delete permissions on the queue. You don't need to drain or manage the queue manually.
+important
+You need elevated permissions to automatically configure cloud infrastructure for file notification mode. Contact your cloud administrator or workspace admin. See:
+Required permissions for configuring file notification for
+Azure Data Lake Storage
+and Azure Blob Storage
+Required permissions for configuring file notification for Amazon S3
+Required permissions for configuring file notification for GCS
+In classic file notification mode,
+Auto Loader
+automatically sets up a notification service and queue service for each stream that subscribes to file events from the input directory. You manage the notification queues for each
+Auto Loader
+stream separately.
+warning
+Auto Loader
+does not support
+changing the source path
+in classic file notification mode. If you change the path, you might fail to ingest files that are already present in the new location at the time of the path update.
+Cloud resources used in classic
+Auto Loader
+file notification mode
+​
+Auto Loader
+can set up file notifications for you automatically when you set the option
+cloudFiles.useNotifications
+to
+true
+and provide the necessary permissions to create cloud resources. In addition, you might need to provide
+additional options
+to grant
+Auto Loader
+authorization to create these resources.
+The following table lists the resources that
+Auto Loader
+creates for each cloud provider.
+Cloud Storage
+Subscription Service
+Queue Service
+Prefix *
+Limit **
+Amazon S3
+AWS SNS
+AWS SQS
+databricks-auto-ingest
+100 per S3 bucket
+ADLS
+Azure Event Grid
+Azure Queue Storage
+databricks
+500 per storage account
+GCS
+Google Pub/Sub
+Google Pub/Sub
+databricks-auto-ingest
+100 per GCS bucket
+Azure Blob Storage
+Azure Event Grid
+Azure Queue Storage
+databricks
+500 per storage account
+←
+✕
+Cloud Storage
+Subscription Service
+Queue Service
+Prefix *
+Limit **
+Amazon S3
+AWS SNS
+AWS SQS
+databricks-auto-ingest
+100 per S3 bucket
+ADLS
+Azure Event Grid
+Azure Queue Storage
+databricks
+500 per storage account
+GCS
+Google Pub/Sub
+Google Pub/Sub
+databricks-auto-ingest
+100 per GCS bucket
+Azure Blob Storage
+Azure Event Grid
+Azure Queue Storage
+databricks
+500 per storage account
+*
+Auto Loader
+names the resources with this prefix.
+** How many concurrent file notification pipelines can be launched
+If you must run more file-notification-based
+Auto Loader
+streams than allowed by these limits, you can use
+file events
+or a service such as AWS Lambda, Azure Functions, or Google Cloud Functions to fan out notifications from a single queue that listens to an entire container or bucket into directory-specific queues.
+Classic file notification events
+​
+Amazon S3 provides an
+ObjectCreated
+event when a file is uploaded to an S3 bucket regardless of whether it was uploaded by a put or multi-part upload.
+Azure Data Lake Storage
+provides different event notifications for files that appear in your storage container.
+Auto Loader
+listens for the
+FlushWithClose
+event for processing a file.
+Auto Loader
+streams support the
+RenameFile
+action for discovering files.
+RenameFile
+actions require an API request to the storage system to get the size of the renamed file.
+Auto Loader
+streams created with
+Databricks Runtime
+9.0 and after support the
+RenameDirectory
+action for discovering files.
+RenameDirectory
+actions require API requests to the storage system to list the contents of the renamed directory.
+Google Cloud Storage provides an
+OBJECT_FINALIZE
+event when a file is uploaded, which includes overwrites and file copies. Failed uploads do not generate this event.
+note
+Cloud providers do not guarantee 100% delivery of all file events under very rare conditions and do not provide strict SLAs on the latency of the file events. Databricks recommends that you trigger regular backfills with
+Auto Loader
+by using the
+cloudFiles.backfillInterval
+option to guarantee that all files are discovered within a given SLA if data completeness is a requirement. Triggering regular backfills does not cause duplicates.
+Required permissions for configuring file notification for
+Azure Data Lake Storage
+and Azure Blob Storage
+​
+You must have read permissions for the input directory. See
+Azure Blob Storage
+.
+To use file notification mode, you must provide authentication credentials for setting up and accessing the event notification services. You can authenticate using one of the following methods:
+In
+Databricks Runtime
+16.1 and above, use
+a Databricks
+service credential:
+Create service credentials
+using a managed identity and
+a Databricks
+access connector.
+Create a
+Microsoft Entra ID (formerly Azure Active Directory) app and service principal
+in the form of client ID and client secret.
+After you obtain the authentication credentials, assign the necessary permissions using one of the following approaches:
+Azure built-in roles:
+Assign the access connector the following roles for the storage account where the input path resides:
+Contributor
+: This role is for setting up resources in your storage account, such as queues and event subscriptions.
+Storage Queue Data Contributor
+: This role is for performing queue operations such as retrieving and deleting messages from the queues. This role is required only when you provide a service principal without a connection string.
+Assign the access connector the following role to the related resource group:
+EventGrid EventSubscription Contributor
+: This role is for performing Azure Event Grid (Event Grid) subscription operations such as creating or listing event subscriptions.
+Custom role: If you are concerned with granting the permissions required for the preceding roles, you can instead create a
+custom role
+with the following permissions. After creating the role, assign it to your access connector. For more information, see
+Assign Azure roles using the Azure portal
+.
+JSON
+"permissions"
+:
+[
+{
+"actions"
+:
+[
+"Microsoft.EventGrid/eventSubscriptions/write"
+,
+"Microsoft.EventGrid/eventSubscriptions/read"
+,
+"Microsoft.EventGrid/eventSubscriptions/delete"
+,
+"Microsoft.EventGrid/locations/eventSubscriptions/read"
+,
+"Microsoft.Storage/storageAccounts/read"
+,
+"Microsoft.Storage/storageAccounts/write"
+,
+"Microsoft.Storage/storageAccounts/queueServices/read"
+,
+"Microsoft.Storage/storageAccounts/queueServices/write"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/write"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/read"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/delete"
+]
+,
+"notActions"
+:
+[
+]
+,
+"dataActions"
+:
+[
+"Microsoft.Storage/storageAccounts/queueServices/queues/messages/delete"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/messages/read"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/messages/write"
+,
+"Microsoft.Storage/storageAccounts/queueServices/queues/messages/process/action"
+]
+,
+"notDataActions"
+:
+[
+]
+}
+]
+Required permissions for configuring file notification for Amazon S3
+​
+You must have read permissions for the input directory. See
+S3 connection details
+for more details.
+To use file notification mode, attach the following JSON policy document to your
+IAM user or role
+. This IAM role is required to create a Databricks
+service credential
+for
+Auto Loader
+to authenticate with. Service credential support is available in
+Databricks Runtime
+16.1 and above.
+JSON
+{
+"Version"
+:
+"2012-10-17"
+,
+"Statement"
+:
+[
+{
+"Sid"
+:
+"DatabricksAutoLoaderSetup"
+,
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"s3:GetBucketNotification"
+,
+"s3:PutBucketNotification"
+,
+"sns:ListSubscriptionsByTopic"
+,
+"sns:GetTopicAttributes"
+,
+"sns:SetTopicAttributes"
+,
+"sns:CreateTopic"
+,
+"sns:TagResource"
+,
+"sns:Publish"
+,
+"sns:Subscribe"
+,
+"sqs:CreateQueue"
+,
+"sqs:DeleteMessage"
+,
+"sqs:ReceiveMessage"
+,
+"sqs:SendMessage"
+,
+"sqs:GetQueueUrl"
+,
+"sqs:GetQueueAttributes"
+,
+"sqs:SetQueueAttributes"
+,
+"sqs:TagQueue"
+,
+"sqs:ChangeMessageVisibility"
+,
+"sqs:PurgeQueue"
+]
+,
+"Resource"
+:
+[
+"arn:aws:s3:::<bucket-name>"
+,
+"arn:aws:sqs:<region>:<account-number>:databricks-auto-ingest-*"
+,
+"arn:aws:sns:<region>:<account-number>:databricks-auto-ingest-*"
+]
+}
+,
+{
+"Sid"
+:
+"DatabricksAutoLoaderList"
+,
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"sqs:ListQueues"
+,
+"sqs:ListQueueTags"
+,
+"sns:ListTopics"
+]
+,
+"Resource"
+:
+"*"
+}
+,
+{
+"Sid"
+:
+"DatabricksAutoLoaderTeardown"
+,
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"sns:Unsubscribe"
+,
+"sns:DeleteTopic"
+,
+"sqs:DeleteQueue"
+]
+,
+"Resource"
+:
+[
+"arn:aws:sqs:<region>:<account-number>:databricks-auto-ingest-*"
+,
+"arn:aws:sns:<region>:<account-number>:databricks-auto-ingest-*"
+]
+}
+]
+}
+Replace the following placeholders with values for your environment:
+<bucket-name>
+: The S3 bucket name where your stream will read files, for example,
+auto-logs
+. You can use
+*
+as a wildcard, for example,
+databricks-*-logs
+. To find out the underlying S3 bucket for your DBFS path, you can list all the DBFS mount points in a notebook by running
+%fs mounts
+.
+<region>
+: The AWS region where the S3 bucket resides, for example,
+us-west-2
+. If you don't want to specify the region, use
+*
+.
+<account-number>
+: The AWS account number that owns the S3 bucket, for example,
+123456789012
+. If you don't want to specify the account number, use
+*
+.
+The string
+databricks-auto-ingest-*
+in the SQS and SNS ARN specification is the name prefix that the
+cloudFiles
+source uses when creating SQS and SNS services. Since
+Databricks
+sets up the notification services in the initial run of the stream, you can use a policy with reduced permissions after the initial run (for example, to stop the stream and then restart it).
+note
+The preceding policy is only concerned with the permissions needed for setting up file notification services, namely S3 bucket notification, SNS, and SQS services and assumes you already have read access to the S3 bucket. If you need to add S3 read-only permissions, add the following to the
+Action
+list in the
+DatabricksAutoLoaderSetup
+statement in the JSON document:
+s3:ListBucket
+s3:GetObject
+Reduced permissions after initial setup
+​
+You only need the resource setup permissions described above during the initial run of the stream. After the first run, you can switch to the following IAM policy with reduced permissions. However, with reduced permissions, you can't start new streaming queries, recreate resources after failures such as an accidentally deleted SQS queue, or use the cloud resource management API to list or tear down resources.
+JSON
+{
+"Version"
+:
+"2012-10-17"
+,
+"Statement"
+:
+[
+{
+"Sid"
+:
+"DatabricksAutoLoaderUse"
+,
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"s3:GetBucketNotification"
+,
+"sns:ListSubscriptionsByTopic"
+,
+"sns:GetTopicAttributes"
+,
+"sns:TagResource"
+,
+"sns:Publish"
+,
+"sqs:DeleteMessage"
+,
+"sqs:ReceiveMessage"
+,
+"sqs:SendMessage"
+,
+"sqs:GetQueueUrl"
+,
+"sqs:GetQueueAttributes"
+,
+"sqs:TagQueue"
+,
+"sqs:ChangeMessageVisibility"
+,
+"sqs:PurgeQueue"
+]
+,
+"Resource"
+:
+[
+"arn:aws:sqs:<region>:<account-number>:<queue-name>"
+,
+"arn:aws:sns:<region>:<account-number>:<topic-name>"
+,
+"arn:aws:s3:::<bucket-name>"
+]
+}
+,
+{
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"s3:GetBucketLocation"
+,
+"s3:ListBucket"
+]
+,
+"Resource"
+:
+[
+"arn:aws:s3:::<bucket-name>"
+]
+}
+,
+{
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"s3:PutObject"
+,
+"s3:PutObjectAcl"
+,
+"s3:GetObject"
+,
+"s3:DeleteObject"
+]
+,
+"Resource"
+:
+[
+"arn:aws:s3:::<bucket-name>/*"
+]
+}
+,
+{
+"Sid"
+:
+"DatabricksAutoLoaderListTopics"
+,
+"Effect"
+:
+"Allow"
+,
+"Action"
+:
+[
+"sqs:ListQueues"
+,
+"sqs:ListQueueTags"
+,
+"sns:ListTopics"
+]
+,
+"Resource"
+:
+"arn:aws:sns:<region>:<account-number>:*"
+}
+]
+}
+Securely ingest data in a different AWS account
+​
+Auto Loader
+can load data across AWS accounts by assuming an IAM role using
+AssumeRole
+. To set up
+Auto Loader
+for cross-account ingestion, follow the steps outlined in
+Access cross-account S3 buckets with an AssumeRole policy
+. Then verify that you have the
+AssumeRole
+meta role assigned to the cluster and configure the cluster's Spark configuration to include the following properties:
+ini
+fs.s3a.credentialsType AssumeRole
+fs.s3a.stsAssumeRole.arn arn:aws:iam::<bucket-owner-acct-id>:role/MyRoleB
+fs.s3a.acl.default BucketOwnerFullControl
+Required permissions for configuring file notification for GCS
+​
+To use file notification mode, you must configure permissions:
+Ensure that you have
+list
+and
+get
+permissions on your GCS bucket and on all objects. For details, see the Google documentation on
+IAM permissions
+.
+Add the
+Pub/Sub Publisher
+role to the GCS service account. This allows the account to publish event notification messages from your GCS buckets to
+Google Cloud
+Pub/Sub.
+Add the following permissions to the service account used for the
+Google Cloud
+Pub/Sub resources. You can either
+create an IAM custom role
+with these permissions or assign
+pre-existing GCP roles
+to cover them.
+Databricks
+automatically creates this service account when you create a
+service credential
+. Service credential support is available in
+Databricks Runtime
+16.1 and above.
+pubsub.subscriptions.consume
+pubsub.subscriptions.create
+pubsub.subscriptions.delete
+pubsub.subscriptions.get
+pubsub.subscriptions.list
+pubsub.subscriptions.update
+pubsub.topics.attachSubscription
+pubsub.topics.detachSubscription
+pubsub.topics.create
+pubsub.topics.delete
+pubsub.topics.get
+pubsub.topics.list
+pubsub.topics.update
+Finding the GCS Service Account
+​
+Navigate to
+Cloud Storage > Settings
+in the
+Google Cloud
+Console for the corresponding project. The
+Cloud Storage Service Account
+section contains the email of the GCS service account.
+Creating a Custom
+Google Cloud
+IAM Role for File Notification Mode
+​
+Navigate to
+IAM & Admin > Roles
+in the
+Google Cloud
+console for the corresponding project. Then, either create a role or update an existing role. On the
+Create Role
+page, select
+Add Permissions
+. In the menu, add the desired permissions to the role.
+Manually configure or manage file notification resources
+​
+Privileged users can manually configure or manage file notification resources. To set up the file notification services through the cloud provider and specify the queue identifier, see
+File notification
+. To use Scala APIs to create or manage the notifications and queuing services instead:
+note
+You must have appropriate permissions to configure or modify cloud infrastructure. See permissions documentation for
+Azure
+,
+S3
+, or
+GCS
+.
+Step 1: Create a ResourceManager in AWS, Azure, or
+Google Cloud
+​
+Python
+Scala
+Python
+# Create a ResourceManager in AWS
+# Using a Databricks service credential
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAWSResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.region"
+,
+<
+region
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+\
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+\
+.
+create
+(
+)
+# Using an AWS access key and secret key
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAWSResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.region"
+,
+<
+region
+>
+)
+\
+.
+option
+(
+"cloudFiles.awsAccessKey"
+,
+<
+aws
+-
+access
+-
+key
+>
+)
+\
+.
+option
+(
+"cloudFiles.awsSecretKey"
+,
+<
+aws
+-
+secret
+-
+key
+>
+)
+\
+.
+option
+(
+"cloudFiles.roleArn"
+,
+<
+role
+-
+arn
+>
+)
+\
+.
+option
+(
+"cloudFiles.roleExternalId"
+,
+<
+role
+-
+external
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.roleSessionName"
+,
+<
+role
+-
+session
+-
+name
+>
+)
+\
+.
+option
+(
+"cloudFiles.stsEndpoint"
+,
+<
+sts
+-
+endpoint
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+\
+.
+create
+(
+)
+Scala
+// Create a ResourceManager in AWS
+import
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAWSResourceManager
+// Using a Databricks service credential
+val
+manager
+=
+CloudFilesAWSResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.region"
+,
+<
+region
+>
+)
+// optional, will use the region of the EC2 instances by default
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+// required only for setUpNotificationServices
+.
+create
+(
+)
+// Using AWS access key and secret key
+val
+manager
+=
+CloudFilesAWSResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.region"
+,
+<
+region
+>
+)
+.
+option
+(
+"cloudFiles.awsAccessKey"
+,
+<
+aws
+-
+access
+-
+key
+>
+)
+.
+option
+(
+"cloudFiles.awsSecretKey"
+,
+<
+aws
+-
+secret
+-
+key
+>
+)
+.
+option
+(
+"cloudFiles.roleArn"
+,
+<
+role
+-
+arn
+>
+)
+.
+option
+(
+"cloudFiles.roleExternalId"
+,
+<
+role
+-
+external
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.roleSessionName"
+,
+<
+role
+-
+session
+-
+name
+>
+)
+.
+option
+(
+"cloudFiles.stsEndpoint"
+,
+<
+sts
+-
+endpoint
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+// required only for setUpNotificationServices
+.
+create
+(
+)
+Python
+Scala
+Python
+# Create a ResourceManager in Azure
+# Using a Databricks service credential
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAzureResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.resourceGroup"
+,
+<
+resource
+-
+group
+>
+)
+\
+.
+option
+(
+"cloudFiles.subscriptionId"
+,
+<
+subscription
+-
+id
+>
+)
+\
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+container
+-
+and
+-
+folder
+>
+)
+\
+.
+create
+(
+)
+# Using an Azure service principal
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAzureResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.connectionString"
+,
+<
+connection
+-
+string
+>
+)
+\
+.
+option
+(
+"cloudFiles.resourceGroup"
+,
+<
+resource
+-
+group
+>
+)
+\
+.
+option
+(
+"cloudFiles.subscriptionId"
+,
+<
+subscription
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.tenantId"
+,
+<
+tenant
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.clientId"
+,
+<
+service
+-
+principal
+-
+client
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.clientSecret"
+,
+<
+service
+-
+principal
+-
+client
+-
+secret
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+container
+-
+and
+-
+folder
+>
+)
+\
+.
+create
+(
+)
+Scala
+// Create a ResourceManager in Azure
+import
+com
+.
+databricks
+.
+sql
+.
+CloudFilesAzureResourceManager
+// Using a Databricks service credential
+val
+manager
+=
+CloudFilesAzureResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.resourceGroup"
+,
+<
+resource
+-
+group
+>
+)
+.
+option
+(
+"cloudFiles.subscriptionId"
+,
+<
+subscription
+-
+id
+>
+)
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+container
+-
+and
+-
+folder
+>
+)
+// required only for setUpNotificationServices
+.
+create
+(
+)
+// Using an Azure service principal
+val
+manager
+=
+CloudFilesAzureResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.connectionString"
+,
+<
+connection
+-
+string
+>
+)
+.
+option
+(
+"cloudFiles.resourceGroup"
+,
+<
+resource
+-
+group
+>
+)
+.
+option
+(
+"cloudFiles.subscriptionId"
+,
+<
+subscription
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.tenantId"
+,
+<
+tenant
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.clientId"
+,
+<
+service
+-
+principal
+-
+client
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.clientSecret"
+,
+<
+service
+-
+principal
+-
+client
+-
+secret
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+container
+-
+and
+-
+folder
+>
+)
+// required only for setUpNotificationServices
+.
+create
+(
+)
+Python
+Scala
+Python
+# Create a ResourceManager in GCP
+# Using a Databricks service credential
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesGCPResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.projectId"
+,
+<
+project
+-
+id
+>
+)
+\
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+\
+.
+create
+(
+)
+# Using a Google service account
+manager
+=
+spark
+.
+_jvm
+.
+com
+.
+databricks
+.
+sql
+.
+CloudFilesGCPResourceManager \
+.
+newManager
+(
+)
+\
+.
+option
+(
+"cloudFiles.projectId"
+,
+<
+project
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.client"
+,
+<
+client
+-
+id
+>
+)
+\
+.
+option
+(
+"cloudFiles.clientEmail"
+,
+<
+client
+-
+email
+>
+)
+\
+.
+option
+(
+"cloudFiles.privateKey"
+,
+<
+private
+-
+key
+>
+)
+\
+.
+option
+(
+"cloudFiles.privateKeyId"
+,
+<
+private
+-
+key
+-
+id
+>
+)
+\
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+\
+.
+create
+(
+)
+Scala
+// Create a ResourceManager in GCP
+import
+com
+.
+databricks
+.
+sql
+.
+CloudFilesGCPResourceManager
+// Using a Databricks service credential
+val
+manager
+=
+CloudFilesGCPResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.projectId"
+,
+<
+project
+-
+id
+>
+)
+.
+option
+(
+"databricks.serviceCredential"
+,
+<
+service
+-
+credential
+-
+name
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+// Required only for setUpNotificationServices.
+.
+create
+(
+)
+// Using a Google service account
+val
+manager
+=
+CloudFilesGCPResourceManager
+.
+newManager
+.
+option
+(
+"cloudFiles.projectId"
+,
+<
+project
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.client"
+,
+<
+client
+-
+id
+>
+)
+.
+option
+(
+"cloudFiles.clientEmail"
+,
+<
+client
+-
+email
+>
+)
+.
+option
+(
+"cloudFiles.privateKey"
+,
+<
+private
+-
+key
+>
+)
+.
+option
+(
+"cloudFiles.privateKeyId"
+,
+<
+private
+-
+key
+-
+id
+>
+)
+.
+option
+(
+"path"
+,
+<
+path
+-
+to
+-
+specific
+-
+bucket
+-
+and
+-
+folder
+>
+)
+// Required only for setUpNotificationServices.
+.
+create
+(
+)
+Step 2: Use the resource manager to set up, view, and tear down file notification services
+​
+Python
+Scala
+Python
+# Set up a queue and a topic subscribed to the path provided in the manager.
+manager
+.
+setUpNotificationServices
+(
+<
+resource
+-
+suffix
+>
+)
+# List notification services created by <AL>.
+from
+pyspark
+.
+sql
+import
+DataFrame
+df
+=
+DataFrame
+(
+manager
+.
+listNotificationServices
+(
+)
+,
+spark
+)
+# Tear down the notification services created for a specific stream ID.
+# Stream ID is a GUID string that you can find in the list result above.
+manager
+.
+tearDownNotificationServices
+(
+<
+stream
+-
+id
+>
+)
+Scala
+// Set up a queue and a topic subscribed to the path provided in the manager.
+manager
+.
+setUpNotificationServices
+(
+<
+resource
+-
+suffix
+>
+)
+// List notification services created by <AL>
+val
+df
+=
+manager
+.
+listNotificationServices
+(
+)
+// Tear down the notification services created for a specific stream ID.
+// Stream ID is a GUID string that you can find in the list result above.
+manager
+.
+tearDownNotificationServices
+(
+<
+stream
+-
+id
+>
+)
+Use
+setUpNotificationServices(<resource-suffix>)
+to create a queue and a subscription with the name
+<prefix>-<resource-suffix>
+(the prefix depends on the storage system summarized in
+Cloud resources used in classic
+Auto Loader
+file notification mode
+. If there is an existing resource with the same name,
+Databricks
+reuses the existing resource instead of creating a new one. This function returns a queue identifier that you can pass to the
+cloudFiles
+source using the identifier in
+File notification
+. This enables the
+cloudFiles
+source user to have fewer permissions than the user who creates the resources.
+Provide the
+"path"
+option to
+newManager
+only if calling
+setUpNotificationServices
+. It is not needed for
+listNotificationServices
+or
+tearDownNotificationServices
+. This is the same
+path
+that you use when running a streaming query.
+The following matrix indicates which API methods are supported in which
+Databricks Runtime
+for each type of storage:
+Cloud Storage
+Setup API
+List API
+Tear down API
+Amazon S3
+All versions
+All versions
+All versions
+ADLS
+All versions
+All versions
+All versions
+GCS
+Databricks Runtime 9.1 and above
+Databricks Runtime 9.1 and above
+Databricks Runtime 9.1 and above
+Azure Blob Storage
+All versions
+All versions
+All versions
+←
+✕
+Cloud Storage
+Setup API
+List API
+Tear down API
+Amazon S3
+All versions
+All versions
+All versions
+ADLS
+All versions
+All versions
+All versions
+GCS
+Databricks Runtime 9.1 and above
+Databricks Runtime 9.1 and above
+Databricks Runtime 9.1 and above
+Azure Blob Storage
+All versions
+All versions
+All versions
+Clean up event notification resources created by
+Auto Loader
+​
+Auto Loader
+doesn't automatically tear down file notification resources. To tear down file notification resources, you must use the cloud resource manager as shown in the previous section. You can also delete these resources manually using the cloud provider's UI or APIs.
+Troubleshoot common errors
+​
+This section describes common errors when using
+Auto Loader
+with file notification mode and how to resolve them.
+Failed to create Event Grid subscription
+​
+If you see the following error message when you run
+Auto Loader
+for the first time, you haven't registered Event Grid as a Resource Provider in the Azure subscription.
+java.lang.RuntimeException: Failed to create event grid subscription.
+To register Event Grid as a resource provider, do the following:
+In the Azure portal, go to your subscription.
+Select
+Resource Providers
+in the Settings section.
+Register the provider
+Microsoft.EventGrid
+.
+Authorization required to perform Event Grid subscription operations
+​
+If you see the following error message when you run
+Auto Loader
+for the first time, confirm that the
+Contributor
+role is assigned to the service principal for Event Grid and the storage account.
+403 Forbidden ... does not have authorization to perform action 'Microsoft.EventGrid/eventSubscriptions/[read|write]' over scope ...
+Event Grid client bypasses proxy
+​
+In
+Databricks Runtime
+15.2 and above, Event Grid connections in
+Auto Loader
+use proxy settings from system properties by default. In
+Databricks Runtime
+13.3 LTS, 14.3 LTS, and 15.0 to 15.2, you can manually configure Event Grid connections to use a proxy by setting the
+Spark Config
+property
+spark.databricks.cloudFiles.eventGridClient.useSystemProperties true
+. See
+Set Spark configuration properties on
+Databricks
+.
+Additional resources
+​
+What is
+Auto Loader
+?
+Configure
+Auto Loader
+streams in directory listing mode
+On this page
+File notification mode with and without file events enabled on external locations
+Use file notification mode with file events
+Requirements
+Configuration instructions
+Unsupported Auto Loader settings
+Limitations on Auto Loader with file events
+Manage file notification queues for each Auto Loader stream separately (classic)
+Cloud resources used in classic Auto Loader file notification mode
+Classic file notification events
+Required permissions for configuring file notification for Azure Data Lake Storage and Azure Blob Storage
+Required permissions for configuring file notification for Amazon S3
+Securely ingest data in a different AWS account
+Required permissions for configuring file notification for GCS
+Finding the GCS Service Account
+Creating a Custom Google Cloud IAM Role for File Notification Mode
+Manually configure or manage file notification resources
+Clean up event notification resources created by Auto Loader
+Troubleshoot common errors
+Additional resources

@@ -1,0 +1,138 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+filter
+function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Filters the array in
+expr
+using the function
+func
+.
+Syntax
+​
+filter(expr, func)
+Arguments
+​
+expr
+: An ARRAY expression.
+func
+: A lambda function.
+Returns
+​
+The result is of the same type as
+expr
+.
+The lambda function may use one or two parameters where the first parameter represents the element and the second the index into the array.
+Examples
+​
+SQL
+>
+SELECT
+filter
+(
+array
+(
+1
+,
+2
+,
+3
+)
+,
+x
+-
+>
+x
+%
+2
+=
+=
+1
+)
+;
+[
+1
+,
+3
+]
+>
+SELECT
+filter
+(
+array
+(
+0
+,
+2
+,
+3
+)
+,
+(
+x
+,
+i
+)
+-
+>
+x
+>
+i
+)
+;
+[
+2
+,
+3
+]
+>
+SELECT
+filter
+(
+array
+(
+0
+,
+null
+,
+2
+,
+3
+,
+null
+)
+,
+x
+-
+>
+x
+IS
+NOT
+NULL
+)
+;
+[
+0
+,
+2
+,
+3
+]
+Related functions
+​
+exists
+function
+forall
+function
+map_filter
+function
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Related functions

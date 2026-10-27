@@ -1,0 +1,94 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Compute
+Databricks
+compute refers to the selection of computing resources available on
+Databricks
+to run your data engineering, data science, and analytics workloads. Choose from serverless compute for on-demand scaling, classic compute for customizable resources, or SQL warehouses for optimized analytics.
+For pricing details across compute types, see the
+Databricks
+pricing page
+.
+Serverless compute
+​
+On-demand, automatically managed compute that scales based on your workload requirements.
+Serverless compute for notebooks
+Interactive Python and SQL execution in notebooks with automatic scaling and no infrastructure management.
+Serverless compute for jobs
+Run Lakeflow Jobs without configuring or deploying infrastructure. Automatically provisions and scales compute resources.
+Serverless pipelines
+Run
+Lakeflow pipelines
+without configuring or deploying infrastructure. Automatically provisions and scales compute resources.
+Serverless compute limitations
+Understanding limitations and requirements for serverless workloads and supported configurations.
+Classic compute
+​
+Provisioned compute resources that you create, configure, and manage for your workloads.
+Classic compute overview
+Overview of who can access and create classic compute resources.
+Configure compute
+Create and configure compute for interactive data analysis in notebooks or automated workflows with Lakeflow Jobs.
+Standard compute
+Multi-user compute with shared resources for cost-effective collaboration.
+Lakeguard
+provides secure user isolation.
+Dedicated compute
+Compute resource assigned to a single user or group.
+Instance pools
+Pre-configured instances that reduce compute startup time and provide cost savings for frequent workloads.
+SQL warehouses
+​
+Optimized compute resources for specific use cases and advanced functionality. SQL warehouses can be configured as serverless or classic.
+SQL warehouses
+Optimized compute for
+SQL
+queries, analytics, and business intelligence workloads with
+serverless
+or
+classic
+options.
+SQL warehouse types
+Understanding the differences between serverless and classic SQL warehouse options to choose the right type for your workloads.
+Additional topics
+​
+What is Photon?
+High-performance query engine that accelerates
+SQL
+workloads and provides faster data processing.
+What is Lakeguard?
+Security framework that provides data governance and access control for compute resources.
+For information about working with compute using the command line or APIs, see
+Databricks CLI
+and the
+Databricks REST API reference
+.
+Reserved ports
+​
+Certain ports on the driver node are reserved for internal Databricks services. To avoid conflicts, do not bind services to the following ports:
+1023
+6059
+6060
+6061
+6062: Occupied by ipywidgets by default. You can change the port if needed. See
+ipywidgets
+.
+7071
+7077
+10000
+15001
+15002
+36423
+38841
+39909
+40000
+40001
+41063
+On this page
+Serverless compute
+Classic compute
+SQL warehouses
+Additional topics
+Reserved ports

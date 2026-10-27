@@ -1,0 +1,179 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Notebook task for jobs
+Use the notebook task to deploy Databricks notebooks.
+Requirements
+​
+Your notebook must be in a location accessible by the user configuring the job.
+Configure a notebook task
+​
+note
+The jobs UI displays options dynamically based on other configured settings.
+To begin the flow to configure a
+Notebook
+task:
+Navigate to the
+Tasks
+tab in the Jobs UI.
+Click
+Add task
+.
+Enter a name into the
+Task name
+field.
+In the
+Type
+drop-down menu, select
+Notebook
+.
+Configure the source
+​
+In the
+Source
+drop-down menu, select a location for the notebook using one of the following options.
+Workspace
+​
+Use
+Workspace
+to configure a notebook stored in the workspace by completing the following steps:
+Click the
+Path
+field. The
+Select Notebook
+dialog appears.
+Browse to the notebook, click to highlight the file, and click
+Confirm
+.
+note
+You can use this option to configure a task for a notebook stored in a Databricks Git folder. Databricks recommends using the
+Git provider
+option and a remote Git repository for versioning assets scheduled with jobs.
+Git provider
+​
+Use
+Git provider
+to configure a notebook in a remote Git repository.
+The options displayed by the UI depend on whether or not you have already configured a Git provider elsewhere. Only one remote Git repository can be used for all tasks in a job. See
+Use Git with Lakeflow Jobs
+.
+important
+Notebooks created by Lakeflow Jobs that run from remote Git repositories are ephemeral and cannot be relied upon to track MLflow runs, experiments, or models. When creating a notebook from a job, use a
+workspace MLflow experiment
+(instead of a notebook MLflow experiment) and call
+mlflow.set_experiment("/path/to/experiment")
+in the workspace notebook before running any MLflow tracking code. For more details, see
+Prevent data loss in MLflow experiments
+.
+The
+Path
+field appears after you have configured a git reference.
+Enter the relative path for your notebook, such as
+etl/bronze/ingest.py
+.
+important
+When you enter the relative path, don't begin with
+/
+or
+./
+. For example, if the absolute path for the notebook you want to access is
+/etl/bronze/ingest.py
+, enter
+etl/bronze/ingest.py
+in the
+Path
+field.
+Configure compute and dependent libraries
+​
+note
+You can select a SQL warehouse as the compute for a notebook task only when the notebook is written entirely in SQL and SQL is set as its
+default language
+. If the notebook uses another default language or mixes languages, select a cluster or other supported compute instead.
+Use
+Compute
+to select or configure a cluster that supports the logic in your notebook.
+If you use
+Serverless
+compute, install libraries directly inside notebook, using the Environment pane or using
+%pip install
+. See
+Configure the serverless environment
+.
+For all other compute configurations, click
+Add
+under
+Dependent libraries
+. The
+Add dependent library
+dialogue appears.
+You can select an existing library or upload a new library.
+You can only use libraries stored in a location supported by your compute configurations. See
+Python library support
+.
+Each
+Library Source
+has a different flow for selecting or uploading a library. See
+Install libraries
+.
+Finalize job configuration
+​
+(Optional) Configure
+Parameters
+as key-value pairs that can be accessed in the notebook using
+dbutils.widgets
+. See
+Configure task parameters
+.
+(Optional) To configure retries, run-duration or streaming-backlog thresholds, or notifications, see
+Advanced task settings
+.
+Click
+Save task
+.
+To edit, clone, disable, or delete this task, see
+Configure and edit tasks in Lakeflow Jobs
+.
+Visual data prep
+​
+Visual data prep
+in the task
+Type
+drop-down creates a notebook task for a visual data prep file. You build these files on a visual canvas in
+Lakeflow Designer
+, which saves each one as a notebook named
+<name>.designer.ipynb
+. To run one as a job, add a notebook task and select its
+.designer.ipynb
+file as the source. See
+Lakeflow Designer
+.
+Limitations
+​
+Total notebook cell output (the combined output of all notebook cells) is subject to a 30MB size limit. Additionally, individual cell output is subject to an 8MB size limit. If total cell output exceeds 30MB in size, or if the output of an individual cell is larger than 8MB, the run is canceled and marked as failed.
+If you need help finding cells near or beyond the limit, run the notebook against an
+all-purpose
+cluster and use this
+notebook autosave technique
+.
+Additional resources
+​
+Notebook task
+: Define a notebook task as code with
+Declarative Automation Bundles
+.
+Use Git with Lakeflow Jobs
+: Version notebooks with a Git provider.
+Configure task parameters
+: Pass parameters to the notebook.
+On this page
+Requirements
+Configure a notebook task
+Configure the source
+Workspace
+Git provider
+Configure compute and dependent libraries
+Finalize job configuration
+Visual data prep
+Limitations
+Additional resources

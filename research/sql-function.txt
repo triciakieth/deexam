@@ -1,0 +1,1977 @@
+On this page
+Last updated
+on
+Oct 21, 2026
+CREATE FUNCTION (SQL, Python, Scala, and Java)
+Applies to:
+Databricks SQL
+Databricks Runtime
+Creates a SQL scalar or table function that takes a set of arguments and returns a scalar value or a set of rows.
+Applies to:
+Databricks SQL
+Databricks Runtime
+13.3 LTS and above
+Creates a Python scalar function that takes a set of arguments and returns a scalar value.
+Python UDFs require
+Unity Catalog
+on serverless or pro SQL warehouses, or a
+Unity Catalog
+-enabled compute resource.
+Applies to:
+Databricks SQL
+Databricks Runtime
+14.1 and above
+In addition to
+positional parameter invocation
+, you can also invoke SQL and Python UDF using
+named parameter invocation
+.
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.2 and above
+Use the
+ENVIRONMENT
+clause to install custom dependencies and set the environment version for a function declared with
+LANGUAGE PYTHON
+. On classic compute, an
+environment_version
+other than
+'None'
+requires
+Databricks Runtime
+18.2 or above.
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Use
+PARAMETER STYLE PANDAS
+with the
+HANDLER
+clause to define a batch
+LANGUAGE PYTHON
+function. The handler processes input data as iterators of
+pandas.Series
+objects and yields
+pandas.Series
+objects as output.
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.1 and above
+Use the
+HANDLER
+clause with a row-at-a-time scalar
+LANGUAGE PYTHON
+function to name the Python function that handles UDF inputs. On serverless compute and on pro and serverless SQL warehouses, explicitly set the UDF's
+environment_version
+to
+6
+or above.
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Use the
+CREDENTIALS
+clause to declare
+Unity Catalog
+service credentials that a batch or row-at-a-time scalar
+LANGUAGE PYTHON
+function accesses. See
+Use a service credential in a Python UDF
+for function-type, compute, environment, and networking requirements.
+Applies to:
+Databricks SQL
+Databricks Runtime
+19 and above
+Use the
+SECRETS
+clause to declare
+Unity Catalog
+secrets that a scalar or batch
+LANGUAGE PYTHON
+function or a scalar
+LANGUAGE SCALA
+function accesses. See
+UDF requirements and permissions
+for compute, environment, and permission requirements.
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.2 and above
+Creates a Scala or Java scalar function that runs compiled JVM logic packaged as a JAR. Scala and Java UDFs require
+Unity Catalog
+. SQL warehouse support is limited to pro and serverless SQL warehouses. You reference the compiled code with the
+HANDLER
+clause and provide the JAR through the
+ENVIRONMENT
+clause's
+java_dependencies
+key. For the complete workflow, including how to build the JAR and register the function, see
+Scala and Java user-defined functions (UDFs) in
+Unity Catalog
+.
+Permissions
+​
+To create a function in
+Unity Catalog
+, you must have all of the following:
+USE CATALOG
+on the catalog and
+USE SCHEMA
+on the schema where you create the function
+CREATE FUNCTION
+privilege on the schema where you create the function
+SELECT
+on every referenced
+Unity Catalog
+table or view, plus
+USE CATALOG
+and
+USE SCHEMA
+on the catalog and schema that contain it
+EXECUTE
+on every referenced user-defined function, plus
+USE CATALOG
+and
+USE SCHEMA
+on the catalog and schema that contain it
+READ FILES
+on the
+external location
+that backs each referenced cloud-storage path, for example
+read_files('s3://bucket/path')
+READ VOLUME
+on each volume referenced through a
+/Volumes/...
+path, plus
+USE CATALOG
+and
+USE SCHEMA
+on the catalog and schema that contain it
+These privileges are checked when you create the function. For how statements inside the function body are authorized when the function runs, see
+Authorized user and session user
+.
+In
+Unity Catalog
+, replacing an existing function with
+CREATE OR REPLACE FUNCTION
+also requires that you own the function or have
+MANAGE
+on it, or own or have
+MANAGE
+on its parent schema or catalog. The usage privileges you also need depend on the object level at which you hold ownership or
+MANAGE
+. See
+Usage privilege requirements for
+MANAGE
+. The new function definition can require additional privileges on referenced tables, views, functions, and paths.
+Syntax
+​
+CREATE [OR REPLACE] [TEMPORARY] FUNCTION [IF NOT EXISTS]
+function_name ( [ function_parameter [, ...] ] )
+{ [ RETURNS data_type ] |
+RETURNS TABLE [ ( column_spec [, ...]) ] }
+[ characteristic [...] ]
+{ AS dollar_quoted_string | HANDLER handler_name [ AS dollar_quoted_string ] | RETURN { expression | query } }
+function_parameter
+parameter_name data_type [DEFAULT default_expression] [COMMENT parameter_comment]
+column_spec
+column_name data_type [COMMENT column_comment]
+characteristic
+{ LANGUAGE { SQL | PYTHON | SCALA | JAVA } |
+[NOT] DETERMINISTIC |
+COMMENT function_comment |
+[CONTAINS SQL | READS SQL DATA] |
+DEFAULT COLLATION default_collation_name |
+PARAMETER STYLE PANDAS |
+CREDENTIALS ( service_credential [, ...] ) |
+SECRETS ( secret_name [, ...] ) } |
+environment }
+service_credential
+credential_name [ DEFAULT | AS credential_alias ]
+secret_name
+catalog_name.schema_name.secret_name
+environment
+ENVIRONMENT ( { environment_key = environment_value } [, ...] )
+Parameters
+​
+OR REPLACE
+If specified, an existing function or procedure with the same name is replaced. The new function's signature (number of parameters and parameter types), return type, and body can differ from the existing function's. You cannot specify this parameter with
+IF NOT EXISTS
+.
+TEMPORARY
+The scope of the function being created. When you specify
+TEMPORARY
+, the created function is valid and visible in the current session. No persistent entry is made in the catalog.
+IF NOT EXISTS
+If specified, creates the function only when it does not exist. The creation of the function succeeds (no error is thrown) if the specified function already exists in the system. You cannot specify this parameter with
+OR REPLACE
+.
+function_name
+A name for the function. For a permanent function, you can optionally qualify the function name with a schema name.
+If the name is not qualified the permanent function is created in the current schema.
+The function name must be a unique for all routines (procedures and functions) in the schema.
+function_parameter
+Specifies a parameter of the function.
+parameter_name
+The parameter name must be unique within the function.
+data_type
+Any supported data type.
+For Python,
+data_type
+is cast to a Python data type according to this
+language mapping
+.
+For a
+STRING
+data_type
+, the default collation is the function
+default_collation_name
+.
+DEFAULT
+default_expression
+Applies to:
+Databricks SQL
+Databricks Runtime
+10.4 LTS and above
+An optional default to be used when a function invocation does not assign an argument to the parameter.
+default_expression
+must be
+castable
+to
+data_type
+.
+The expression must not reference another parameter or contain a subquery.
+When you specify a default for one parameter, all following parameters must also have a default.
+DEFAULT
+is supported for
+LANGUAGE SQL
+only.
+COMMENT comment
+An optional description of the parameter.
+comment
+must be a
+STRING
+literal.
+RETURNS
+data_type
+The return data type of the scalar function.
+For Python UDFs, return values should match the declared
+data_type
+.
+For SQL UDF this clause is optional. The data type is derived from the function body if it is not provided.
+RETURNS TABLE [ (column_spec [,…] ) ]
+This clause marks the function as a table function.
+Optionally it also specifies the signature of the result of the table function.
+If no column_spec is specified it will be derived from the body of the SQL UDF.
+RETURNS TABLE
+is supported for
+LANGUAGE SQL
+and for
+LANGUAGE PYTHON
+polymorphic UDTFs
+(
+Databricks Runtime
+18.1 and above).
+column_name
+The column name must be unique within the signature.
+data_type
+Any supported data type.
+COMMENT column_comment
+An optional description of the column.
+comment
+must be a
+STRING
+literal.
+RETURN {
+expression
+|
+query
+}
+The body of the function. For a scalar function, it can either be a query or an expression. For a table function, it can only be a query. The expression cannot contain:
+Aggregate functions
+Window functions
+Ranking functions
+Row producing functions such as
+explode
+Within the body of the function you can refer to parameter by its unqualified name or by qualifying the parameter with the function name.
+AS dollar_quoted_definition
+dollar_quoted_definition
+is the Python function
+body
+enclosed by two matching
+$[tag]$body$[tag]$
+.
+tag
+can be an empty string.
+Examples:
+$$
+return “Hello world”
+$$
+$py$
+return "Hello World"
+$py$
+HANDLER handler_name
+For a row-at-a-time scalar
+LANGUAGE PYTHON
+function:
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.1 and above
+handler_name
+is a
+STRING
+literal that names the Python function in the dollar-quoted definition that implements the UDF. The handler accepts the UDF arguments and returns a value that matches the declared return type. On serverless compute and on pro and serverless SQL warehouses, explicitly set the UDF's
+environment_version
+to
+6
+or above. See
+Use a named handler in a scalar Python UDF
+.
+For a batch
+LANGUAGE PYTHON
+function declared with
+PARAMETER STYLE PANDAS
+:
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+handler_name
+is a
+STRING
+literal that names the Python function in the dollar-quoted definition that implements the UDF. The handler accepts an iterator over one or more
+pandas.Series
+objects and yields
+pandas.Series
+objects with the same number of rows as the input. See
+Batch UDF handler function
+.
+For a
+LANGUAGE SCALA
+or
+LANGUAGE JAVA
+function:
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.2 and above
+The fully qualified path to the method that implements a
+LANGUAGE SCALA
+or
+LANGUAGE JAVA
+function, as a
+STRING
+literal.
+Use the format
+'package.Object.method'
+for Scala and
+'package.ClassName.method'
+for Java.
+The compiled code must be provided as a JAR through the
+java_dependencies
+key of the
+ENVIRONMENT
+clause.
+CREDENTIALS ( service_credential [, ...] )
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Declares one or more
+Unity Catalog
+service credentials that a batch
+LANGUAGE PYTHON
+function can use. Row-at-a-time scalar
+LANGUAGE PYTHON
+functions require
+Databricks Runtime
+18.1 or above on classic compute. On serverless compute and on pro and serverless SQL warehouses, scalar functions must explicitly set
+environment_version
+to
+6
+or above. See
+Use a service credential in a Python UDF
+for complete requirements.
+Each
+credential_name
+names a
+Unity Catalog
+service credential. The UDF creator must have the
+ACCESS
+privilege on each service credential. Mark at most one credential as
+DEFAULT
+so that patched cloud SDKs automatically use it. Use
+AS credential_alias
+to assign a unique alias to a non-default credential.
+SECRETS ( secret_name [, ...] )
+Applies to:
+Databricks SQL
+Databricks Runtime
+19 and above
+Declares the
+Unity Catalog
+secrets that a scalar or batch
+LANGUAGE PYTHON
+function or a scalar
+LANGUAGE SCALA
+function can access. The UDF definition must explicitly set
+environment_version
+to
+6
+or above. Each
+secret_name
+must be a three-part name in the form
+catalog.schema.secret
+. To create or replace the UDF, you must have
+READ SECRET
+on each secret and
+USE CATALOG
+and
+USE SCHEMA
+on its parent catalog and schema. See
+UDF requirements and permissions
+for compute support and runtime permission behavior. For examples, see
+Python UDFs
+or
+Scala UDFs
+.
+characteristic
+All characteristic clauses are optional.
+You can specify any number of them in any order, but you can specify each clause only once.
+LANGUAGE SQL
+,
+LANGUAGE PYTHON
+,
+LANGUAGE SCALA
+, or
+LANGUAGE JAVA
+The language of the function implementation.
+LANGUAGE SCALA
+and
+LANGUAGE JAVA
+require
+Unity Catalog
+and a
+HANDLER
+clause that references compiled code supplied through the
+ENVIRONMENT
+clause. See
+Scala and Java user-defined functions (UDFs) in
+Unity Catalog
+.
+PARAMETER STYLE PANDAS
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Declares a batch
+LANGUAGE PYTHON
+function that exchanges data with the handler as iterators of
+pandas.Series
+objects. You must also specify a
+HANDLER
+clause. See
+Batch Python user-defined functions (UDFs) in
+Unity Catalog
+.
+[NOT] DETERMINISTIC
+Whether the function is deterministic.
+A function is deterministic when it returns only one result for a given set of arguments.
+You may mark a function as
+DETERMINISTIC
+when its body is not and vice versa.
+A reason for this may be to encourage or discourage query optimizations such as constant
+folding or query caching.
+If you do not specify this option, the default depends on the function's language.
+For SQL functions, it is derived from the function body.
+For Python, Scala, and Java functions, the function is
+NOT DETERMINISTIC
+.
+COMMENT function_comment
+A comment for the function.
+function_comment
+must be String literal.
+CONTAINS SQL
+or
+READS SQL DATA
+Whether a function reads data directly or indirectly from a table or a view.
+When the function reads SQL data, you cannot specify
+CONTAINS SQL
+.
+If you don't specify either clause, the property is derived from the function body.
+DEFAULT COLLATION
+default_collation_name
+Applies to:
+Databricks SQL
+Databricks Runtime
+17.0 and above
+Defines the default collation to use for:
+STRING
+parameters and
+RETURNS
+datatype and
+RETURNS TABLE
+fields of the function.
+DEFAULT
+expression.
+The body of the SQL function.
+If not specified, the default collation is derived from the schema in which the function is created.
+environment
+Specifies the environment for a function declared with
+LANGUAGE PYTHON
+,
+LANGUAGE SCALA
+, or
+LANGUAGE JAVA
+.
+The
+ENVIRONMENT
+clause is not supported for SQL functions.
+You must specify
+environment_version
+whenever you include the
+ENVIRONMENT
+clause.
+dependencies
+A JSON array of strings specifying the required Python packages or wheel files for a
+LANGUAGE PYTHON
+function. The
+dependencies
+key is case-insensitive. Supported formats:
+PyPI package with optional version, for example: "simplejson==3.19.3"
+Absolute path to a wheel file stored in a
+Unity Catalog
+volume, for example: "/Volumes/my_catalog/my_schema/my_volume/packages/custom_package-1.0.0.whl"
+HTTPS URL to a wheel file in external storage, for example: "
+https://my-bucket.s3.amazonaws.com/packages/special_package-2.0.0.whl?Expires=
+..."
+For a dependency stored in a
+Unity Catalog
+volume, the function creator must have
+READ VOLUME
+on the source volume. Caller requirements depend on the environment version. See
+Permissions for dependencies in
+Unity Catalog
+volumes
+.
+java_dependencies
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.2 and above
+A JSON array of strings specifying the JAR files that contain the compiled code for a
+LANGUAGE SCALA
+or
+LANGUAGE JAVA
+function. Each entry is an absolute path to a JAR file stored in a
+Unity Catalog
+volume, for example: "/Volumes/my_catalog/my_schema/my_volume/packages/my-udf-assembly-0.1.0.jar". Package the code as a fat JAR that includes all third-party dependencies used by the UDF.
+environment_version
+A string specifying the environment version.
+For
+LANGUAGE PYTHON
+, supported values are an environment version of 3 or above, such as
+'6'
+, or
+'None'
+. The value
+'None'
+selects the default Python environment. On classic compute, setting
+environment_version
+to a value other than
+'None'
+requires
+Databricks Runtime
+18.2 or above. On
+Databricks Runtime
+16.2 through 18.1, only
+'None'
+is supported. When fixed environment versions are supported, explicitly select one for predictable behavior.
+On serverless compute and on pro and serverless SQL warehouses, some features require an explicit environment version. Set
+environment_version
+to the required version or above in each UDF definition. Omitting the clause or setting
+environment_version = 'None'
+does not enable those features. See
+Python UDF feature requirements
+.
+For classic compute version compatibility, see
+Environment versions on classic compute
+. For the list of available versions, see
+Environment versions
+.
+For
+LANGUAGE SCALA
+and
+LANGUAGE JAVA
+, the value must be
+'4'
+or above. Environment version 4 specifies Scala 2.13.16 and JDK 17. See
+Environment versions
+.
+Supported Libraries in Python UDFs
+​
+To use any dependencies, use
+import <package>
+within the function body. For example, see the following:
+SQL
+CREATE
+FUNCTION
+[
+…
+]
+AS
+$$
+import
+json
+[
+.
+.
+.
+(
+rest
+of
+function
+definition
+)
+]
+$$
+By default, dependencies are limited to the standard Python library and the following libraries:
+Package
+Version
+bleach
+4.0.0
+chardet
+4.0.0
+charset-normalizer
+2.0.4
+defusedxml
+0.7.1
+googleapis-common-protos
+1.56.4
+grpcio
+1.47.0
+grpcio-status
+1.47.0
+jmespath
+0.10.0
+joblib
+1.1.0
+numpy
+1.20.3
+packaging
+21.3
+pandas
+1.3.4
+patsy
+0.5.2
+protobuf
+4.21.5
+pyarrow
+7.0.0
+pyparsing
+3.0.9
+python-dateutil
+2.8.2
+pytz
+2021.3
+scikit-learn
+0.24.2”
+scipy
+1.7.1”
+setuptools
+65.2.0
+six
+1.16.0
+threadpoolctl
+3.1.0
+webencodings
+0.5.1
+user-agents
+2.2.0
+cryptography
+38.0.4
+←
+✕
+Package
+Version
+bleach
+4.0.0
+chardet
+4.0.0
+charset-normalizer
+2.0.4
+defusedxml
+0.7.1
+googleapis-common-protos
+1.56.4
+grpcio
+1.47.0
+grpcio-status
+1.47.0
+jmespath
+0.10.0
+joblib
+1.1.0
+numpy
+1.20.3
+packaging
+21.3
+pandas
+1.3.4
+patsy
+0.5.2
+protobuf
+4.21.5
+pyarrow
+7.0.0
+pyparsing
+3.0.9
+python-dateutil
+2.8.2
+pytz
+2021.3
+scikit-learn
+0.24.2”
+scipy
+1.7.1”
+setuptools
+65.2.0
+six
+1.16.0
+threadpoolctl
+3.1.0
+webencodings
+0.5.1
+user-agents
+2.2.0
+cryptography
+38.0.4
+Custom dependencies in Python UDFs
+​
+To use additional dependencies beyond the standard library and the supported built-in packages, specify them in the
+ENVIRONMENT
+clause.
+Examples
+​
+Create and use a SQL scalar function
+Create and use a function that uses DEFAULTs
+Create a SQL table function
+Replace a SQL function
+Describe a SQL function
+Create Python functions
+Define custom dependencies in Python functions
+Create Scala and Java functions
+Create and use a SQL scalar function
+​
+SQL
+>
+CREATE
+VIEW
+t
+(
+c1
+,
+c2
+)
+AS
+VALUES
+(
+0
+,
+1
+)
+,
+(
+1
+,
+2
+)
+;
+SQL
+-- Create a temporary function with no parameter.
+>
+CREATE
+TEMPORARY
+FUNCTION
+hello
+(
+)
+RETURNS
+STRING
+RETURN
+'Hello World!'
+;
+>
+SELECT
+hello
+(
+)
+;
+Hello World
+!
+-- Create a permanent function with parameters.
+>
+CREATE
+FUNCTION
+area
+(
+x
+DOUBLE
+,
+y
+DOUBLE
+)
+RETURNS
+DOUBLE
+RETURN
+x
+*
+y
+;
+-- Use a SQL function in the SELECT clause of a query.
+>
+SELECT
+area
+(
+c1
+,
+c2
+)
+AS
+area
+FROM
+t
+;
+0.0
+2.0
+-- Use a SQL function in the WHERE clause of a query.
+>
+SELECT
+*
+FROM
+t
+WHERE
+area
+(
+c1
+,
+c2
+)
+>
+0
+;
+1
+2
+-- Compose SQL functions.
+>
+CREATE
+FUNCTION
+square
+(
+x
+DOUBLE
+)
+RETURNS
+DOUBLE
+RETURN
+area
+(
+x
+,
+x
+)
+;
+>
+SELECT
+c1
+,
+square
+(
+c1
+)
+AS
+square
+FROM
+t
+;
+0
+0.0
+1
+1.0
+-- Create a non-deterministic function
+>
+CREATE
+FUNCTION
+roll_dice
+(
+)
+RETURNS
+INT
+NOT
+DETERMINISTIC
+CONTAINS
+SQL
+COMMENT
+'Roll a single 6 sided die'
+RETURN
+(
+rand
+(
+)
+*
+6
+)
+::
+INT
++
+1
+;
+-- Roll a single 6-sided die
+>
+SELECT
+roll_dice
+(
+)
+;
+3
+Create and use a function that uses DEFAULTs
+​
+SQL
+-- Extend the function to support variable number of sides and dice.
+-- Use defaults to support a variable number of arguments
+>
+DROP
+FUNCTION
+roll_dice
+;
+>
+CREATE
+FUNCTION
+roll_dice
+(
+num_dice
+INT
+DEFAULT
+1
+COMMENT
+'number of dice to roll (Default: 1)'
+,
+num_sides
+INT
+DEFAULT
+6
+COMMENT
+'number of sides per die (Default: 6)'
+)
+RETURNS
+INT
+NOT
+DETERMINISTIC
+CONTAINS
+SQL
+COMMENT
+'Roll a number of n-sided dice'
+RETURN
+aggregate
+(
+sequence
+(
+1
+,
+roll_dice
+.
+num_dice
+,
+1
+)
+,
+0
+,
+(
+acc
+,
+x
+)
+-
+>
+(
+rand
+(
+)
+*
+roll_dice
+.
+num_sides
+)
+::
+int
+,
+acc
+-
+>
+acc
++
+roll_dice
+.
+num_dice
+)
+;
+-- Roll a single 6-sided die still works
+>
+SELECT
+roll_dice
+(
+)
+;
+3
+-- Roll 3 6-sided dice
+>
+SELECT
+roll_dice
+(
+3
+)
+;
+15
+-- Roll 3 10-sided dice
+>
+SELECT
+roll_dice
+(
+3
+,
+10
+)
+21
+-- Roll 3 10-sided dice using named parameter invocation
+>
+SELECT
+roll_dice
+(
+10
+=
+>
+num_sides
+,
+num_dice
+=
+>
+3
+)
+17
+-- Create a SQL function with a scalar subquery.
+>
+CREATE
+VIEW
+scores
+(
+player
+,
+score
+)
+AS
+VALUES
+(
+0
+,
+1
+)
+,
+(
+0
+,
+2
+)
+,
+(
+1
+,
+2
+)
+,
+(
+1
+,
+5
+)
+;
+>
+CREATE
+FUNCTION
+avg_score
+(
+p
+INT
+)
+RETURNS
+FLOAT
+COMMENT
+'get an average score of the player'
+RETURN
+SELECT
+AVG
+(
+score
+)
+FROM
+scores
+WHERE
+player
+=
+p
+;
+>
+SELECT
+c1
+,
+avg_score
+(
+c1
+)
+FROM
+t
+;
+0
+1.5
+1
+3.5
+Create a SQL table function
+​
+SQL
+-- Produce all weekdays between two dates
+>
+CREATE
+FUNCTION
+weekdays
+(
+start
+DATE
+,
+end
+DATE
+)
+RETURNS
+TABLE
+(
+day_of_week STRING
+,
+day
+DATE
+)
+RETURN
+SELECT
+extract
+(
+DAYOFWEEK_ISO
+FROM
+day
+)
+,
+day
+FROM
+(
+SELECT
+sequence
+(
+weekdays
+.
+start
+,
+weekdays
+.
+end
+)
+)
+AS
+T
+(
+days
+)
+LATERAL
+VIEW
+explode
+(
+days
+)
+AS
+day
+WHERE
+extract
+(
+DAYOFWEEK_ISO
+FROM
+day
+)
+BETWEEN
+1
+AND
+5
+;
+-- Return all weekdays
+>
+SELECT
+weekdays
+.
+day_of_week
+,
+day
+FROM
+weekdays
+(
+DATE
+'2022-01-01'
+,
+DATE
+'2022-01-14'
+)
+;
+1
+2022
+-
+01
+-
+03
+2
+2022
+-
+01
+-
+04
+3
+2022
+-
+01
+-
+05
+4
+2022
+-
+01
+-
+06
+5
+2022
+-
+01
+-
+07
+1
+2022
+-
+01
+-
+10
+2
+2022
+-
+01
+-
+11
+3
+2022
+-
+01
+-
+12
+4
+2022
+-
+01
+-
+13
+5
+2022
+-
+01
+-
+14
+-- Return weekdays for date ranges originating from a LATERAL correlation
+>
+SELECT
+weekdays
+.
+*
+FROM
+VALUES
+(
+DATE
+'2020-01-01'
+)
+,
+(
+DATE
+'2021-01-01'
+)
+,
+(
+DATE
+'2022-01-01'
+)
+AS
+starts
+(
+start
+)
+,
+LATERAL weekdays
+(
+start
+,
+start
++
+INTERVAL
+'7'
+DAYS
+)
+;
+3
+2020
+-
+01
+-
+01
+4
+2020
+-
+01
+-
+02
+5
+2020
+-
+01
+-
+03
+1
+2020
+-
+01
+-
+06
+2
+2020
+-
+01
+-
+07
+3
+2020
+-
+01
+-
+08
+5
+2021
+-
+01
+-
+01
+1
+2021
+-
+01
+-
+04
+2
+2021
+-
+01
+-
+05
+3
+2021
+-
+01
+-
+06
+4
+2021
+-
+01
+-
+07
+5
+2021
+-
+01
+-
+08
+1
+2022
+-
+01
+-
+03
+2
+2022
+-
+01
+-
+04
+3
+2022
+-
+01
+-
+05
+4
+2022
+-
+01
+-
+06
+5
+2022
+-
+01
+-
+07
+Replace a SQL function
+​
+SQL
+-- Replace a SQL scalar function.
+>
+CREATE
+OR
+REPLACE
+FUNCTION
+square
+(
+x
+DOUBLE
+)
+RETURNS
+DOUBLE
+RETURN
+x
+*
+x
+;
+-- Replace a SQL table function.
+>
+CREATE
+OR
+REPLACE
+FUNCTION
+getemps
+(
+deptno
+INT
+)
+RETURNS
+TABLE
+(
+name STRING
+)
+RETURN
+SELECT
+name
+FROM
+employee e
+WHERE
+e
+.
+deptno
+=
+getemps
+.
+deptno
+;
+-- Describe a SQL table function.
+>
+DESCRIBE
+FUNCTION
+getemps
+;
+Function
+:
+default
+.
+getemps
+Type
+:
+TABLE
+Input:    deptno
+INT
+Returns
+:  id
+INT
+name STRING
+Describe a SQL function
+​
+SQL
+>
+DESCRIBE
+FUNCTION
+hello
+;
+Function
+: hello
+Type
+:     SCALAR
+Input:
+(
+)
+Returns
+:  STRING
+>
+DESCRIBE
+FUNCTION
+area
+;
+Function
+:
+default
+.
+area
+Type
+:     SCALAR
+Input:    x
+DOUBLE
+y
+DOUBLE
+Returns
+:
+DOUBLE
+>
+DESCRIBE
+FUNCTION
+roll_dice
+;
+Function
+:
+default
+.
+roll_dice
+Type
+:     SCALAR
+Input:    num_dice
+INT
+num_sides
+INT
+Returns
+:
+INT
+>
+DESCRIBE
+FUNCTION
+EXTENDED
+roll_dice
+;
+Function
+:
+default
+.
+roll_dice
+Type
+:          SCALAR
+Input:         num_dice
+INT
+DEFAULT
+1
+'number of dice to roll (Default: 1)'
+num_sides
+INT
+DEFAULT
+6
+'number of sides per dice (Default: 6)'
+Returns
+:
+INT
+Comment
+:       Roll a number
+of
+m
+-
+sided dice
+Deterministic
+:
+false
+Data
+Access:
+CONTAINS
+SQL
+Configs:
+.
+.
+.
+Owner:         the
+.
+house
+@always.wins
+Create
+Time
+:   Sat Feb
+12
+09
+:
+29
+:
+02
+PST
+2022
+Body:          aggregate
+(
+sequence
+(
+1
+,
+roll_dice
+.
+num_dice
+,
+1
+)
+,
+0
+,
+(
+acc
+,
+x
+)
+-
+>
+(
+rand
+(
+)
+*
+roll_dice
+.
+num_sides
+)
+::
+int
+,
+acc
+-
+>
+acc
++
+roll_dice
+.
+num_dice
+)
+Create Python functions
+​
+SQL
+-- Hello World-like functionality using Python UDFs
+>
+CREATE
+FUNCTION
+main
+.
+default
+.
+greet
+(
+s STRING
+)
+RETURNS
+STRING
+LANGUAGE
+PYTHON
+AS
+$$
+def greet
+(
+name
+)
+:
+return
+"Hello "
++
+name
++
+"!"
+return
+greet
+(
+s
+)
+if
+s
+else
+None
+$$
+-- Can import functions from std library and environment
+>
+CREATE
+FUNCTION
+main
+.
+default
+.
+isleapyear
+(
+year
+INT
+)
+RETURNS
+BOOLEAN
+LANGUAGE
+PYTHON
+AS
+$$
+import
+calendar
+return
+calendar
+.
+isleap
+(
+year
+)
+if
+year
+else
+None
+$$
+-- Return values should match the declared data type.
+>
+CREATE
+FUNCTION
+main
+.
+default
+.
+a_number
+(
+)
+RETURNS
+INTEGER
+LANGUAGE
+PYTHON
+AS
+$$
+return
+10
+$$
+-- Deal with exceptions.
+>
+CREATE
+FUNCTION
+main
+.
+default
+.
+custom_divide
+(
+n1
+INT
+,
+n2
+INT
+)
+RETURNS
+FLOAT
+LANGUAGE
+PYTHON
+AS
+$$
+try:
+return
+n1
+/
+n2
+except
+ZeroDivisionException:
+# in case of 0, we can return NULL.
+return
+None
+$$
+Define custom dependencies in Python functions
+​
+SQL
+-- Create a Python function with additional dependencies using the ENVIRONMENT clause.
+>
+CREATE
+FUNCTION
+main
+.
+default
+.
+dump_json
+(
+data
+STRING
+)
+RETURNS
+STRING
+LANGUAGE
+PYTHON
+ENVIRONMENT
+(
+dependencies
+=
+'["simplejson==3.19.3", "/Volumes/my_catalog/my_schema/my_volume/packages/custom_package-1.0.0.whl", "https://my-bucket.s3.amazonaws.com/packages/special_package-2.0.0.whl?Expires=2043167927&Signature=abcd"]'
+,
+environment_version
+=
+'6'
+)
+AS
+$$
+import
+simplejson
+as
+json
+import
+custom_package
+return
+json
+.
+dumps
+(
+custom_package
+.
+process
+(
+data
+)
+)
+$$
+;
+-- Use the Python function in a query.
+>
+SELECT
+dump_json
+(
+'{"foo": "bar"}'
+)
+;
+Create Scala and Java functions
+​
+The following examples register a UDF from compiled JVM code packaged as a JAR in a
+Unity Catalog
+volume. The
+HANDLER
+clause references the method in the JAR, and the
+java_dependencies
+key points to the JAR. For the full workflow, including how to build the JAR, see
+Scala and Java user-defined functions (UDFs) in
+Unity Catalog
+.
+SQL
+-- Register a Scala UDF from a JAR in a Unity Catalog volume.
+>
+CREATE
+OR
+REPLACE
+FUNCTION
+my_catalog
+.
+my_schema
+.
+add_one_scala
+(
+x
+INT
+)
+RETURNS
+INT
+LANGUAGE
+SCALA
+DETERMINISTIC
+ENVIRONMENT
+(
+java_dependencies
+=
+'["/Volumes/my_catalog/my_schema/udf_jars/my-udf-assembly-0.1.0.jar"]'
+,
+environment_version
+=
+'4'
+)
+HANDLER
+'com.example.ScalaUDF.addOne'
+;
+-- Register a Java UDF from a JAR in a Unity Catalog volume.
+>
+CREATE
+OR
+REPLACE
+FUNCTION
+my_catalog
+.
+my_schema
+.
+add_one_java
+(
+x
+INT
+)
+RETURNS
+INT
+LANGUAGE
+JAVA
+DETERMINISTIC
+ENVIRONMENT
+(
+java_dependencies
+=
+'["/Volumes/my_catalog/my_schema/udf_jars/my-udf-1.0.jar"]'
+,
+environment_version
+=
+'4'
+)
+HANDLER
+'com.example.JavaUDF.addOne'
+;
+-- Use the functions in a query.
+>
+SELECT
+my_catalog
+.
+my_schema
+.
+add_one_scala
+(
+5
+)
+;
+6
+>
+SELECT
+my_catalog
+.
+my_schema
+.
+add_one_java
+(
+5
+)
+;
+6
+Related articles
+​
+Scala and Java user-defined functions (UDFs) in
+Unity Catalog
+DROP FUNCTION
+SHOW FUNCTIONS
+DESCRIBE FUNCTION
+GRANT
+REVOKE
+On this page
+Permissions
+Syntax
+Parameters
+Supported Libraries in Python UDFs
+Custom dependencies in Python UDFs
+Examples
+Create and use a SQL scalar function
+Create and use a function that uses DEFAULTs
+Create a SQL table function
+Replace a SQL function
+Describe a SQL function
+Create Python functions
+Define custom dependencies in Python functions
+Create Scala and Java functions
+Related articles

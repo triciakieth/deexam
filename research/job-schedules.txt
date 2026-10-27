@@ -1,0 +1,69 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Run jobs on a schedule
+Configure your job with the
+Scheduled
+trigger to run it on a time-based schedule.
+The scheduled trigger type has two options:
+Define a simple schedule to run a job periodically based on a specified time unit and interval. For example, schedule a job to run every twelve hours, starting when the job first runs.
+Define an advanced schedule that offers more control over the period, time, and time zone to run the job.
+note
+You cannot specify the time for the first run for a simple schedule. The scheduler chooses a time when you configure the schedule.
+Add a job schedule
+​
+To define a schedule for the job:
+In your
+Databricks
+workspace's sidebar, click
+Jobs & Pipelines
+.
+Optionally, select the
+Jobs
+and
+Owned by me
+filters.
+Click your job's
+Name
+link.
+In the
+Job details
+pane, click
+Add trigger
+.
+In
+Trigger type
+, select
+Scheduled
+.
+In
+Schedule type
+, select
+Simple
+or
+Advanced
+.
+Simple
+: Specify an interval and unit of time to run the job.
+Advanced
+: Specify the period, starting time, and time zone. Optionally select the
+Show Cron Syntax
+checkbox to display and edit the schedule in
+Quartz Cron Syntax
+.
+Click
+Save
+.
+You can also schedule a notebook job directly in the
+notebook UI
+.
+note
+Databricks
+enforces a minimum interval of 10 seconds between subsequent runs triggered by the schedule of a job regardless of the configuration in the cron expression.
+You can choose a time zone that observes daylight saving time or UTC. If you select a time zone that observes daylight saving time, an hourly job is skipped or might appear to be delayed by an hour or two
+when daylight saving time begins or ends
+. To run at every hour (absolute time), choose UTC.
+The job scheduler is not intended for low-latency jobs. Due to network or cloud issues, job runs might occasionally be delayed up to several minutes. In these situations, scheduled jobs run immediately upon service availability.
+On this page
+Add a job schedule

@@ -1,0 +1,413 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Structured Streaming
+checkpoints
+Checkpoints and write-ahead logs work together to provide processing guarantees for
+Structured Streaming
+workloads. The checkpoint tracks the information that identifies the query, including state information and processed records. When you delete the files in a checkpoint directory or change to a new checkpoint location, the next run of the query begins fresh.
+A checkpoint directory contains the following:
+Offsets
+: The source offsets processed in each micro-batch. This allows the query to resume from exactly where it left off without reprocessing data.
+Commits
+: A record of which micro-batches have been committed to the sink, enabling exactly-once semantics.
+State
+: For stateful queries (aggregations, stream-stream joins, deduplication, and custom stateful operators like
+transformWithState
+), the checkpoint stores metadata about the stateful operator, the state schema, and the checkpointed state store contents managed by the state store provider.
+Metadata
+: The unique query ID used to identify the query. Configuration settings are stored as part of the offset log.
+Each query must have a different checkpoint location. Multiple queries should never share the same location.
+note
+This article covers
+Structured Streaming
+checkpoints for streaming queries. For information about using
+DataFrame.checkpoint()
+with
+Unity Catalog
+volumes to truncate execution plans of non-streaming DataFrames, see
+DataFrame checkpoints in volumes
+.
+Enable checkpointing for
+Structured Streaming
+queries
+​
+You must specify the
+checkpointLocation
+option before you run a streaming query, as in the following example:
+Python
+Scala
+Python
+(
+df
+.
+writeStream
+.
+option
+(
+"checkpointLocation"
+,
+"/Volumes/catalog/schema/volume/path"
+)
+.
+toTable
+(
+"catalog.schema.table"
+)
+)
+Scala
+df
+.
+writeStream
+.
+option
+(
+"checkpointLocation"
+,
+"/Volumes/catalog/schema/volume/path"
+)
+.
+toTable
+(
+"catalog.schema.table"
+)
+note
+Some sinks, such as the output for
+display()
+in notebooks and the
+memory
+sink, automatically generate a temporary checkpoint location if you omit this option. These temporary checkpoint locations do not ensure any fault tolerance or data consistency guarantees and might not get cleaned up properly. Databricks recommends always specifying a checkpoint location for these sinks.
+Recover after changes in a
+Structured Streaming
+query
+​
+There are limitations on what changes in a streaming query are allowed between restarts from the same checkpoint location.
+Changes that generally require a new checkpoint include the number or type of input sources, subscribed Kafka topics or Auto Loader paths, stateful operation types, state schema, and output sink type.
+Changes that are generally safe include adding or removing filters, changing rate limits, trigger intervals, and updating user-defined function logic within
+mapGroupsWithState
+(though semantics may change).
+The following section describes changes that are either not allowed or the effect of the change is not well-defined, where:
+The term
+allowed
+means you can do the specified change but whether the semantics of its effect is well-defined depends on the query and the change.
+The term
+not allowed
+means you should not do the specified change as the restarted query is likely to fail with unpredictable errors.
+sdf
+represents a streaming DataFrame/Dataset generated with
+sparkSession.readStream
+.
+Types of changes in
+Structured Streaming
+queries
+​
+Changes in the number or type of input sources
+: This is not allowed by default because
+Structured Streaming
+identifies sources by their position in the query plan. If you turn on source naming, you can reorder existing sources and add new sources without starting from a fresh checkpoint. See
+Change streaming sources with source evolution
+.
+Changes in the parameters of input sources
+: Whether this is allowed and whether the semantics of the change are well-defined depends on the source and the query, including admission controls such as
+maxFilesPerTrigger
+or
+maxOffsetsPerTrigger
+. Here are a few examples:
+Addition, deletion, and modification of rate limits is allowed:
+Scala
+spark
+.
+readStream
+.
+format
+(
+"kafka"
+)
+.
+option
+(
+"subscribe"
+,
+"article"
+)
+to
+Scala
+spark
+.
+readStream
+.
+format
+(
+"kafka"
+)
+.
+option
+(
+"subscribe"
+,
+"article"
+)
+.
+option
+(
+"maxOffsetsPerTrigger"
+,
+.
+.
+.
+)
+For details, see
+Configure
+Structured Streaming
+batch size on
+Databricks
+Changes to subscribed articles and files are generally not allowed as the results are unpredictable:
+spark.readStream.format("kafka").option("subscribe", "article")
+to
+spark.readStream.format("kafka").option("subscribe", "newarticle")
+Changes in the trigger interval
+: You can change triggers between incremental batches and time intervals. See
+Change trigger intervals between runs
+.
+Changes in the type of output sink
+: Changes between a few specific combinations of sinks are allowed. This needs to be verified on a case-by-case basis. Here are a few examples.
+File sink to Kafka sink is allowed. Kafka will see only the new data.
+Kafka sink to file sink is not allowed.
+Kafka sink changed to foreach, or vice versa is allowed.
+Changes in the parameters of output sink
+: Whether this is allowed and whether the semantics of the change are well-defined depends on the sink and the query. Here are a few examples.
+Changes to output directory of a file sink is not allowed:
+sdf.writeStream.format("parquet").option("path", "/somePath")
+to
+sdf.writeStream.format("parquet").option("path", "/anotherPath")
+Changes to output topic is allowed:
+sdf.writeStream.format("kafka").option("topic", "topic1")
+to
+sdf.writeStream.format("kafka").option("topic", "topic2")
+Changes to the user-defined foreach sink (that is, the
+ForeachWriter
+code) is allowed, but the semantics of the change depends on the code.
+Changes in projection / filter / map-like operations
+: Some cases are allowed. For example:
+Addition / deletion of filters is allowed:
+sdf.selectExpr("a")
+to
+sdf.where(...).selectExpr("a").filter(...)
+.
+Changes in projections with same output schema is allowed:
+sdf.selectExpr("stringColumn AS json").writeStream
+to
+sdf.select(to_json(...).as("json")).writeStream
+.
+Changes in projections with different output schema are conditionally allowed:
+sdf.selectExpr("a").writeStream
+to
+sdf.selectExpr("b").writeStream
+is allowed only if the output sink allows the schema change from
+"a"
+to
+"b"
+.
+Changes in stateful operations
+: Some operations in streaming queries need to maintain state data in order to continuously update the result. Structured Streaming automatically checkpoints the state data to fault-tolerant storage
+(for example, DBFS, AWS S3, Azure Blob storage)
+and restores it after restart. However, this assumes that the schema of the state data remains same across restarts. This means that
+any changes (that is, additions, deletions, or schema modifications) to the stateful operations of a streaming query are not allowed between restarts
+. Here is the list of stateful operations whose schema should not be changed between restarts in order to ensure state recovery:
+Streaming aggregation
+: For example,
+sdf.groupBy("a").agg(...)
+. Any change in number or type of grouping keys or aggregates is not allowed.
+Streaming deduplication
+: For example,
+sdf.dropDuplicates("a")
+. Any change in number or type of grouping keys or aggregates is not allowed.
+Stream-stream join
+: For example,
+sdf1.join(sdf2, ...)
+(i.e. both inputs are generated with
+sparkSession.readStream
+). Changes in the schema or equi-joining columns are not allowed. Changes in join type (outer or inner) not allowed. Other changes in the join condition are ill-defined.
+Arbitrary stateful operation
+: For example,
+sdf.groupByKey(...).mapGroupsWithState(...)
+or
+sdf.groupByKey(...).flatMapGroupsWithState(...)
+. Any change to the schema of the user-defined state and the type of timeout is not allowed. Any change within the user-defined state-mapping function are allowed, but the semantic effect of the change depends on the user-defined logic. If you really want to support state schema changes, then you can explicitly encode/decode your complex state data structures into bytes using an encoding/decoding scheme that supports schema migration. For example, if you save your state as Avro-encoded bytes, then you can change the Avro-state-schema between query restarts as this restores the binary state.
+important
+The stateful operators
+dropDuplicates()
+and
+dropDuplicatesWithinWatermark()
+can fail to restart due to a state schema compatibility check when changing between compute access modes.
+Changing between dedicated and no isolation access modes is allowed. Changing between standard and serverless access modes is allowed. Do not attempt to change between other access mode combinations.
+To avoid this error, do not change the compute access mode for streaming queries that contain these operators.
+Change streaming sources with source evolution
+​
+By default,
+Structured Streaming
+identifies sources by their position in the query plan, such as
+0
+,
+1
+,
+2
+, etc. Any change to either the number or order of input sources breaks checkpoint compatibility and requires a fresh checkpoint. Source evolution enables you to assign stable, user-defined names to each streaming source so that you can reorder, add, or remove sources from a query without losing checkpoint state.
+Source evolution requires
+Databricks Runtime
+18.2 and above.
+Required configuration
+​
+To enable source evolution, set the following Spark configuration:
+spark.sql.streaming.queryEvolution.enableSourceEvolution
+: When
+true
+, all streaming sources in the query must be explicitly named using the
+.name()
+API. Default is
+false
+.
+Set the configuration before defining the streaming query:
+Python
+spark
+.
+conf
+.
+set
+(
+"spark.sql.streaming.queryEvolution.enableSourceEvolution"
+,
+"true"
+)
+Naming rules
+​
+Names must contain only alphanumeric characters and underscores (
+[a-zA-Z0-9_]+
+).
+Each source name must be unique within a query.
+When source evolution is enabled, every streaming source must have a name. Unnamed sources cause an
+UNNAMED_STREAMING_SOURCES_WITH_ENFORCEMENT
+error.
+Reorder, add, and remove sources
+​
+The following changes are safe across query restarts with the same checkpoint:
+Reorder sources
+: Restart the query with a different order of sources. Each source resumes from its last committed offset based on its name and doesn't change checkpoint state.
+Add new sources
+: Restart the query with a new source. The new source processes from the beginning and existing sources continue from their last offsets.
+Remove sources
+: Restart the query without the source. The source is permanently removed from the checkpoint. A removed source can't be added again with the same name.
+Example
+​
+Use
+.name()
+on
+DataStreamReader
+before calling
+.load()
+or
+.table()
+:
+Python
+Scala
+Python
+orders_us
+=
+(
+spark
+.
+readStream
+.
+name
+(
+"orders_us"
+)
+.
+table
+(
+"catalog.schema.orders_us"
+)
+)
+orders_eu
+=
+(
+spark
+.
+readStream
+.
+name
+(
+"orders_eu"
+)
+.
+table
+(
+"catalog.schema.orders_eu"
+)
+)
+all_orders
+=
+orders_us
+.
+union
+(
+orders_eu
+)
+Scala
+val
+ordersUS
+=
+spark
+.
+readStream
+.
+name
+(
+"orders_us"
+)
+.
+table
+(
+"catalog.schema.orders_us"
+)
+val
+ordersEU
+=
+spark
+.
+readStream
+.
+name
+(
+"orders_eu"
+)
+.
+table
+(
+"catalog.schema.orders_eu"
+)
+val
+allOrders
+=
+ordersUS
+.
+union
+(
+ordersEU
+)
+Limitations
+​
+Source naming requires a fresh checkpoint. You can't enable source evolution on an existing checkpoint that was created without it.
+Source evolution is an irreversible change for checkpoints. After you turn on source evolution for a query, you can't turn off source evolution and reuse the same checkpoint.
+Source names are permanent. To rename a source, remove it then add it with a new name. The renamed source processes from the beginning.
+On this page
+Enable checkpointing for Structured Streaming queries
+Recover after changes in a Structured Streaming query
+Types of changes in Structured Streaming queries
+Change streaming sources with source evolution
+Required configuration
+Naming rules
+Reorder, add, and remove sources
+Example
+Limitations

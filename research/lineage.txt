@@ -1,0 +1,633 @@
+On this page
+Last updated
+on
+Oct 26, 2026
+Lineage in
+Unity Catalog
+Data lineage shows where data in
+Databricks
+came from and where it goes: which queries and files populate a table, which jobs and notebooks transform it, and which dashboards consume the results.
+Unity Catalog
+captures lineage automatically for queries run on
+Databricks
+, down to the column level, and aggregates it across all workspaces attached to the metastore. Lineage in
+Unity Catalog
+lets you:
+Perform impact analysis
+: Before changing or deleting a table or column, identify the downstream tables, jobs, and dashboards that depend on it.
+Investigate root causes
+: When a downstream report shows unexpected results, trace upstream sources to find where the data diverged.
+Track sensitive data flow
+: For compliance audits, see where regulated data originates, how it is transformed, and which downstream assets consume it.
+Understand cross-team dependencies
+: Discover which teams own the upstream sources you rely on, or which teams consume your tables.
+Unity Catalog
+also captures lineage for the model services and external model providers (model provider services) you govern through
+Unity Gateway
+. For each service,
+Unity Catalog
+tracks the models it serves and the inference table it logs to, so these AI dependencies appear as nodes in the same lineage graph as your tables. See
+Track model service and provider lineage
+.
+External lineage extends the lineage graph beyond
+Databricks
+. Register upstream sources like Salesforce or MySQL and downstream tools like Tableau or Power BI as external assets in
+Unity Catalog
+, and they appear alongside your
+Unity Catalog
+tables in a single graph. See
+External lineage
+.
+Unity Catalog
+also tracks lineage for user-defined functions (UDFs). See
+View UDF lineage
+.
+Unity Catalog
+also tracks lineage through temporary tables. See
+Lineage through temporary tables
+.
+The following image is a sample lineage graph. Nodes can represent tables and views, ML model versions, external assets, and file paths.
+Requirements
+​
+To capture data lineage using
+Unity Catalog
+:
+Tables must be registered in a
+Unity Catalog
+metastore.
+External assets (those not registered in the
+Unity Catalog
+metastore) must be added as
+external metadata
+objects in
+Unity Catalog
+, configured to have relationships with other securable objects registered in your
+Unity Catalog
+metastore. See
+External lineage
+.
+Queries must use the Spark DataFrame (for example, Spark SQL functions that return a DataFrame) or
+Databricks SQL
+interfaces such as notebooks or the SQL query editor.
+To view data lineage:
+You must have at least the
+BROWSE
+privilege on the parent catalog of the table or view. The parent catalog must also be accessible from the workspace. See
+Workspace-catalog binding
+.
+For notebooks, jobs, or dashboards, you must have permissions on these objects as defined by the access control settings in the workspace. For details, see
+Permissions
+.
+For a
+Unity Catalog-enabled pipeline
+, you must have CAN VIEW permission on the pipeline.
+Compute requirements:
+Lineage tracking of streaming between Delta tables requires
+Databricks Runtime
+11.3 LTS or above.
+Column lineage tracking for
+Lakeflow pipeline
+workloads requires
+Databricks Runtime
+13.3 LTS or above.
+Networking requirements:
+You might need to update your outbound firewall rules to allow for connectivity to the Amazon Kinesis endpoint in the
+Databricks
+control plane. Typically this applies if your
+Databricks
+workspace is deployed in your own VPC or you use AWS PrivateLink within your
+Databricks
+network environment. To get the Kinesis endpoint for your workspace region, see
+Kinesis addresses
+. See also
+Configure a customer-managed VPC
+and
+Configure classic private connectivity to
+Databricks
+.
+View lineage in Catalog Explorer
+​
+To use Catalog Explorer to view table lineage:
+In your
+Databricks
+workspace, click
+Catalog
+.
+Search or browse for your table.
+Select the
+Lineage
+tab. The lineage panel appears and displays related tables.
+To view an interactive graph of the data lineage, click
+See Lineage Graph
+.
+By default, one level is displayed in the graph. Click the
+icon on a node to reveal more connections if they are available.
+Click the icon on a connecting edge in the lineage graph to open the
+Lineage details
+panel.
+The
+Lineage details
+panel shows details about the connection, including source and target tables.
+To view an asset associated with a table, select the asset in the
+Lineage details
+panel. You can filter by notebooks, jobs, pipelines, and queries.
+To view column-level lineage, click a column in the graph to show links to related columns. For example, clicking on the
+revenue
+column in this sample graph shows the upstream columns from which the column was derived:
+View model service and provider lineage
+​
+To view lineage for a model service or external model provider (model provider service), open its
+Lineage
+tab in Catalog Explorer. For details, see
+Track model service and provider lineage
+.
+View job lineage
+​
+To view job lineage, go to a table's
+Lineage
+tab, select
+Jobs
+, and select
+Downstream
+. The job name appears under
+Job Name
+as a consumer of the table.
+View dashboard lineage
+​
+To view dashboard lineage, go to a table's
+Lineage
+tab and click
+Dashboards
+. The dashboard appears under
+Dashboard Name
+as a consumer of the table.
+View UDF lineage
+​
+Use UDF lineage to track where a user-defined function (UDF) in
+Unity Catalog
+is used, so that you can assess the impact of modifying a shared UDF before you make any changes. UDF lineage tracks workloads that invoke a UDF, such as jobs, pipelines, notebooks, or SQL queries, along with data assets that reference the UDF in their definition.
+Unity Catalog
+captures UDF lineage for SQL, Python, and Scala UDFs.
+To view lineage for a UDF:
+In your
+Databricks
+workspace, click
+Catalog
+.
+Search or browse for the function.
+Select the
+Lineage
+tab. The tab lists the assets connected to the UDF, along with each asset's
+Direction
+,
+Type
+, and
+Last activity
+.
+The following example shows the
+Lineage
+tab for the
+udf_demo.default.normalize_email
+UDF. The downstream assets include the
+customer_profiles_view
+table, the queries and notebooks that call the function, and the job that runs it.
+UDFs used to transform data between tables or views are also captured in the lineage graph. In the following example, the
+Lineage details
+panel for the edge between the
+customers
+table and the
+customer_profiles_view
+view lists the
+normalize_email
+UDF that transforms the data:
+UDF lineage has the following limitations, in addition to the general
+data lineage limitations
+:
+Unity Catalog
+captures UDF lineage at the table level. Column-level UDF lineage is not captured.
+SQL UDFs are not captured from
+INSERT
+,
+UPDATE
+, and
+MERGE
+statements.
+Lineage is not captured for tables or functions referenced inside a UDF body.
+Table-valued functions, ML functions, and feature spec functions are not captured in lineage.
+You cannot query UDF lineage using the lineage system tables.
+Get lineage using
+Genie Code
+​
+Genie Code
+can answer lineage questions in natural language.
+To get lineage information using
+Genie Code
+:
+In the workspace sidebar, click
+Catalog
+.
+Browse or search for the catalog, click the catalog name, and then click the
+Genie Code
+icon in the upper-right corner.
+At the
+Genie Code
+prompt, type:
+/getTableLineages
+to view upstream and downstream dependencies.
+/getTableInsights
+to access metadata-driven insights, such as user activity and query patterns.
+These queries enable
+Genie Code
+to answer questions like "show me downstream lineages" or "who queries this table most often."
+Query lineage with system tables
+​
+You can use the lineage system tables to programmatically query lineage data. For detailed instructions, see
+System tables reference
+and
+Lineage system tables reference
+.
+note
+Lineage for
+Unity Catalog
+UDFs is not available in the lineage system tables. See
+View UDF lineage
+.
+Lineage through temporary tables
+​
+Many pipelines use intermediate tables as staging steps. For example, you might stage data in a table, transform it, and then load it into its final destination.
+Databricks
+provides
+temporary tables
+for this use case. Temporary tables exist only within a session and don't add objects to your catalog.
+Temporary tables don't appear in lineage. When a temporary table sits between permanent tables, lineage connects the permanent upstream tables directly to the permanent downstream table, at both the table and column level. The connection appears in Catalog Explorer and the lineage system tables, and remains after the temporary table is dropped or expires, so there is no gap between the original source and the final destination.
+note
+This behavior applies only to temporary tables created with
+CREATE TEMPORARY TABLE
+or
+CREATE TEMP TABLE
+. If you use a permanent table as a staging table, it appears in lineage as its own node, and lineage doesn't connect its upstream and downstream tables directly.
+In the following example, lineage shows
+prod.sales.orders_2025
+and
+prod.sales.orders_2026
+as upstream of
+prod.reports.all_orders
+. Each column in
+prod.reports.all_orders
+traces to the matching column in both source tables.
+SQL
+-- Stage rows from two permanent tables in a temporary table
+CREATE
+TEMP
+TABLE
+temp_orders
+AS
+SELECT
+order_id
+,
+customer_id
+,
+amount
+FROM
+prod
+.
+sales
+.
+orders_2025
+;
+INSERT
+INTO
+temp_orders
+SELECT
+order_id
+,
+customer_id
+,
+amount
+FROM
+prod
+.
+sales
+.
+orders_2026
+;
+-- Write a permanent table from the temporary table
+CREATE
+TABLE
+prod
+.
+reports
+.
+all_orders
+AS
+SELECT
+order_id
+,
+customer_id
+,
+amount
+FROM
+temp_orders
+;
+-- Upstream tables are the permanent sources, not temp_orders
+SELECT
+DISTINCT
+source_table_full_name
+FROM
+system
+.
+access
+.
+table_lineage
+WHERE
+target_table_full_name
+=
+'prod.reports.all_orders'
+;
+-- Downstream tables include prod.reports.all_orders
+SELECT
+DISTINCT
+target_table_full_name
+FROM
+system
+.
+access
+.
+table_lineage
+WHERE
+source_table_full_name
+=
+'prod.sales.orders_2025'
+;
+Column lineage resolves each column to the permanent table it came from. In the following example,
+customer_id
+and
+name
+trace to
+prod.sales.customers
+, and
+amount
+traces to
+prod.sales.orders
+:
+SQL
+CREATE
+TEMP
+TABLE
+temp_customers
+AS
+SELECT
+customer_id
+,
+name
+FROM
+prod
+.
+sales
+.
+customers
+;
+CREATE
+TABLE
+prod
+.
+reports
+.
+customer_orders
+AS
+SELECT
+c
+.
+customer_id
+,
+c
+.
+name
+,
+o
+.
+amount
+FROM
+temp_customers c
+JOIN
+prod
+.
+sales
+.
+orders o
+ON
+c
+.
+customer_id
+=
+o
+.
+customer_id
+;
+-- Returns customers.customer_id, customers.name, and orders.amount as sources
+SELECT
+source_table_full_name
+,
+source_column_name
+,
+target_column_name
+FROM
+system
+.
+access
+.
+column_lineage
+WHERE
+target_table_full_name
+=
+'prod.reports.customer_orders'
+;
+Lineage passes through temporary tables written with
+CREATE [OR REPLACE] TEMP TABLE ... AS SELECT
+,
+INSERT INTO
+, and
+INSERT OVERWRITE
+. Chains of temporary tables, temporary views, and common table expressions (CTEs) resolve to their permanent sources.
+Permissions
+​
+Lineage graphs share the same
+permission model
+as
+Unity Catalog
+. Tables and other data objects registered in the
+Unity Catalog
+metastore are visible only to users who have at least
+BROWSE
+permissions on those objects. If a user does not have the
+BROWSE
+or
+SELECT
+privilege on a table, they cannot explore its lineage.
+Lineage is aggregated across all workspaces attached to a
+Unity Catalog
+metastore, so lineage captured in one workspace is visible in any other workspace that shares that metastore, as long as the user has adequate object permissions. Detailed information about workspace-level objects like notebooks and dashboards in other workspaces is masked. See
+Limitations
+.
+For example, run the following commands for
+userA
+:
+SQL
+GRANT
+USE
+SCHEMA
+on
+lineage_data
+.
+lineagedemo
+to
+`
+userA@company.com
+`
+;
+GRANT
+SELECT
+on
+lineage_data
+.
+lineagedemo
+.
+menu
+to
+`
+userA@company.com
+`
+;
+When
+userA
+views the lineage graph for the
+lineage_data.lineagedemo.menu
+table, they see the
+menu
+table. They cannot see information about associated tables, such as the downstream
+lineage_data.lineagedemo.dinner
+table. The
+dinner
+table appears as a
+masked
+node to
+userA
+, and
+userA
+cannot expand the graph to reveal downstream tables from tables they do not have permission to access.
+If you run the following command to grant the
+BROWSE
+permission to
+userB
+, that user can view the lineage graph for any table in the
+lineage_data
+schema:
+SQL
+GRANT
+BROWSE
+on
+lineage_data
+to
+`
+userB@company.com
+`
+;
+Lineage users must also have specific permissions to view workspace objects like notebooks, jobs, and dashboards. Detailed information about these objects is visible only in the workspace where they were created.
+For more information about managing access to securable objects in
+Unity Catalog
+, see
+Manage privileges in
+Unity Catalog
+. For more information about managing access to workspace objects like notebooks, jobs, and dashboards, see
+Access control lists
+.
+Retention
+​
+Lineage data displayed in Catalog Explorer is retained indefinitely. All lineage data captured after September 1, 2024 is available. For metastores created after that date, Catalog Explorer includes an
+All time
+option in the lineage time-range dropdown. For older metastores, the dropdown includes an
+All available
+option that starts from September 1, 2024. The default selection is
+1 year
+.
+Lineage system tables (
+system.access.table_lineage
+and
+system.access.column_lineage
+) retain a rolling 1-year window of data. See
+Lineage system tables reference
+.
+Limitations
+​
+Data lineage has the following limitations. These limitations also apply to lineage system tables:
+Lineage data captured before September 1, 2024 is not available.
+Jobs that use the Jobs API
+runs submit
+request or the
+spark submit
+task type are unavailable in lineage views. Table and column level lineage is still captured for these workflows, but the link to the job run is not captured.
+Lineage is not preserved for renamed catalogs, schemas, tables, views, or columns.
+If you use Spark SQL dataset checkpointing, lineage is not captured.
+Unity Catalog
+captures lineage from
+Lakeflow pipelines
+in most cases, but coverage is incomplete for pipelines that use
+PRIVATE tables
+.
+Resilient Distributed Datasets (RDDs) are not captured in lineage.
+Global temp views are not captured in lineage.
+Transactions
+emit lineage as each read and write occurs. Lineage events persist even if the transaction is rolled back.
+Tables under
+system.information_schema
+are not captured in lineage.
+Unity Catalog
+captures lineage to the column level as much as possible. However, there are some cases where column-level lineage cannot be captured. These include:
+If the source or the target is referenced as a path (Example:
+select * from delta."s3://<bucket>/<path>"
+), Catalog Explorer and the lineage API don't show column lineage. They show column lineage only when both the source and target are referenced by table name (Example:
+select * from <catalog>.<schema>.<table>
+). The
+system.access.column_lineage
+system table does record column lineage for path references, with the path in
+source_path
+or
+target_path
+instead of a table name. To query these records, see
+Troubleshooting external table queries
+.
+Use of user-defined functions (UDFs) can obscure the mapping between source and target columns.
+Unity Catalog
+captures table-level lineage for UDFs, but not column-level UDF lineage. See
+View UDF lineage
+.
+Additional resources
+​
+Demo
+:
+Unity Catalog - Data Lineage
+ML model lineage
+: To track lineage for a machine learning model, see
+Track the data lineage of a model in
+Unity Catalog
+.
+Table insights
+: The
+Insights
+tab in Catalog Explorer shows usage trends for a table: query patterns, top users, and dashboards that read it. See
+View table insights and popularity
+.
+On this page
+Requirements
+View lineage in Catalog Explorer
+View model service and provider lineage
+View job lineage
+View dashboard lineage
+View UDF lineage
+Get lineage using Genie Code
+Query lineage with system tables
+Lineage through temporary tables
+Permissions
+Retention
+Limitations
+Additional resources

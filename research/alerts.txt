@@ -1,0 +1,95 @@
+On this page
+Last updated
+on
+Oct 15, 2026
+Databricks SQL
+alerts
+Databricks SQL
+alerts run queries on a schedule and notify you when a condition that you define is met against the query result. When you schedule an alert, its associated query runs and the condition is evaluated. You can also view an alert history to review the results of past evaluations.
+To learn how to work with legacy alerts instead, see
+What are legacy alerts?
+.
+What you can do with alerts
+​
+Alerts let you monitor any SQL query result on a schedule. Use them to track business KPIs, monitor data quality, watch cost trends, and catch operational issues across your
+Databricks
+workloads. Common patterns across
+Databricks
+include:
+Monitor business metrics in metric views
+: Reference a
+Unity Catalog
+metric view by its fully qualified name in the alert query to monitor governed business metrics. See
+Alert on metric views
+.
+Detect data quality issues and anomalies
+: Pair alerts with
+Unity Catalog
+data quality monitors and anomaly detection so an unexpected metric, distribution shift, or profile change sends a notification. See
+Alerts for anomaly detection
+and
+Profile alerts
+.
+Track usage and cost
+: Build alerts on system tables for serverless billing or ingestion to catch unexpected spend. See
+Monitor the cost of serverless compute
+and
+Monitor managed ingestion pipeline cost
+.
+Watch SQL warehouse and query health
+: Alert on warehouse events or query history to catch slow queries, failed sessions, or capacity issues. See
+Example queries for monitoring SQL warehouse activity
+and
+Warehouse events system table reference
+.
+Audit access and security events
+: Alert on audit log queries to flag unusual workspace activity. See
+Monitor
+Genie Agents
+usage with audit logs and alerts
+.
+Catch failures in agents
+: Alert on agent quality metrics so failures and emerging issues surface during development and operation. See
+Set up production monitoring
+.
+Run an alert as a task in Lakeflow Jobs
+: Add an alert as a task so condition checks run on a pipeline trigger and downstream tasks can branch on the result. See
+SQL alert task for jobs
+.
+Get started with alerts
+​
+The following pages cover the most common alert tasks, from authoring a new alert to ongoing management:
+Create an alert
+Walk through the alert editor end-to-end. Includes advanced settings and notification template customization.
+SQL alert webhook payload
+Review the JSON payload that an alert sends to a webhook notification destination after a state change.
+Manage alerts
+Find alerts on the listing page, share them, transfer ownership, and track changes with
+Databricks
+Git folders.
+Run alerts as tasks in Lakeflow Jobs
+Add a
+Databricks SQL
+alert as a task in a job so condition checks run on a pipeline trigger and downstream tasks can branch on the result.
+Alert query patterns
+SQL patterns for aggregations, multicolumn conditions, and metric views.
+Differences from legacy alerts
+​
+The latest version of Databricks SQL alerts behaves differently from legacy alerts in a few key ways:
+Query reuse
+: An existing saved SQL query cannot be reused when creating an alert. Each alert owns its query definition, which can be authored directly in the new alert editor.
+Alert status values
+: Alert states are simplified and alerts no longer support the
+UNKNOWN
+status from legacy alerts. Evaluations resolve to
+OK
+,
+TRIGGERED
+, or
+ERROR
+.
+You can continue to use both the latest alerts and legacy alerts side by side while you transition.
+On this page
+What you can do with alerts
+Get started with alerts
+Differences from legacy alerts

@@ -1,0 +1,92 @@
+Last updated
+on
+Oct 22, 2026
+Attribute-based access control in
+Unity Catalog
+Attribute-based access control (ABAC) is an access control model in
+Unity Catalog
+where access is determined by evaluating
+attributes
+associated with
+securable objects
+. These attributes, represented through
+governed tags
+, are used in
+policy
+conditions to identify which data a policy should protect.
+Policies
+are attached at a level in the
+Unity Catalog
+hierarchy, such as a metastore (Beta), catalog, schema, or table, and are evaluated dynamically. When a securable object has the attributes targeted by a policy, that policy takes effect automatically, so a single policy can enforce consistent access rules across an entire metastore, catalog, or schema.
+ABAC supports row and column-level security through
+row filter policies
+and
+column mask policies
+on tables and
+views (Beta)
+. ABAC also supports dynamic privilege grants through
+GRANT policies
+and explicit privilege denials through
+DENY policies
+(Beta), on supported securable types.
+The following topics help you get started with ABAC in
+Unity Catalog
+.
+Topic
+Description
+Core concepts for attribute-based access control (ABAC)
+Covers governed tags, policies, UDFs, policy scope, tag inheritance, and how policies are evaluated and enforced at query time.
+Create and manage row filter and column mask policies
+How to create, edit, view, and delete row filter and column mask policies using Catalog Explorer, SQL, and REST APIs.
+Metastore-level ABAC policies (Beta)
+How to attach policies at the metastore level (Beta) so a single policy applies across every catalog in the metastore.
+ABAC GRANT policies
+How to create and manage GRANT policies for dynamic privilege grants on supported securable types.
+ABAC DENY policies (Beta)
+How to create and manage DENY policies (Beta), which deny the
+MANAGE ACCESS CONTROL
+privilege on supported securable types.
+Row filter and column mask policy evaluation and runtime behavior
+Policy evaluation and enforcement internals and audit logging for tag and policy operations.
+Common patterns for row filtering and column masking
+Reusable patterns for row filtering and column masking, including column masking with identity attributes, masking based on the request context, and
+VARIANT
+-based UDFs for multi-type masking.
+Best practices for ABAC policies
+Recommendations for policy scope, tag taxonomy design, and policy management.
+Performance considerations for row filter and column mask policies
+Performance characteristics of ABAC policies, including UDF complexity, predicate pushdown, and query optimization.
+When to use ABAC vs table-level row filters and column masks
+How to choose between ABAC policies and table-level row filters and column masks, including differences in scope, ownership, and override behavior.
+Requirements, quotas, and limitations for row filter and column mask policies
+Compute requirements, policy quotas, and current ABAC limitations including view support and conflict resolution.
+←
+✕
+Topic
+Description
+Core concepts for attribute-based access control (ABAC)
+Covers governed tags, policies, UDFs, policy scope, tag inheritance, and how policies are evaluated and enforced at query time.
+Create and manage row filter and column mask policies
+How to create, edit, view, and delete row filter and column mask policies using Catalog Explorer, SQL, and REST APIs.
+Metastore-level ABAC policies (Beta)
+How to attach policies at the metastore level (Beta) so a single policy applies across every catalog in the metastore.
+ABAC GRANT policies
+How to create and manage GRANT policies for dynamic privilege grants on supported securable types.
+ABAC DENY policies (Beta)
+How to create and manage DENY policies (Beta), which deny the
+MANAGE ACCESS CONTROL
+privilege on supported securable types.
+Row filter and column mask policy evaluation and runtime behavior
+Policy evaluation and enforcement internals and audit logging for tag and policy operations.
+Common patterns for row filtering and column masking
+Reusable patterns for row filtering and column masking, including column masking with identity attributes, masking based on the request context, and
+VARIANT
+-based UDFs for multi-type masking.
+Best practices for ABAC policies
+Recommendations for policy scope, tag taxonomy design, and policy management.
+Performance considerations for row filter and column mask policies
+Performance characteristics of ABAC policies, including UDF complexity, predicate pushdown, and query optimization.
+When to use ABAC vs table-level row filters and column masks
+How to choose between ABAC policies and table-level row filters and column masks, including differences in scope, ownership, and override behavior.
+Requirements, quotas, and limitations for row filter and column mask policies
+Compute requirements, policy quotas, and current ABAC limitations including view support and conflict resolution.

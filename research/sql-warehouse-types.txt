@@ -1,0 +1,197 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+SQL warehouse types
+Databricks SQL
+supports serverless, pro, and classic types. This article outlines the features available for each type and compares performance and features.
+Additionally,
+Lakehouse Real-Time
+(Beta) is a specialized serverless warehouse type for sub-second, high-concurrency read queries. See
+Lakehouse Real-Time SQL warehouses
+.
+Performance capabilities by type
+​
+Each SQL warehouse type has different performance capabilities. The following table shows the performance features supported by each SQL warehouse type.
+Warehouse type
+Photon Engine
+Predictive IO
+Intelligent Workload Management
+Serverless
+✓
+✓
+✓
+Pro
+✓
+✓
+Classic
+✓
+←
+✕
+Warehouse type
+Photon Engine
+Predictive IO
+Intelligent Workload Management
+Serverless
+✓
+✓
+✓
+Pro
+✓
+✓
+Classic
+✓
+The following list describes each performance feature:
+Photon
+: The built-in vectorized query engine on Databricks. It makes your existing SQL and DataFrame API calls faster and reduces your total cost per workload.
+Predictive IO
+: A suite of features for speeding up selective scan operations in SQL queries. Predictive IO can provide a wide range of speedups.
+Intelligent workload management (IWM)
+: A set of features that enhances
+Databricks SQL
+Serverless's ability to process large numbers of queries quickly and cost-effectively. Using AI-powered prediction and dynamic management techniques, IWM works to verify that workloads have the right amount of resources quickly. The key difference lies in the AI capabilities in
+Databricks SQL
+to respond dynamically to workload demands rather than using static thresholds.
+note
+For pricing for each warehouse type and a detailed feature comparison, see
+Databricks SQL
+. To learn about the latest
+Databricks SQL
+features, see
+Databricks SQL
+release notes
+.
+Performance differences between SQL warehouse types
+​
+Each SQL warehouse type has different performance characteristics.
+Serverless SQL warehouses
+​
+Using the
+Databricks
+serverless architecture
+, a serverless SQL warehouse supports all of the performance features of
+Databricks SQL
+. With a serverless SQL warehouse and its performance features, you get:
+Rapid startup time (typically between 2 and 6 seconds).
+Rapid upscaling to acquire more compute when needed for maintaining low latency.
+Query admittance is closer to the hardware's limitation than the virtual machine.
+Quick downscaling to minimize costs when demand is low, providing consistent performance with optimized costs and resources.
+Choose a serverless SQL warehouse for the best startup performance, the most efficient IO, smarter handling of query demand that varies greatly over time, and rapid autoscaling when query queuing occurs. See
+Intelligent Workload Management and autoscaling
+.
+A serverless SQL warehouse performs well with these types of workloads:
+ETL
+Business intelligence
+Exploratory analysis
+important
+SQL warehouses do not support
+credential passthrough
+. Databricks recommends using
+Unity Catalog
+for data governance. See
+What is
+Unity Catalog
+?
+.
+Pro SQL warehouses
+​
+A pro SQL warehouse supports Photon and Predictive IO, but does not support Intelligent Workload Management. With a pro SQL warehouse (unlike a serverless SQL warehouse), the compute layer exists in
+your AWS account
+account rather than in your
+Databricks
+account. Without Intelligent Workload Management, warehouses are less responsive to query demand that varies greatly over time and cannot autoscale as rapidly as a serverless SQL warehouse. A pro SQL warehouse takes several minutes to start up (typically approximately 4 minutes) and scales up and down with less responsiveness than a serverless SQL warehouse. See
+Queuing and autoscaling logic
+.
+Use a pro SQL warehouse when:
+Serverless SQL warehouses are not available in a region.
+You have custom-defined networking and want to connect to databases in your network in the cloud or on-premises for federation or a hybrid-type architecture. For example, use a pro SQL warehouse if you want to put other services into your network such as an event bus or databases, or you want to connect your network to your on-premises network.
+Classic SQL warehouses
+​
+A classic SQL warehouse supports Photon but does not support Predictive IO or Intelligent Workload Management. With a classic SQL warehouse (unlike a serverless SQL warehouse), the compute layer exists in
+your AWS account
+account rather than in your
+Databricks
+account. Without support for Predictive IO or Intelligent Workload Management, a classic SQL warehouse provides only entry-level performance and less performance than a serverless or a pro SQL warehouse. A classic SQL warehouse also takes several minutes to start up (typically approximately 4 minutes) and scales up and down with less responsiveness than a serverless SQL warehouse. See
+Queuing and autoscaling logic
+.
+Use a classic SQL warehouse to run interactive queries for data exploration with entry-level performance and
+Databricks SQL
+features.
+note
+For information about sizing your SQL warehouse and how it scales in response to query queuing, see
+Queuing and autoscaling logic
+.
+Lakehouse Real-Time SQL warehouses
+​
+Beta
+Lakehouse Real-Time
+(
+Lakehouse//RT
+) is in
+Beta
+.
+Lakehouse Real-Time (
+Lakehouse//RT
+) is a serverless warehouse type built for low-latency, high-concurrency workloads. It delivers sub-second SQL read queries against
+Unity Catalog
+tables, making it suited to serving analytical data to applications, running operational analytics, and powering BI dashboards with hundreds to thousands of concurrent users.
+Lakehouse//RT
+supports (
+SELECT
+) queries only. For details, requirements, and limitations, see
+Lakehouse Real-Time
+.
+What are the warehouse type defaults?
+​
+For workspaces in
+regions
+that support serverless SQL warehouses and satisfy the
+requirements
+:
+Using the UI, the default SQL warehouse type is serverless.
+If your account needs updated
+terms of use
+, workspace admins are prompted in the
+Databricks SQL
+UI.
+Using the
+SQL warehouses API
+with default parameters, the default SQL warehouse type is classic. To use serverless, set the
+enable_serverless_compute
+parameter to
+true
+and
+warehouse_type
+to
+pro
+. If this workspace used the SQL warehouses API to create a warehouse between
+September 1, 2022 and April 30, 2023
+, and fits the requirements for serverless SQL warehouses, the default remains set to
+true
+. To avoid ambiguity, especially for organizations with many workspaces, Databricks recommends always setting this field.
+If the workspace uses a
+legacy external Hive metastore
+, serverless SQL warehouses are not supported. The default SQL warehouse type is the same as if serverless compute were disabled, which is pro in the UI and classic using the API. Also, contact your
+Databricks
+account team to learn more about
+Unity Catalog
+or other options.
+For workspaces that do not support serverless SQL warehouses:
+Using the UI, the default SQL warehouse type is pro.
+Using the
+SQL warehouses API
+with default parameters, the default SQL warehouse type is classic.
+note
+If your account needs updated
+terms of use
+, workspace admins are prompted in the
+Databricks SQL
+UI.
+On this page
+Performance capabilities by type
+Performance differences between SQL warehouse types
+Serverless SQL warehouses
+Pro SQL warehouses
+Classic SQL warehouses
+Lakehouse Real-Time SQL warehouses
+What are the warehouse type defaults?

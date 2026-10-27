@@ -1,0 +1,603 @@
+On this page
+Last updated
+on
+Oct 6, 2026
+Run federated queries on Microsoft Azure Synapse
+This article describes how to set up Lakehouse Federation to run federated queries on Azure Synapse (SQL Data Warehouse) data that is not managed by
+Databricks
+. To learn more about Lakehouse Federation, see
+Connect to external databases and catalogs
+.
+To connect to an Azure Synapse (SQL Data Warehouse) database using Lakehouse Federation, you must create the following in your
+Databricks
+Unity Catalog
+metastore:
+A
+connection
+to your Azure Synapse (SQL Data Warehouse) database.
+A
+foreign catalog
+that mirrors your Azure Synapse (SQL Data Warehouse) database in
+Unity Catalog
+so that you can use
+Unity Catalog
+query syntax and data governance tools to manage
+Databricks
+user access to the database.
+Requirements
+​
+Workspace requirements:
+Workspace enabled for
+Unity Catalog
+. Workspaces created after
+November 8, 2023
+are enabled for
+Unity Catalog
+automatically, including automatic metastore provisioning. You don't need to create a metastore manually unless your workspace predates automatic enablement and hasn't been enabled for
+Unity Catalog
+. See
+Get started with
+Unity Catalog
+.
+Compute requirements:
+Network connectivity from your compute resource to the target database systems. See
+Networking recommendations for Lakehouse Federation
+.
+Databricks
+compute must use
+Databricks Runtime
+13.3 LTS
+or above and
+Standard
+or
+Dedicated
+access mode.
+SQL warehouses must be pro or serverless and must use
+2023.40
+or above.
+Permissions required:
+To create a connection, you must be a metastore admin or a user with the
+CREATE CONNECTION
+privilege on the
+Unity Catalog
+metastore attached to the workspace. In workspaces that were enabled for
+Unity Catalog
+automatically, workspace admins have the
+CREATE CONNECTION
+privilege by default.
+To create a foreign catalog, you must have the
+CREATE CATALOG
+permission on the metastore and be either the owner of the connection or have the
+CREATE FOREIGN CATALOG
+privilege on the connection. In workspaces that were enabled for
+Unity Catalog
+automatically, workspace admins have the
+CREATE CATALOG
+privilege by default.
+Additional permission requirements are specified in each task-based section that follows.
+Create a connection
+​
+A connection specifies a path and credentials for accessing an external database system. To create a connection, you can use Catalog Explorer or the
+CREATE CONNECTION
+SQL command in
+a Databricks
+notebook or the
+Databricks SQL
+query editor.
+note
+You can also use the Databricks REST API or the Databricks CLI to create a connection. See
+POST /api/2.1/unity-catalog/connections
+and
+Unity Catalog commands
+.
+Permissions required:
+Metastore admin or user with the
+CREATE CONNECTION
+privilege.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+At the top of the
+Catalog
+pane, click the
+Add
+icon and select
+Create a connection
+from the menu.
+On the
+Connection basics
+page of the
+Set up connection
+wizard, enter a user-friendly
+Connection name
+.
+Select a
+Connection type
+of
+SQLDW
+.
+(Optional) Add a comment.
+Click
+Next
+.
+On the
+Authentication
+page, enter the following connection properties for your Azure Synapse instance:
+Host
+: For example,
+sqldws-demo.database.windows.net
+.
+Port
+: For example,
+1433
+User
+Password
+Trust server certificate
+: This is deselected by default. When selected, the transport layer uses SSL to encrypt the channel and bypasses the certificate chain to validate trust. Leave this set to the default unless you have a specific need to bypass trust validation.
+Click
+Create connection
+.
+On the
+Catalog basics
+page, enter a name for the foreign catalog. A foreign catalog mirrors a database in an external data system so that you can query and manage access to data in that database using
+Databricks
+and
+Unity Catalog
+.
+(Optional) Click
+Test connection
+to confirm that it works.
+Click
+Create catalog
+.
+On the
+Access
+page, select the workspaces in which users can access the catalog you created. You can select
+All workspaces have access
+, or click
+Assign to workspaces
+, select the workspaces, and then click
+Assign
+.
+Change the
+Owner
+who will be able to manage access to all objects in the catalog. Start typing a principal in the text box, and then click the principal in the returned results.
+Grant
+Privileges
+on the catalog. Click
+Grant
+:
+Specify the
+Principals
+who will have access to objects in the catalog. Start typing a principal in the text box, and then click the principal in the returned results.
+Select the
+Privilege presets
+to grant to each principal. All account users are granted
+BROWSE
+by default.
+Select
+Data Reader
+from the drop-down menu to grant
+read
+privileges on objects in the catalog.
+Select
+Data Editor
+from the drop-down menu to grant
+read
+and
+modify
+privileges on objects in the catalog.
+Manually select the privileges to grant.
+Click
+Grant
+.
+Click
+Next
+.
+On the
+Metadata
+page, specify tags key-value pairs. For more information, see
+Apply tags to
+Unity Catalog
+securable objects
+.
+(Optional) Add a comment.
+Click
+Save
+.
+Run the following command in a notebook or the
+Databricks SQL
+query editor.
+SQL
+CREATE
+CONNECTION
+<
+connection
+-
+name
+>
+TYPE
+sqldw
+OPTIONS
+(
+host
+'<hostname>'
+,
+port
+'<port>'
+,
+user
+'<user>'
+,
+password
+'<password>'
+)
+;
+We recommend that you use
+Databricks
+secrets
+instead of plaintext strings for sensitive values like credentials. For example:
+SQL
+CREATE
+CONNECTION
+<
+connection
+-
+name
+>
+TYPE
+sqldw
+OPTIONS
+(
+host
+'<hostname>'
+,
+port
+'<port>'
+,
+user
+secret
+(
+'<secret-scope>'
+,
+'<secret-key-user>'
+)
+,
+password secret
+(
+'<secret-scope>'
+,
+'<secret-key-password>'
+)
+)
+For information about setting up secrets, see
+Secret management
+.
+Create a foreign catalog
+​
+note
+If you use the UI to create a connection to the data source, foreign catalog creation is included and you can skip this step.
+A foreign catalog mirrors a database in an external data system so that you can query and manage access to data in that database using
+Databricks
+and
+Unity Catalog
+. To create a foreign catalog, you use a connection to the data source that has already been defined.
+To create a foreign catalog, you can use Catalog Explorer or the
+CREATE FOREIGN CATALOG
+SQL command in
+a Databricks
+notebook or the SQL query editor. You can also use the Databricks REST API or the Databricks CLI to create a catalog. See
+POST /api/2.1/unity-catalog/catalogs
+and
+Unity Catalog commands
+.
+Permissions required:
+CREATE CATALOG
+permission on the metastore and either ownership of the connection or the
+CREATE FOREIGN CATALOG
+privilege on the connection.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+to open Catalog Explorer.
+At the top of the
+Catalog
+pane, click the
+Add
+icon and select
+Add a catalog
+from the menu.
+Alternatively, from the
+Quick access
+page, click the
+Catalogs
+button, and then click the
+Create catalog
+button.
+Follow the instructions for creating foreign catalogs in
+Create catalogs
+.
+Run the following SQL command in a notebook or SQL query editor. Items in square brackets are optional. Replace the placeholder values:
+<catalog-name>
+: Name for the catalog in
+Databricks
+.
+<connection-name>
+: The
+connection object
+that specifies the data source, path, and access credentials.
+<database-name>
+: Name of the database you want to mirror as a catalog in
+Databricks
+.
+SQL
+CREATE
+FOREIGN
+CATALOG
+[
+IF
+NOT
+EXISTS
+]
+<
+catalog
+-
+name
+>
+USING
+CONNECTION
+<
+connection
+-
+name
+>
+OPTIONS
+(
+database
+'<database-name>'
+)
+;
+Supported pushdowns
+​
+The following table lists the pushdown operations supported for Azure Synapse (SQL Data Warehouse), along with the compute required for each.
+Pushdown
+Supported compute
+Filters
+All compute
+Contains, Startswith, Endswith
+All compute
+Limit
+All compute
+Mathematical functions
+SIN, COS, FLOOR, ABS (when ANSI is enabled) — partial support, filter expressions only
+All compute
+Miscellaneous functions
+Cast — partial support, filter expressions only
+All compute
+Projections
+All compute
+String functions
+(UPPER, LOWER, CONCAT, TRIM — partial support, filter expressions only)
+All compute
+Aggregates
+(Average, Count, Max, Min, StddevPop, StddevSamp, Sum, VariancePop, VarianceSamp)
+All compute
+Arithmetic operators
+(such as +, -, *, %, /) — not supported if ANSI is disabled
+All compute
+Boolean operators
+(such as =, <=>, <, <=, >, >=)
+All compute
+Bitwise operators
+(&, |, ^ and ~)
+All compute
+Sorting, when used with limit
+All compute
+Joins
+Not supported
+Window functions
+Not supported
+←
+✕
+Pushdown
+Supported compute
+Filters
+All compute
+Contains, Startswith, Endswith
+All compute
+Limit
+All compute
+Mathematical functions
+SIN, COS, FLOOR, ABS (when ANSI is enabled) — partial support, filter expressions only
+All compute
+Miscellaneous functions
+Cast — partial support, filter expressions only
+All compute
+Projections
+All compute
+String functions
+(UPPER, LOWER, CONCAT, TRIM — partial support, filter expressions only)
+All compute
+Aggregates
+(Average, Count, Max, Min, StddevPop, StddevSamp, Sum, VariancePop, VarianceSamp)
+All compute
+Arithmetic operators
+(such as +, -, *, %, /) — not supported if ANSI is disabled
+All compute
+Boolean operators
+(such as =, <=>, <, <=, >, >=)
+All compute
+Bitwise operators
+(&, |, ^ and ~)
+All compute
+Sorting, when used with limit
+All compute
+Joins
+Not supported
+Window functions
+Not supported
+Data type mappings
+​
+When you read from Synapse / SQL Data Warehouse to Spark, data types map as follows:
+Synapse type
+Spark type
+decimal
+,
+money
+,
+numeric
+,
+smallmoney
+DecimalType
+smallint
+ShortType
+tinyint
+ByteType
+int
+IntegerType
+bigint
+LongType
+real
+FloatType
+float
+DoubleType
+char
+,
+nchar
+,
+ntext
+,
+nvarchar
+,
+text
+,
+uniqueidentifier
+,
+varchar
+,
+xml
+StringType
+binary
+,
+geography
+,
+geometry
+,
+image
+,
+timestamp
+,
+udt
+,
+varbinary
+BinaryType
+bit
+BooleanType
+date
+DateType
+datetime
+,
+datetime2
+,
+smalldatetime
+,
+time
+TimestampType
+/
+TimestampNTZType
+*
+←
+✕
+Synapse type
+Spark type
+decimal
+,
+money
+,
+numeric
+,
+smallmoney
+DecimalType
+smallint
+ShortType
+tinyint
+ByteType
+int
+IntegerType
+bigint
+LongType
+real
+FloatType
+float
+DoubleType
+char
+,
+nchar
+,
+ntext
+,
+nvarchar
+,
+text
+,
+uniqueidentifier
+,
+varchar
+,
+xml
+StringType
+binary
+,
+geography
+,
+geometry
+,
+image
+,
+timestamp
+,
+udt
+,
+varbinary
+BinaryType
+bit
+BooleanType
+date
+DateType
+datetime
+,
+datetime2
+,
+smalldatetime
+,
+time
+TimestampType
+/
+TimestampNTZType
+*
+*When you read from Synapse / SQL Data Warehouse (SQLDW), SQLDW
+datetimes
+are mapped to Spark
+TimestampType
+if
+preferTimestampNTZ = false
+(default). SQLDW
+datetimes
+are mapped to
+TimestampNTZType
+if
+preferTimestampNTZ = true
+.
+On this page
+Requirements
+Create a connection
+Create a foreign catalog
+Supported pushdowns
+Data type mappings

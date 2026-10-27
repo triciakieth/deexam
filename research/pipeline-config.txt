@@ -1,0 +1,538 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+Configure pipelines
+Configure the basic settings for a pipeline, including source code, target catalog and schema, compute, and pipeline mode, in the workspace UI.
+Databricks recommends developing new pipelines using serverless. For configuration instructions for serverless pipelines, see
+Configure a serverless pipeline
+.
+The configuration instructions in this page use
+Unity Catalog
+. For instructions for configuring pipelines with legacy
+Hive metastore
+, see
+Use
+Lakeflow pipelines
+with legacy
+Hive metastore
+.
+This page discusses functionality for the current default publishing mode for pipelines. Pipelines created before February 5, 2025 might use the legacy publishing mode and
+LIVE
+virtual schema. See
+LIVE schema (legacy)
+.
+note
+The UI has an option to display and edit settings in JSON. You can configure most settings with either the UI or a JSON specification. Some advanced options are only available using the JSON configuration.
+JSON configuration files are also helpful when deploying pipelines to new environments or using the CLI or
+REST API
+.
+For a complete reference to the pipeline JSON configuration settings, see
+Pipeline configurations
+.
+Pipeline settings
+​
+Pipeline settings fall into two categories:
+Source code
+: The collection of files that declare datasets using pipeline syntax. See
+Configure source code
+.
+Infrastructure
+: Settings that control compute, how updates are processed, and where tables are stored.
+Most settings have reasonable defaults, but two require attention before running in production:
+Target catalog and schema
+: To make data available outside the pipeline, declare a target catalog and schema. Data is published to
+Unity Catalog
+by default. See
+Set the target catalog and schema
+.
+Data access
+: The compute used for execution must have permissions configured for your data sources and, if specified, a storage location.
+Configure a new pipeline
+​
+To configure a new pipeline, do the following:
+At the top of the sidebar, click
+New
+and then select
+ETL pipeline
+.
+At the top, give your pipeline a unique name.
+Under the name, you can see the default catalog and schema that have been chosen for you. Change these to give your pipeline different defaults.
+The default
+catalog
+and the default
+schema
+are where datasets are read from or written to when you do not qualify datasets with a catalog or schema in your code. See
+Database objects in
+Databricks
+for more information.
+Select your preferred option to create a pipeline:
+Start with sample code in SQL
+to create a new pipeline and folder structure, including sample code in SQL.
+Start with sample code in Python
+to create a new pipeline and folder structure, including sample code in Python.
+Start with a single transformation
+to create a new pipeline and folder structure, with a new blank code file.
+Add existing assets
+to create a pipeline that you can associate with existing code files in your workspace.
+Create a source-controlled project
+to create a pipeline with a new
+Declarative Automation Bundles
+project, or to add the pipeline to an existing bundle.
+You can have both SQL and Python source code files in your ETL pipeline. When creating a new pipeline and choosing a language for the sample code, the language is only for the sample code included in your pipeline by default.
+When you make your selection, you are redirected to the newly created pipeline.
+The ETL pipeline is created with the following default settings:
+Unity Catalog
+Current channel
+Serverless compute
+This configuration is recommended for many use cases, including development and testing, and is well-suited to production workloads that should run on a schedule. For details on scheduling pipelines, see
+Pipeline task for jobs
+.
+You can adjust these settings from the pipeline toolbar.
+Alternatively, you can create an ETL pipeline from the workspace browser:
+Click
+Workspace
+in the left side pane.
+Select any folder, including Git folders.
+Click
+Create
+in the upper-right corner, and click
+ETL pipeline
+.
+You can also create an ETL pipeline from the jobs and pipelines page:
+In your workspace, click
+Jobs & Pipelines
+in the sidebar.
+Under
+New
+, click
+ETL Pipeline
+.
+Compute configuration options
+​
+Databricks recommends always using
+Enhanced autoscaling
+. Default values for other compute configurations work well for many pipelines.
+Serverless pipelines remove compute configuration options. For configuration instructions for serverless pipelines, see
+Configure a serverless pipeline
+.
+Use the following settings to customize compute configurations:
+Workspace admins can configure a
+Cluster policy
+. Compute policies allow admins to control what compute options are available to users. See
+Select a compute policy
+.
+You can optionally configure
+Cluster mode
+to run with
+Fixed size
+or
+Legacy autoscaling
+. See
+Optimize
+Lakeflow pipeline
+cluster utilization with autoscaling
+.
+For workloads with autoscaling enabled, set
+Min workers
+and
+Max workers
+to set limits for scaling behaviors. See
+Configure classic compute for pipelines
+.
+You can optionally turn off Photon acceleration. See
+What is Photon?
+.
+Select an
+Instance profile
+if your pipeline uses an instance profile to control access to cloud services. See
+Cloud storage configuration
+.
+Use
+Cluster tags
+to help monitor costs associated with pipelines. See
+Configure compute tags
+.
+Configure
+Instance types
+to specify the type of virtual machines used to run your pipeline. See
+Select instance types to run a pipeline
+.
+Select a
+Worker type
+optimized for the workloads configured in your pipeline.
+You can optionally select a
+Driver type
+that differs from your worker type. This can be useful for reducing costs in pipelines with large worker types and low driver compute utilization or for choosing a larger driver type to avoid out-of-memory issues in workloads with many small workers.
+Set the run-as user
+​
+Run-as user allows you to change the identity that a pipeline uses to run, and the ownership of the tables it creates or updates. This is useful in situations where the original user who created the pipeline has been deactivated, for example, if they left the company. In those cases, the pipeline can stop working, and the tables it published can become inaccessible to others. By updating the pipeline to run as a different identity, such as a service principal, and reassigning ownership of the published tables, you can restore access and ensure the pipeline continues to function. Running pipelines as service principals is considered a best practice because they are not tied to individual users, making them more secure, stable, and reliable for automated workloads.
+Required permissions
+​
+For the user making the change:
+CAN_MANAGE
+permissions on the pipeline
+CAN_USE
+role on the service principal (if setting run-as to a service principal)
+Membership in the group, or
+Assume
+permission on the group (if setting run-as to a group). See
+Set the run-as identity to a group
+.
+For the run-as user, service principal, or group:
+Workspace Access:
+Workspace access
+permission to operate within the workspace
+Can use
+permission on cluster policies used by the pipeline
+Compute creation permission in the workspace
+Source Code Access:
+Can read
+permission on all notebooks included in the pipeline source code
+Can read
+permission on workspace files if the pipeline uses them
+Unity Catalog
+Permissions
+(for pipelines using
+Unity Catalog
+):
+USE CATALOG
+on the target catalog
+USE SCHEMA
+and
+CREATE TABLE
+on the target schema
+MODIFY
+permission on existing tables that the pipeline updates
+CREATE SCHEMA
+permission if the pipeline creates new schemas
+Legacy
+Hive metastore
+Permissions
+(for pipelines using
+Hive metastore
+):
+SELECT
+and
+MODIFY
+permissions on target databases and tables
+Additional Cloud Storage Access
+(if applicable):
+Permissions to read from source storage locations
+Permissions to write to target storage locations
+How to set the run-as user
+​
+You can set the
+run-as
+user through the pipeline settings from the pipeline monitoring page or the pipeline editor. To change the user from the pipeline monitoring page:
+Click
+Jobs & Pipelines
+to open the list of pipelines, and select the name of the pipeline you wish to edit.
+On the pipeline monitoring page, click
+Settings
+.
+In the
+Pipeline settings
+sidebar, click
+Edit
+next to
+Run as
+.
+In the edit widget, select one of the following options:
+Your own user account
+A service principal for which you have
+CAN_USE
+permission
+An account group that you are a member of, or that you have
+Assume
+permission on. See
+Set the run-as identity to a group
+.
+Click
+Save
+to apply the changes.
+When you successfully update the run-as user:
+The pipeline identity changes to use the new user, service principal, or group for all future runs
+In
+Unity Catalog
+pipelines, the owner of tables published by the pipeline is updated to match the new run-as identity
+Future pipeline updates use the permissions and credentials of the new run-as identity
+Like any settings change, the new identity applies to the next pipeline update: continuous pipelines automatically restart with the new identity, while triggered pipelines apply it on their next run. The run-as change can interrupt an active update. See
+How configuration changes take effect
+.
+note
+If the update of run-as fails, you receive an error message explaining the reason for the failure. Common issues include insufficient permissions on the service principal.
+Set the run-as identity to a group
+​
+Setting a pipeline's
+Run as
+identity to an account group works the same way as setting it to a user or a service principal. Pipeline updates run with the group's permissions, and in
+Unity Catalog
+pipelines the tables the pipeline publishes are owned by the group. Use a group when you want a team to own an automated pipeline rather than tying it to one person's account, so the pipeline keeps working as team membership changes.
+In
+Databricks
+, a role is implemented as a group, so a pipeline whose
+Run as
+is set to a group runs as that role. See
+Role-based access control (RBAC)
+.
+Setting
+Run as
+to a group does not change who owns the pipeline. Ownership and the run-as identity are separate settings. To change the owner, see
+Change the pipeline owner
+.
+To configure
+Run as
+to a group, you must either:
+Be a member of the group, or
+Have
+Assume
+permission on the group, if the group is being used for
+exclusive access
+.
+The group must be an account group that is assigned to the workspace. Workspace-local groups cannot be used as a run-as identity, and neither can the broad built-in groups
+admins
+,
+users
+, and
+account users
+.
+Grant the group every permission the pipeline needs, as listed in
+Required permissions
+. Because updates run as the group, granting yourself access to the pipeline's source code and data is not enough.
+To set
+Run as
+to a group in the workspace UI, follow the steps in
+How to set the run-as user
+and search for the group in the edit widget. Groups appear alongside users and service principals. To confirm the change, reopen the
+Pipeline settings
+sidebar and check that
+Run as
+shows the group.
+To set a group as the run-as identity with the REST API, set
+run_as.group_name
+to the group's name. To create a pipeline that runs as a group, run the following:
+JSON
+{
+"name"
+:
+"sales-etl"
+,
+"run_as"
+:
+{
+"group_name"
+:
+"Test Group"
+}
+}
+For the full request, see
+Create a pipeline
+. When you update an existing pipeline definition, set
+updated_run_as.group_name
+instead.
+To set a group as the run-as identity in a
+Declarative Automation Bundles
+bundle, set
+group_name
+in the pipeline resource's
+run_as
+mapping:
+YAML
+resources
+:
+pipelines
+:
+sales_etl
+:
+name
+:
+sales
+-
+etl
+run_as
+:
+group_name
+:
+Test Group
+A
+SET OWNER TO
+SQL statement cannot set a group as the owner of a
+materialized view
+or
+streaming table
+. Use the workspace UI for that. See
+Use
+ALTER
+statements with pipeline datasets
+.
+Jobs support the same run-as group configuration. See
+Set Run as to a group
+.
+Other configuration considerations
+​
+The following configuration options are also available for pipelines:
+The
+Advanced
+product edition gives you access to all pipeline features. You can optionally run pipelines using the
+Pro
+or
+Core
+product editions. See
+Choose a product edition
+.
+Set the
+Pipeline mode
+to control how the pipeline processes data. See
+Set the pipeline mode
+.
+To run a pipeline continuously in production, Databricks recommends wrapping it in a continuous job rather than using the pipeline's built-in
+Continuous
+mode. See
+Run a continuous pipeline with a continuous job
+.
+If your workspace is not configured for
+Unity Catalog
+or your workload needs to use legacy
+Hive metastore
+, see
+Use
+Lakeflow pipelines
+with legacy
+Hive metastore
+.
+Add
+Notifications
+for email updates based on success or failure conditions. See
+Add email notifications for pipeline events
+.
+Use the
+Parameters
+field to declare key-value pairs that your SQL source code can reference with the
+named parameter
+syntax, and that can be overridden when starting an update or from a job. See
+Use parameters with pipelines
+.
+Use the
+Configuration
+field to set Spark configuration values that control pipeline behavior, such as
+pipelines.enzyme.enabled
+. See
+Pipeline properties reference
+. For Python pipelines that need parameterization, the Configuration field also exposes values to
+spark.conf.get()
+. See
+Reference parameters using the configuration field
+.
+Configure
+Tags
+. Tags are key-value pairs for the pipeline that are visible in the
+Jobs & Pipelines list
+. Pipeline tags are not associated with billing.
+Use the
+Preview
+channel to test your pipeline against pending pipeline runtime changes and trial new features.
+Set the pipeline mode
+​
+The
+Pipeline mode
+setting controls how a pipeline processes data:
+Triggered
+is the default. The pipeline refreshes all tables with the data available when the update starts and then stops, so compute runs only for the duration of the update. Run triggered pipelines on demand or on a schedule. See
+Pipeline task for jobs
+.
+Continuous
+keeps tables fresh by processing new data as it arrives in the sources. This reduces the delay between new data and updated results, at the cost of an always-running cluster. Choose continuous mode only when you have a proven low-latency requirement.
+To set the mode, use the
+Pipeline mode
+option in the pipeline settings when you create or edit a pipeline. For a full comparison of the two modes and guidance on choosing between them, see
+Triggered vs. continuous pipeline mode
+.
+How configuration changes take effect
+​
+When you edit and save a pipeline's settings, the change applies to the next pipeline update. When a
+continuous job
+orchestrates the pipeline, you don't need to restart the job for the updated settings to take effect; the job applies them on the next update. The job's schedule determines the execution mode, not the pipeline's
+Pipeline mode
+setting. See
+Run a continuous pipeline with a continuous job
+.
+If you use the pipeline's built-in
+Pipeline mode
+setting instead of a continuous job:
+Continuous pipelines
+automatically restart with the updated configuration. This can interrupt an active update.
+Changing the type
+from triggered to continuous automatically starts a new update with the updated settings. Conversely, changing the type from continuous to triggered cancels an active update.
+Choose a product edition
+​
+Select the product edition with the best features for your pipeline requirements. The following product editions are available:
+Core
+to run streaming ingest workloads. Select the
+Core
+edition if your pipeline doesn't require advanced features such as change data capture (CDC) or expectations.
+Pro
+to run streaming ingest and CDC workloads. The
+Pro
+product edition supports all of the
+Core
+features, plus support for workloads that require updating tables based on changes in source data.
+Advanced
+to run streaming ingest workloads, CDC workloads, and workloads that require expectations. The
+Advanced
+product edition supports the features of the
+Core
+and
+Pro
+editions and includes data quality constraints with expectations.
+You can select the product edition when you create or edit a pipeline. You can choose a different edition for each pipeline. For details, including a more comprehensive feature breakdown by edition, see the
+Apache Spark™ Declarative Pipelines
+on Databricks product page
+.
+note
+Serverless pipelines require the
+Advanced
+edition. Classic compute supports all editions.
+Pipelines retain 60 days of past updates in the pipeline UI and the
+Pipelines API
+.
+Active (non-terminal) updates always appear. If an update is older than the retention window,
+Databricks
+excludes it from list responses but keeps it in the underlying event log.
+Note: If your pipeline includes features not supported by the selected product edition, such as expectations, you receive an error message explaining the reason for the error. You can then edit the pipeline to select the appropriate edition.
+Configure source code
+​
+You can use the asset browser in the Lakeflow Pipelines Editor to configure the source code defining your pipeline. Pipeline source code is defined in SQL or Python scripts stored in workspace files. When you create or edit your pipeline, you can add one or more files. By default, pipeline source code is located in the
+transformations
+folder in your pipeline's root folder.
+Because pipelines automatically analyze dataset dependencies to construct the processing graph, you can add source code assets in any order.
+For more details on using the Lakeflow Pipelines Editor, see
+Develop and debug ETL pipelines with the Lakeflow Pipelines Editor
+.
+Manage external dependencies for pipelines that use Python
+​
+Pipelines support using external dependencies in your pipelines, such as Python packages and libraries. To learn about options and recommendations for using dependencies, see
+Manage Python dependencies for pipelines
+.
+Use Python modules stored in your
+Databricks
+workspace
+​
+In addition to implementing your Python code in pipeline source code files, you can use Databricks Git Folders or workspace files to store your code as Python modules. Storing your code as Python modules is especially useful when you have common functionality you want to use in multiple pipelines or notebooks in the same pipeline. To learn how to use Python modules with your pipelines, see
+Import Python modules from Git folders or workspace files
+.
+On this page
+Pipeline settings
+Configure a new pipeline
+Compute configuration options
+Set the run-as user
+Required permissions
+How to set the run-as user
+Set the run-as identity to a group
+Other configuration considerations
+Set the pipeline mode
+How configuration changes take effect
+Choose a product edition
+Configure source code
+Manage external dependencies for pipelines that use Python
+Use Python modules stored in your Databricks workspace

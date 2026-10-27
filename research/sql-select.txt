@@ -1,0 +1,492 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+SELECT
+(subselect)
+Applies to:
+Databricks SQL
+Databricks Runtime
+Composes a result set from one or more
+table references
+.
+The
+SELECT
+clause can be part of a query which also includes common table expressions (CTE), set operations, and various other clauses.
+Syntax
+​
+SELECT clause
+FROM table_reference [, ...]
+[ LATERAL VIEW clause ]
+[ WHERE clause ]
+[ GROUP BY clause ]
+[ HAVING clause]
+[ QUALIFY clause ]
+named_expression
+expression [ column_alias ]
+star_clause
+[ { table_name | view_name } . ] * [ except_clause ]
+except_clause
+EXCEPT ( { column_name | field_name } [, ...] )
+Parameters
+​
+SELECT clause
+Collects the columns to be returned from the subquery, including the execution of expressions, aggregations, and deduplication.
+table_reference
+A source of input for the
+SELECT
+. This input reference can be turned into a streaming reference by using the
+STREAM
+keyword prior to the reference.
+If the
+table_reference
+is a
+metric view
+, there must be no other table reference in the
+FROM
+clause.
+LATERAL VIEW
+Used in conjunction with generator functions such as
+EXPLODE
+, which generates a virtual table containing one or more rows.
+LATERAL VIEW
+applies the rows to each original output row.
+In
+Databricks SQL
+, and starting with
+Databricks Runtime
+12.2 this clause is deprecated. You should invoke a table valued generator function as a
+table_reference
+.
+WHERE
+Filters the result of the
+FROM
+clause based on the supplied predicates.
+GROUP BY
+The expressions that are used to group the rows. This is used in conjunction with aggregate functions (
+MIN
+,
+MAX
+,
+COUNT
+,
+SUM
+,
+AVG
+) to group rows based on the grouping expressions and aggregate values in each group. When a
+FILTER
+clause is attached to an aggregate function, only the matching rows are passed to that function.
+HAVING
+The predicates by which the rows produced by
+GROUP BY
+are filtered. The
+HAVING
+clause is used to
+filter rows after the grouping is performed. If you specify
+HAVING
+without
+GROUP BY
+, it indicates a
+GROUP BY
+without grouping expressions (global aggregate).
+QUALIFY
+The predicates that are used to filter the results of window functions.
+To use
+QUALIFY
+, at least one
+window function
+is required to be present in the SELECT list or the QUALIFY clause.
+Common error conditions
+​
+EXCEPT_OVERLAPPING_COLUMNS
+MISSING_AGGREGATION
+NESTED_AGGREGATE_FUNCTION
+WINDOW_FUNCTION_WITHOUT_OVER_CLAUSE
+Select on Delta table
+​
+In addition to the standard
+SELECT
+options, Delta tables support the time travel options described in this section. For details, see
+Work with table history
+.
+AS OF
+syntax
+​
+table_identifier TIMESTAMP AS OF timestamp_expression
+table_identifier VERSION AS OF version
+timestamp_expression
+can be any one of:
+'2018-10-18T22:15:12.013Z'
+, that is, a string that can be cast to a timestamp
+cast('2018-10-18 13:36:32 CEST' as timestamp)
+'2018-10-18'
+, that is, a date string
+current_timestamp() - interval 12 hours
+date_sub(current_date(), 1)
+Any other expression that is or can be cast to a timestamp
+version
+is a long value that can be obtained from the output of
+DESCRIBE HISTORY table_spec
+.
+Neither
+timestamp_expression
+nor
+version
+can be subqueries.
+Example
+​
+SQL
+>
+SELECT
+*
+FROM
+events
+TIMESTAMP
+AS
+OF
+'2018-10-18T22:15:12.013Z'
+>
+SELECT
+*
+FROM
+events VERSION
+AS
+OF
+123
+@
+syntax
+​
+Use the
+@
+syntax to specify the timestamp or version. The timestamp must be in
+yyyyMMddHHmmssSSS
+format. You can specify a version after
+@
+by prepending a
+v
+to the version. For example, to query version
+123
+for the table
+events
+, specify
+events@v123
+.
+Example
+​
+SQL
+>
+SELECT
+*
+FROM
+events
+@20190101000000000
+>
+SELECT
+*
+FROM
+events
+@v123
+Examples
+​
+SQL
+-- select all referencable columns from all tables
+>
+SELECT
+*
+FROM
+VALUES
+(
+1
+,
+2
+)
+AS
+t1
+(
+c1
+,
+c2
+)
+,
+VALUES
+(
+3
+,
+4
+)
+AS
+t2
+(
+c3
+,
+c4
+)
+;
+1
+2
+3
+4
+-- select all referencable columns from one table
+>
+SELECT
+t2
+.
+*
+FROM
+VALUES
+(
+1
+,
+2
+)
+AS
+t1
+(
+c1
+,
+c2
+)
+,
+VALUES
+(
+3
+,
+4
+)
+AS
+t2
+(
+c3
+,
+c4
+)
+;
+3
+4
+-- select all referencable columns from all tables except t2.c4
+>
+SELECT
+*
+EXCEPT
+(
+c4
+)
+FROM
+VALUES
+(
+1
+,
+2
+)
+AS
+t1
+(
+c1
+,
+c2
+)
+,
+VALUES
+(
+3
+,
+4
+)
+AS
+t2
+(
+c3
+,
+c4
+)
+;
+1
+2
+3
+-- select all referencable columns from a table, except a nested field.
+>
+SELECT
+*
+EXCEPT
+(
+c2
+.
+b
+)
+FROM
+VALUES
+(
+1
+,
+named_struct
+(
+'a'
+,
+2
+,
+'b'
+,
+3
+)
+)
+AS
+t
+(
+c1
+,
+c2
+)
+;
+1
+{
+"a"
+:
+2
+}
+-- Removing all fields results in an empty struct
+>
+SELECT
+*
+EXCEPT
+(
+c2
+.
+b
+,
+c2
+.
+a
+)
+FROM
+VALUES
+(
+1
+,
+named_struct
+(
+'a'
+,
+2
+,
+'b'
+,
+3
+)
+)
+AS
+t
+(
+c1
+,
+c2
+)
+;
+1
+{ }
+-- Overlapping names result in an error
+>
+SELECT
+*
+EXCEPT
+(
+c2
+,
+c2
+.
+a
+)
+FROM
+VALUES
+(
+1
+,
+named_struct
+(
+'a'
+,
+2
+,
+'b'
+,
+3
+)
+)
+AS
+t
+(
+c1
+,
+c2
+)
+;
+Error: EXCEPT_OVERLAPPING_COLUMNS
+-- Non-aggregated column without `GROUP BY`.
+>
+SELECT
+c1
+,
+sum
+(
+c2
+)
+FROM
+VALUES
+(
+1
+,
+2
+)
+,
+(
+1
+,
+3
+)
+AS
+t
+(
+c1
+,
+c2
+)
+;
+Error: MISSING_AGGREGATION
+Related articles
+​
+CLUSTER BY clause
+Common table expression (CTE)
+DISTRIBUTE BY clause
+GROUP BY clause
+HAVING clause
+QUALIFY clause
+Hints
+VALUES clause
+JOIN
+LATERAL VIEW clause
+LIMIT clause
+OFFSET clause
+ORDER BY clause
+PIVOT clause
+Query
+SELECT clause
+Set operators
+SORT BY clause
+Star clause
+TABLESAMPLE clause
+Table-valued function (TVF)
+table reference
+UNPIVOT clause
+WHERE clause
+WINDOW clause
+Window functions
+On this page
+Syntax
+Parameters
+Common error conditions
+Select on Delta table
+AS OF
+syntax
+@
+syntax
+Examples
+Related articles

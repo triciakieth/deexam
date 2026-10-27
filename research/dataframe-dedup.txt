@@ -1,0 +1,474 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Optimize stateful processing with watermarks
+To effectively manage the data kept in state, use watermarks when performing stateful stream processing in
+Lakeflow pipelines
+, including aggregations, joins, and deduplication. The following sections show how to apply watermarks in your pipeline queries, with examples of the recommended operations.
+For more about streaming tables, see
+Streaming tables
+.
+note
+To ensure queries that perform aggregations are processed incrementally and not fully recomputed with each update, you must use watermarks.
+What is a watermark?
+​
+In stream processing, a
+watermark
+is an
+Apache Spark
+feature that can define a time-based threshold for processing data when performing stateful operations such as aggregations. Data arriving is processed until the threshold is reached, at which point the time window defined by the threshold is closed. Watermarks can be used to avoid problems during query processing, mainly when processing larger datasets or long-running processing. These problems can include high latency in producing results and even out-of-memory (OOM) errors because of the amount of data kept in state during processing. Because streaming data is inherently unordered, watermarks also support correctly calculating operations like time-window aggregations.
+To learn more about using watermarks in stream processing, see
+Watermarking in Apache Spark Structured Streaming
+and
+Apply watermarks to control data processing thresholds
+.
+How do you define a watermark?
+​
+You define a watermark by specifying a timestamp field and a value representing the time threshold for
+late data
+to arrive. Data is considered late if it arrives after the defined time threshold. For example, if the threshold is defined as 10 minutes, records arriving after the 10-minute threshold might be dropped.
+Because records that arrive after the defined threshold might be dropped, selecting a threshold that meets your latency vs. correctness requirements is important. Choosing a smaller threshold results in records being emitted sooner but also means late records are more likely to be dropped. A larger threshold means a longer wait but possibly more completeness of data. Because of the larger state size, a larger threshold might also require additional computing resources. Because the threshold value depends on your data and processing requirements, testing and monitoring your processing is important to determine an optimal threshold.
+You use the
+withWatermark()
+function in Python to define a watermark. In SQL, use the
+WATERMARK
+clause to define a watermark:
+Python
+SQL
+Python
+withWatermark
+(
+"timestamp"
+,
+"3 minutes"
+)
+SQL
+WATERMARK
+timestamp
+DELAY
+OF
+INTERVAL
+3
+MINUTES
+Use watermarks with stream-stream joins
+​
+For stream-stream joins, you must define a watermark on both sides of the join and a time interval clause. Because each join source has an incomplete view of the data, the time interval clause is required to tell the streaming engine when no further matches can be made. The time interval clause must use the same fields used to define the watermarks.
+Because there might be times when each stream requires different thresholds for watermarks, the streams do not need to have the same thresholds. To avoid missing data, the streaming engine maintains one global watermark based on the slowest stream.
+The following example joins a stream of ad impressions and a stream of user clicks on ads. In this example, a click must occur within 3 minutes of the impression. After the 3-minute time interval passes, rows from the state that can no longer be matched are dropped.
+Python
+SQL
+Python
+from
+pyspark
+import
+pipelines
+as
+dp
+dp
+.
+create_streaming_table
+(
+"adImpressionClicks"
+)
+@dp
+.
+append_flow
+(
+target
+=
+"adImpressionClicks"
+)
+def
+joinClicksAndImpressions
+(
+)
+:
+clicksDf
+=
+(
+spark
+.
+readStream
+.
+table
+(
+"rawClicks"
+)
+.
+withWatermark
+(
+"clickTimestamp"
+,
+"3 minutes"
+)
+)
+impressionsDf
+=
+(
+spark
+.
+readStream
+.
+table
+(
+"rawAdImpressions"
+)
+.
+withWatermark
+(
+"impressionTimestamp"
+,
+"3 minutes"
+)
+)
+joinDf
+=
+impressionsDf
+.
+alias
+(
+"imp"
+)
+.
+join
+(
+clicksDf
+.
+alias
+(
+"click"
+)
+,
+expr
+(
+"""
+imp.userId = click.userId AND
+clickAdId = impressionAdId AND
+clickTimestamp >= impressionTimestamp AND
+clickTimestamp <= impressionTimestamp + interval 3 minutes
+"""
+)
+,
+"inner"
+)
+.
+select
+(
+"imp.userId"
+,
+"impressionAdId"
+,
+"clickTimestamp"
+,
+"impressionSeconds"
+)
+return
+joinDf
+SQL
+CREATE
+OR
+REFRESH STREAMING
+TABLE
+silver
+.
+adImpressionClicks
+AS
+SELECT
+imp
+.
+userId
+,
+impressionAdId
+,
+clickTimestamp
+,
+impressionSeconds
+FROM
+STREAM
+(
+bronze
+.
+rawAdImpressions
+)
+WATERMARK
+impressionTimestamp DELAY
+OF
+INTERVAL
+3
+MINUTES imp
+INNER
+JOIN
+STREAM
+(
+bronze
+.
+rawClicks
+)
+WATERMARK clickTimestamp DELAY
+OF
+INTERVAL
+3
+MINUTES click
+ON
+imp
+.
+userId
+=
+click
+.
+userId
+AND
+clickAdId
+=
+impressionAdId
+AND
+clickTimestamp
+>=
+impressionTimestamp
+AND
+clickTimestamp
+<=
+impressionTimestamp
++
+interval
+3
+minutes
+Perform windowed aggregations with watermarks
+​
+A common stateful operation on streaming data is a windowed aggregation. Windowed aggregations are similar to grouped aggregations, except that aggregate values are returned for the set of rows that are part of the defined window.
+A window can be defined as a certain length, and an aggregation operation can be performed on all rows that are part of that window. Spark Streaming supports three types of windows:
+Tumbling (fixed) windows
+: A series of fixed-sized, non-overlapping, and contiguous time intervals. An input record belongs to only a single window.
+Sliding windows
+: Similar to tumbling windows, sliding windows are fixed-sized, but windows can overlap, and a record can fall into multiple windows.
+When data arrives past the end of the window plus the length of the watermark, no new data is accepted for the window, the result of the aggregation is emitted, and the state for the window is dropped.
+The following example calculates a sum of impressions every 5 minutes using a fixed window. In this example, the select clause uses the alias
+impressions_window
+, and then the window itself is defined as part of the
+GROUP BY
+clause. The window must be based on the same timestamp column as the watermark, the
+clickTimestamp
+column in this example.
+SQL
+CREATE
+OR
+REFRESH STREAMING
+TABLE
+gold
+.
+adImpressionSeconds
+AS
+SELECT
+impressionAdId
+,
+window
+(
+clickTimestamp
+,
+"5 minutes"
+)
+as
+impressions_window
+,
+sum
+(
+impressionSeconds
+)
+as
+totalImpressionSeconds
+FROM
+STREAM
+(
+silver
+.
+adImpressionClicks
+)
+WATERMARK
+clickTimestamp DELAY
+OF
+INTERVAL
+3
+MINUTES
+GROUP
+BY
+impressionAdId
+,
+window
+(
+clickTimestamp
+,
+"5 minutes"
+)
+A similar example in Python to calculate profit over hourly fixed windows:
+Python
+from
+pyspark
+import
+pipelines
+as
+dp
+from
+pyspark
+.
+sql
+.
+functions
+import
+expr
+,
+window
+@dp
+.
+table
+(
+)
+def
+profit_by_hour
+(
+)
+:
+return
+(
+spark
+.
+readStream
+.
+table
+(
+"sales"
+)
+.
+withWatermark
+(
+"timestamp"
+,
+"1 hour"
+)
+.
+groupBy
+(
+window
+(
+"timestamp"
+,
+"1 hour"
+)
+.
+alias
+(
+"time"
+)
+)
+.
+agg
+(
+expr
+(
+"sum(profit) AS profit"
+)
+)
+)
+Deduplicate streaming records
+​
+Structured Streaming has exactly-once processing guarantees but does not automatically de-duplicate records from data sources. For example, because many message queues have at-least once guarantees, duplicate records should be expected when reading from one of these message queues. You can use the
+dropDuplicatesWithinWatermark()
+function to de-duplicate records on any specified field, removing duplicates from a stream even if some fields differ (such as event time or arrival time). You must specify a watermark to use the
+dropDuplicatesWithinWatermark()
+function. All duplicate data that arrives within the time range specified by the watermark are dropped.
+Ordered data is important because out-of-order data causes the watermark value to jump ahead incorrectly. Then, when older data arrives, it is considered late and dropped. Use the
+withEventTimeOrder
+option to process the initial snapshot in order based on the timestamp specified in the watermark. The
+withEventTimeOrder
+option can be declared in the code defining the dataset or in the
+pipeline settings
+using
+spark.databricks.delta.withEventTimeOrder.enabled
+. For example:
+JSON
+{
+"spark_conf"
+:
+{
+"spark.databricks.delta.withEventTimeOrder.enabled"
+:
+"true"
+}
+}
+note
+The
+withEventTimeOrder
+option is supported only with Python.
+In the following example, data is processed ordered by
+clickTimestamp
+, and records arriving within 5 seconds of each other that contain duplicate
+userId
+and
+clickAdId
+columns are dropped.
+Python
+clicksDedupDf
+=
+(
+spark
+.
+readStream
+.
+option
+(
+"withEventTimeOrder"
+,
+"true"
+)
+.
+table
+(
+"rawClicks"
+)
+.
+withWatermark
+(
+"clickTimestamp"
+,
+"5 seconds"
+)
+.
+dropDuplicatesWithinWatermark
+(
+[
+"userId"
+,
+"clickAdId"
+]
+)
+)
+Optimize pipeline configuration for stateful processing
+​
+To help prevent production issues and excessive latency, Databricks recommends enabling RocksDB-based state management for your stateful stream processing, particularly if your processing requires saving a large amount of intermediate state.
+Serverless pipelines automatically manage state store configurations.
+You can enable RocksDB-based state management by setting the following configuration before deploying a pipeline:
+JSON
+{
+"configuration"
+:
+{
+"spark.sql.streaming.stateStore.providerClass"
+:
+"com.databricks.sql.streaming.state.RocksDBStateStoreProvider"
+}
+}
+To learn more about the RocksDB state store, including configuration recommendations for RocksDB, see
+Configure RocksDB state store on
+Databricks
+.
+For stateful operations that require millisecond latency, see
+Use real-time mode in
+Lakeflow pipelines
+.
+On this page
+What is a watermark?
+How do you define a watermark?
+Use watermarks with stream-stream joins
+Perform windowed aggregations with watermarks
+Deduplicate streaming records
+Optimize pipeline configuration for stateful processing

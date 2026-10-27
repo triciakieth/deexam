@@ -191,5 +191,841 @@
     "title": "PySpark on Databricks | Databricks on AWS",
     "characters": 7215,
     "retrieved": "2026-10-27"
+  },
+  "pool-config": {
+    "url": "https://docs.databricks.com/aws/en/compute/pools",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/pools",
+    "title": "Pool configuration reference | Databricks on AWS",
+    "characters": 8768,
+    "retrieved": "2026-10-27"
+  },
+  "single-node": {
+    "url": "https://docs.databricks.com/aws/en/compute/configure#single-node",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/single-node",
+    "title": "Compute configuration reference | Databricks on AWS",
+    "characters": 34153,
+    "retrieved": "2026-10-27"
+  },
+  "query-schedules": {
+    "url": "https://docs.databricks.com/aws/en/sql/user/queries/schedule-query",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/user/queries/schedule-query",
+    "title": "Schedule a query | Databricks on AWS",
+    "characters": 2818,
+    "retrieved": "2026-10-27"
+  },
+  "alerts": {
+    "url": "https://docs.databricks.com/aws/en/sql/user/alerts/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/user/alerts/",
+    "title": "Databricks SQL alerts | Databricks on AWS",
+    "characters": 3579,
+    "retrieved": "2026-10-27"
+  },
+  "notifications": {
+    "url": "https://docs.databricks.com/aws/en/admin/workspace-settings/notification-destinations",
+    "requestedUrl": "https://docs.databricks.com/aws/en/admin/workspace-settings/notification-destinations",
+    "title": "Manage notification destinations | Databricks on AWS",
+    "characters": 8778,
+    "retrieved": "2026-10-27"
+  },
+  "job-notifications": {
+    "url": "https://docs.databricks.com/aws/en/jobs/notifications",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/notifications",
+    "title": "Add notifications on a job | Databricks on AWS",
+    "characters": 7603,
+    "retrieved": "2026-10-27"
+  },
+  "job-schedules": {
+    "url": "https://docs.databricks.com/aws/en/jobs/scheduled",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/scheduled",
+    "title": "Run jobs on a schedule | Databricks on AWS",
+    "characters": 1987,
+    "retrieved": "2026-10-27"
+  },
+  "job-history": {
+    "url": "https://docs.databricks.com/aws/en/jobs/monitor",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/monitor",
+    "title": "Monitor Lakeflow Jobs | Databricks on AWS",
+    "characters": 17056,
+    "retrieved": "2026-10-27"
+  },
+  "pipeline-modes": {
+    "url": "https://docs.databricks.com/aws/en/ldp/concepts/pipeline-mode",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-live-tables/pipeline-mode",
+    "title": "Triggered vs. continuous pipeline mode | Databricks on AWS",
+    "characters": 5591,
+    "retrieved": "2026-10-27"
+  },
+  "pipeline-config": {
+    "url": "https://docs.databricks.com/aws/en/ldp/configure-pipeline",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-live-tables/configure-pipeline",
+    "title": "Configure pipelines | Databricks on AWS",
+    "characters": 18902,
+    "retrieved": "2026-10-27"
+  },
+  "pipeline-sql": {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/sql-dev",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-live-tables/sql-dev",
+    "title": "Develop Lakeflow pipelines code with SQL | Databricks on AWS",
+    "characters": 9598,
+    "retrieved": "2026-10-27"
+  },
+  "stream-table": {
+    "url": "https://docs.databricks.com/aws/en/ldp/concepts/streaming-tables",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/streaming-tables",
+    "title": "Streaming tables | Databricks on AWS",
+    "characters": 6609,
+    "retrieved": "2026-10-27"
+  },
+  "stream-checkpoint": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+    "requestedUrl": "https://docs.databricks.com/aws/en/structured-streaming/checkpoints",
+    "title": "Structured Streaming checkpoints | Databricks on AWS",
+    "characters": 12145,
+    "retrieved": "2026-10-27"
+  },
+  "auto-schema": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema",
+    "title": "Configure schema inference and evolution in Auto Loader | Databricks on AWS",
+    "characters": 16095,
+    "retrieved": "2026-10-27"
+  },
+  "merge": {
+    "url": "https://docs.databricks.com/aws/en/delta/merge",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/merge",
+    "title": "Upsert into a Delta Lake table using merge | Databricks on AWS",
+    "characters": 17964,
+    "retrieved": "2026-10-27"
+  },
+  "history": {
+    "url": "https://docs.databricks.com/aws/en/tables/history",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/history",
+    "title": "Work with table history | Databricks on AWS",
+    "characters": 13930,
+    "retrieved": "2026-10-27"
+  },
+  "drop-table": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-drop-table",
+    "title": "DROP TABLE | Databricks on AWS",
+    "characters": 3954,
+    "retrieved": "2026-10-27"
+  },
+  "describe-schema": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-describe-schema",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-aux-describe-schema",
+    "title": "DESCRIBE SCHEMA | Databricks on AWS",
+    "characters": 2364,
+    "retrieved": "2026-10-27"
+  },
+  "create-schema": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-schema",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-schema",
+    "title": "CREATE SCHEMA | Databricks on AWS",
+    "characters": 7101,
+    "retrieved": "2026-10-27"
+  },
+  "sql-function": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function",
+    "title": "CREATE FUNCTION (SQL, Python, Scala, and Java) | Databricks on AWS",
+    "characters": 26162,
+    "retrieved": "2026-10-27"
+  },
+  "filter-function": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/filter",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/filter",
+    "title": "filter function | Databricks on AWS",
+    "characters": 830,
+    "retrieved": "2026-10-27"
+  },
+  "explode-function": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/explode",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/explode",
+    "title": "explode table-valued generator function | Databricks on AWS",
+    "characters": 2823,
+    "retrieved": "2026-10-27"
+  },
+  "pivot": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-pivot",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-pivot",
+    "title": "PIVOT clause | Databricks on AWS",
+    "characters": 7168,
+    "retrieved": "2026-10-27"
+  },
+  "set-ops": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-setops",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-setops",
+    "title": "Set operators | Databricks on AWS",
+    "characters": 3313,
+    "retrieved": "2026-10-27"
+  },
+  "query-files": {
+    "url": "https://docs.databricks.com/aws/en/query/formats/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query/formats/",
+    "title": "Data format options | Databricks on AWS",
+    "characters": 3709,
+    "retrieved": "2026-10-27"
+  },
+  "jdbc": {
+    "url": "https://docs.databricks.com/aws/en/archive/connectors/jdbc",
+    "requestedUrl": "https://docs.databricks.com/aws/en/connect/external-systems/jdbc",
+    "title": "Query databases using JDBC | Databricks on AWS",
+    "characters": 12231,
+    "retrieved": "2026-10-27"
+  },
+  "ownership": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/ownership",
+    "title": "Manage privileges in Unity Catalog | Databricks on AWS",
+    "characters": 13984,
+    "retrieved": "2026-10-27"
+  },
+  "legacy-acl": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/table-acls/object-privileges",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/table-acls/object-privileges",
+    "title": "Hive metastore privileges and securable objects (legacy) | Databricks on AWS",
+    "characters": 9519,
+    "retrieved": "2026-10-27"
+  },
+  "catalog-explorer": {
+    "url": "https://docs.databricks.com/aws/en/catalog-explorer/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/catalog-explorer/",
+    "title": "What is Catalog Explorer? | Databricks on AWS",
+    "characters": 1680,
+    "retrieved": "2026-10-27"
+  },
+  "python-udf": {
+    "url": "https://docs.databricks.com/aws/en/udf/python",
+    "requestedUrl": "https://docs.databricks.com/aws/en/udf/python",
+    "title": "Python scalar user-defined functions (UDFs) | Databricks on AWS",
+    "characters": 15678,
+    "retrieved": "2026-10-27"
+  },
+  "pyspark-dataframes": {
+    "url": "https://docs.databricks.com/aws/en/pyspark/dataframes",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "serverless-limit": {
+    "url": "https://docs.databricks.com/aws/en/compute/serverless/limitations",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/serverless/limitations",
+    "title": "Serverless compute limitations | Databricks on AWS",
+    "characters": 9465,
+    "retrieved": "2026-10-27"
+  },
+  "connect-requirements": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/requirements",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/requirements",
+    "title": "Databricks Connect usage requirements | Databricks on AWS",
+    "characters": 8820,
+    "retrieved": "2026-10-27"
+  },
+  "bundle-commands": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/cli/bundle-commands",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/cli/bundle-commands",
+    "title": "bundle command group | Databricks on AWS",
+    "characters": 39943,
+    "retrieved": "2026-10-27"
+  },
+  "bundle-settings": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/settings",
+    "title": "Declarative Automation Bundles configuration | Databricks on AWS",
+    "characters": 9961,
+    "retrieved": "2026-10-27"
+  },
+  "query-profile": {
+    "url": "https://docs.databricks.com/aws/en/sql/user/queries/query-profile",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/user/queries/query-profile",
+    "title": "Query profile | Databricks on AWS",
+    "characters": 9073,
+    "retrieved": "2026-10-27"
+  },
+  "spark-ui": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/",
+    "title": "Diagnose cost and performance issues using the Spark UI | Databricks on AWS",
+    "characters": 1853,
+    "retrieved": "2026-10-27"
+  },
+  "photon": {
+    "url": "https://docs.databricks.com/aws/en/compute/photon",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/photon",
+    "title": "What is Photon? | Databricks on AWS",
+    "characters": 7757,
+    "retrieved": "2026-10-27"
+  },
+  "shuffle": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "title": "Adaptive query execution | Databricks on AWS",
+    "characters": 12610,
+    "retrieved": "2026-10-27"
+  },
+  "sql-warehouse-types": {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "title": "SQL warehouse types | Databricks on AWS",
+    "characters": 7401,
+    "retrieved": "2026-10-27"
+  },
+  "predictive": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/predictive-optimization",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/predictive-optimization",
+    "title": "Predictive optimization for Unity Catalog managed tables | Databricks on AWS",
+    "characters": 11278,
+    "retrieved": "2026-10-27"
+  },
+  "task-notebook": {
+    "url": "https://docs.databricks.com/aws/en/jobs/tasks/notebook",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/notebook",
+    "title": "Notebook task for jobs | Databricks on AWS",
+    "characters": 4904,
+    "retrieved": "2026-10-27"
+  },
+  "parameters": {
+    "url": "https://docs.databricks.com/aws/en/jobs/parameter-use",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/parameter-use",
+    "title": "Access parameter values from a task | Databricks on AWS",
+    "characters": 10378,
+    "retrieved": "2026-10-27"
+  },
+  "widgets": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/widgets",
+    "requestedUrl": "https://docs.databricks.com/aws/en/notebooks/widgets",
+    "title": "Databricks widgets | Databricks on AWS",
+    "characters": 9570,
+    "retrieved": "2026-10-27"
+  },
+  "stream-joins": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/streaming-joins",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "parquet": {
+    "url": "https://docs.databricks.com/aws/en/query/formats/parquet",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query/formats/parquet",
+    "title": "Read and write Parquet files | Databricks on AWS",
+    "characters": 5978,
+    "retrieved": "2026-10-27"
+  },
+  "csv": {
+    "url": "https://docs.databricks.com/aws/en/query/formats/csv",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query/formats/csv",
+    "title": "Read and write CSV files | Databricks on AWS",
+    "characters": 11757,
+    "retrieved": "2026-10-27"
+  },
+  "dataframes": {
+    "url": "https://docs.databricks.com/aws/en/getting-started/dataframes",
+    "requestedUrl": "https://docs.databricks.com/aws/en/getting-started/dataframes",
+    "title": "Tutorial: Load and transform data using Apache Spark DataFrames | Databricks on AWS",
+    "characters": 22436,
+    "retrieved": "2026-10-27"
+  },
+  "join": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-join",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-join",
+    "title": "JOIN | Databricks on AWS",
+    "characters": 6927,
+    "retrieved": "2026-10-27"
+  },
+  "warehouse-create": {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/create",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/create",
+    "title": "Create a SQL warehouse | Databricks on AWS",
+    "characters": 7639,
+    "retrieved": "2026-10-27"
+  },
+  "python-spark": {
+    "url": "https://docs.databricks.com/aws/en/udf/python",
+    "requestedUrl": "https://docs.databricks.com/aws/en/udf/python",
+    "title": "Python scalar user-defined functions (UDFs) | Databricks on AWS",
+    "characters": 15678,
+    "retrieved": "2026-10-27"
+  },
+  "stream-read-write": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/delta-lake",
+    "requestedUrl": "https://docs.databricks.com/aws/en/structured-streaming/delta-lake",
+    "title": "Delta Lake table streaming reads and writes | Databricks on AWS",
+    "characters": 28967,
+    "retrieved": "2026-10-27"
+  },
+  "stream-overview": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/concepts",
+    "requestedUrl": "https://docs.databricks.com/aws/en/structured-streaming/",
+    "title": "Structured Streaming concepts | Databricks on AWS",
+    "characters": 3309,
+    "retrieved": "2026-10-27"
+  },
+  "python-control": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/ipython-debugger",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "liquid": {
+    "url": "https://docs.databricks.com/aws/en/tables/clustering",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/clustering",
+    "title": "Use liquid clustering for tables | Databricks on AWS",
+    "characters": 39685,
+    "retrieved": "2026-10-27"
+  },
+  "repair": {
+    "url": "https://docs.databricks.com/aws/en/jobs/repair-job-failures",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/repair-job-failures",
+    "title": "Troubleshoot and repair job failures | Databricks on AWS",
+    "characters": 6934,
+    "retrieved": "2026-10-27"
+  },
+  "sharing-cost": {
+    "url": "https://docs.databricks.com/aws/en/delta-sharing/manage-usage",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "sharing-open": {
+    "url": "https://docs.databricks.com/aws/en/opensharing/share-data-open",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-sharing/share-data-open",
+    "title": "What is the Databricks-to-Open sharing protocol? | Databricks on AWS",
+    "characters": 6213,
+    "retrieved": "2026-10-27"
+  },
+  "audit-logs": {
+    "url": "https://docs.databricks.com/aws/en/admin/account-settings/audit-logs",
+    "requestedUrl": "https://docs.databricks.com/aws/en/admin/account-settings/audit-logs",
+    "title": "Audit log reference | Databricks on AWS",
+    "characters": 399692,
+    "retrieved": "2026-10-27"
+  },
+  "binary": {
+    "url": "https://docs.databricks.com/aws/en/query/formats/binary",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query/formats/binary",
+    "title": "Read binary files | Databricks on AWS",
+    "characters": 5916,
+    "retrieved": "2026-10-27"
+  },
+  "kafka": {
+    "url": "https://docs.databricks.com/aws/en/connect/streaming/kafka",
+    "requestedUrl": "https://docs.databricks.com/aws/en/connect/streaming/kafka",
+    "title": "Connect to Apache Kafka | Databricks on AWS",
+    "characters": 12457,
+    "retrieved": "2026-10-27"
+  },
+  "ldp-python": {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/python-dev",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/developer/python-dev",
+    "title": "Develop pipeline code with Python | Databricks on AWS",
+    "characters": 13514,
+    "retrieved": "2026-10-27"
+  },
+  "bundles-overview": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/",
+    "title": "What are Declarative Automation Bundles? | Databricks on AWS",
+    "characters": 7385,
+    "retrieved": "2026-10-27"
+  },
+  "compute": {
+    "url": "https://docs.databricks.com/aws/en/compute/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/",
+    "title": "Compute | Databricks on AWS",
+    "characters": 3009,
+    "retrieved": "2026-10-27"
+  },
+  "serverless-jobs": {
+    "url": "https://docs.databricks.com/aws/en/jobs/run-serverless-jobs",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/run-serverless-jobs",
+    "title": "Run your Lakeflow Jobs with serverless compute for workflows | Databricks on AWS",
+    "characters": 9059,
+    "retrieved": "2026-10-27"
+  },
+  "sql-select": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select",
+    "title": "SELECT (subselect) | Databricks on AWS",
+    "characters": 5374,
+    "retrieved": "2026-10-27"
+  },
+  "group-by": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-groupby",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-groupby",
+    "title": "GROUP BY clause | Databricks on AWS",
+    "characters": 12047,
+    "retrieved": "2026-10-27"
+  },
+  "sum-function": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/sum",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/sum",
+    "title": "sum aggregate function | Databricks on AWS",
+    "characters": 2486,
+    "retrieved": "2026-10-27"
+  },
+  "count-function": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count",
+    "title": "count aggregate function | Databricks on AWS",
+    "characters": 1836,
+    "retrieved": "2026-10-27"
+  },
+  "audit-delivery": {
+    "url": "https://docs.databricks.com/aws/en/admin/account-settings/audit-log-delivery",
+    "requestedUrl": "https://docs.databricks.com/aws/en/admin/account-settings/audit-log-delivery",
+    "title": "Configure audit log delivery | Databricks on AWS",
+    "characters": 8817,
+    "retrieved": "2026-10-27"
+  },
+  "sharing-egress": {
+    "url": "https://docs.databricks.com/aws/en/opensharing/manage-egress",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-sharing/manage-egress",
+    "title": "Monitor and manage OpenSharing egress costs (for providers) | Databricks on AWS",
+    "characters": 7607,
+    "retrieved": "2026-10-27"
+  },
+  "skew": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/long-spark-stage-page",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/long-spark-stage-page",
+    "title": "Skew and spill | Databricks on AWS",
+    "characters": 4008,
+    "retrieved": "2026-10-27"
+  },
+  "memory": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/spark-memory-issues",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/spark-memory-issues",
+    "title": "Spark memory issues | Databricks on AWS",
+    "characters": 2622,
+    "retrieved": "2026-10-27"
+  },
+  "ldp-legacy": {
+    "url": "https://docs.databricks.com/aws/en/ldp/developer/python-ref",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/developer/python-ref",
+    "title": "Lakeflow pipelines Python language reference | Databricks on AWS",
+    "characters": 6885,
+    "retrieved": "2026-10-27"
+  },
+  "lineage": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage",
+    "title": "Lineage in Unity Catalog | Databricks on AWS",
+    "characters": 16120,
+    "retrieved": "2026-10-27"
+  },
+  "abac": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/",
+    "title": "Attribute-based access control in Unity Catalog | Databricks on AWS",
+    "characters": 4894,
+    "retrieved": "2026-10-27"
+  },
+  "row-filters": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/filters-and-masks/",
+    "title": "Row filters and column masks | Databricks on AWS",
+    "characters": 13278,
+    "retrieved": "2026-10-27"
+  },
+  "external-location": {
+    "url": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage#external-locations",
+    "requestedUrl": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/external-locations",
+    "title": "Connect to cloud object storage using Unity Catalog | Databricks on AWS",
+    "characters": 10302,
+    "retrieved": "2026-10-27"
+  },
+  "managed-tables": {
+    "url": "https://docs.databricks.com/aws/en/tables/managed",
+    "requestedUrl": "https://docs.databricks.com/aws/en/tables/managed",
+    "title": "Unity Catalog managed tables for Delta Lake and Apache Iceberg | Databricks on AWS",
+    "characters": 14505,
+    "retrieved": "2026-10-27"
+  },
+  "metastores": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/create-metastore",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/create-metastore",
+    "title": "Create a Unity Catalog metastore | Databricks on AWS",
+    "characters": 7378,
+    "retrieved": "2026-10-27"
+  },
+  "lakeflow-connect": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/",
+    "title": "Lakeflow Connect connector concepts | Databricks on AWS",
+    "characters": 10419,
+    "retrieved": "2026-10-27"
+  },
+  "job-table-trigger": {
+    "url": "https://docs.databricks.com/aws/en/jobs/trigger-table-update",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/trigger-table-update",
+    "title": "Trigger jobs when source tables are updated | Databricks on AWS",
+    "characters": 8970,
+    "retrieved": "2026-10-27"
+  },
+  "job-if-else": {
+    "url": "https://docs.databricks.com/aws/en/jobs/tasks/if-else",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/if-else",
+    "title": "Add branching logic to a job with the If/else task | Databricks on AWS",
+    "characters": 3827,
+    "retrieved": "2026-10-27"
+  },
+  "job-queue": {
+    "url": "https://docs.databricks.com/aws/en/jobs/configure-job",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/configure-job",
+    "title": "Configure and edit Lakeflow Jobs | Databricks on AWS",
+    "characters": 9680,
+    "retrieved": "2026-10-27"
+  },
+  "sharing-notebooks": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/share-notebooks",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "convert-managed": {
+    "url": "https://docs.databricks.com/aws/en/tables/convert-to-managed",
+    "requestedUrl": "https://docs.databricks.com/aws/en/tables/convert-external-managed",
+    "title": "Convert external or foreign Delta Lake tables to Unity Catalog managed tables | Databricks on AWS",
+    "characters": 28602,
+    "retrieved": "2026-10-27"
+  },
+  "sharing-d2d": {
+    "url": "https://docs.databricks.com/aws/en/opensharing/share-data-databricks",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-sharing/share-data-databricks",
+    "title": "What is the OpenSharing Databricks-to-Databricks protocol? | Databricks on AWS",
+    "characters": 6824,
+    "retrieved": "2026-10-27"
+  },
+  "salesforce": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/salesforce-concepts",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/salesforce",
+    "title": "Salesforce ingestion connector | Databricks on AWS",
+    "characters": 5678,
+    "retrieved": "2026-10-27"
+  },
+  "snowflake-connect": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/snowflake",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "sqlserver": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server-source-setup",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/sql-server",
+    "title": "Configure Microsoft SQL Server for ingestion into Databricks | Databricks on AWS",
+    "characters": 2598,
+    "retrieved": "2026-10-27"
+  },
+  "file-events": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode",
+    "title": "Configure Auto Loader streams in file notification mode | Databricks on AWS",
+    "characters": 34284,
+    "retrieved": "2026-10-27"
+  },
+  "pipeline-events": {
+    "url": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/monitor-event-logs",
+    "title": "Pipeline event log | Databricks on AWS",
+    "characters": 26739,
+    "retrieved": "2026-10-27"
+  },
+  "view-overview": {
+    "url": "https://docs.databricks.com/aws/en/views/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/views/",
+    "title": "What is a view? | Databricks on AWS",
+    "characters": 6526,
+    "retrieved": "2026-10-27"
+  },
+  "managed-storage": {
+    "url": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/managed-storage",
+    "requestedUrl": "https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/managed-storage",
+    "title": "Specify a managed storage location in Unity Catalog | Databricks on AWS",
+    "characters": 8613,
+    "retrieved": "2026-10-27"
+  },
+  "grant": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/security-grant",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/security-grant",
+    "title": "GRANT | Databricks on AWS",
+    "characters": 1855,
+    "retrieved": "2026-10-27"
+  },
+  "sql-null": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-null-semantics",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-null-semantics",
+    "title": "NULL semantics | Databricks on AWS",
+    "characters": 15198,
+    "retrieved": "2026-10-27"
+  },
+  "snowflake-sources": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/sources/snowflake",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "null-is": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/isnull",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/isnull",
+    "title": "isnull function | Databricks on AWS",
+    "characters": 1176,
+    "retrieved": "2026-10-27"
+  },
+  "dropna": {
+    "url": "https://docs.databricks.com/aws/en/pyspark/dropna",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "from-json": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/from_json",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/from_json",
+    "title": "from_json function | Databricks on AWS",
+    "characters": 6130,
+    "retrieved": "2026-10-27"
+  },
+  "struct": {
+    "url": "https://docs.databricks.com/aws/en/complex-types",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "window": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-window-functions",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-window-functions",
+    "title": "Window functions | Databricks on AWS",
+    "characters": 5358,
+    "retrieved": "2026-10-27"
+  },
+  "materialized": {
+    "url": "https://docs.databricks.com/aws/en/sql/mv-st/materialized",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/dbsql/materialized",
+    "title": "Use standalone materialized views | Databricks on AWS",
+    "characters": 18155,
+    "retrieved": "2026-10-27"
+  },
+  "file-upload": {
+    "url": "https://docs.databricks.com/aws/en/volumes/volume-files",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/file-upload/upload-data",
+    "title": "Work with files in Unity Catalog volumes | Databricks on AWS",
+    "characters": 21827,
+    "retrieved": "2026-10-27"
+  },
+  "warehouse-net": {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-types",
+    "title": "SQL warehouse types | Databricks on AWS",
+    "characters": 7401,
+    "retrieved": "2026-10-27"
+  },
+  "notebook-limits": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/notebook-limitations",
+    "requestedUrl": "https://docs.databricks.com/aws/en/notebooks/notebook-limitations",
+    "title": "Known limitations of Databricks notebooks | Databricks on AWS",
+    "characters": 5914,
+    "retrieved": "2026-10-27"
+  },
+  "dedup": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+    "requestedUrl": "https://docs.databricks.com/aws/en/structured-streaming/watermarks",
+    "title": "Apply watermarks to control data processing thresholds | Databricks on AWS",
+    "characters": 14341,
+    "retrieved": "2026-10-27"
+  },
+  "broadcast": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/aqe",
+    "title": "Adaptive query execution | Databricks on AWS",
+    "characters": 12610,
+    "retrieved": "2026-10-27"
+  },
+  "query-pg": {
+    "url": "https://docs.databricks.com/aws/en/query-federation/postgresql",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query-federation/postgresql",
+    "title": "Run federated queries on PostgreSQL | Databricks on AWS",
+    "characters": 13014,
+    "retrieved": "2026-10-27"
+  },
+  "query-synapse": {
+    "url": "https://docs.databricks.com/aws/en/query-federation/sqldw",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query-federation/sqldw",
+    "title": "Run federated queries on Microsoft Azure Synapse | Databricks on AWS",
+    "characters": 10651,
+    "retrieved": "2026-10-27"
+  },
+  "get-json": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/get_json_object",
+    "title": "get_json_object function | Databricks on AWS",
+    "characters": 2089,
+    "retrieved": "2026-10-27"
+  },
+  "complex-data": {
+    "url": "https://docs.databricks.com/aws/en/semi-structured/complex-types",
+    "requestedUrl": "https://docs.databricks.com/aws/en/semi-structured/complex-types",
+    "title": "Transform complex data types | Databricks on AWS",
+    "characters": 5180,
+    "retrieved": "2026-10-27"
+  },
+  "driver-memory": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/spark-ui-guide/spark-driver-memory",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "join-hints": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-hints",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-hints",
+    "title": "Hints | Databricks on AWS",
+    "characters": 7343,
+    "retrieved": "2026-10-27"
+  },
+  "static-broadcast": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/aqe#should-i-still-use-a-broadcast-join-hint-with-aqe-enabled",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/aqe#should-i-still-use-a-broadcast-join-hint-with-aqe-enabled",
+    "title": "Adaptive query execution | Databricks on AWS",
+    "characters": 12610,
+    "retrieved": "2026-10-27"
+  },
+  "upload-ui": {
+    "url": "https://docs.databricks.com/aws/en/volumes/volume-files",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/file-upload/upload-data",
+    "title": "Work with files in Unity Catalog volumes | Databricks on AWS",
+    "characters": 21827,
+    "retrieved": "2026-10-27"
+  },
+  "create-upload": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/file-upload/create-table",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "df-null": {
+    "url": "https://docs.databricks.com/aws/en/pyspark/query",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "dataframe-dedup": {
+    "url": "https://docs.databricks.com/aws/en/ldp/stateful-processing",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ldp/stateful-processing",
+    "title": "Optimize stateful processing with watermarks | Databricks on AWS",
+    "characters": 9928,
+    "retrieved": "2026-10-27"
+  },
+  "managed-services-keys": {
+    "url": "https://docs.databricks.com/aws/en/security/keys/customer-managed-keys-managed-services",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "manage-control": {
+    "url": "https://docs.databricks.com/aws/en/getting-started/high-level-architecture",
+    "requestedUrl": "https://docs.databricks.com/aws/en/getting-started/overview",
+    "title": "High-level architecture | Databricks on AWS",
+    "characters": 7420,
+    "retrieved": "2026-10-27"
+  },
+  "null-safe": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/lteqgtsign",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/lteqgtsign",
+    "title": "<=> (lt eq gt sign) operator | Databricks on AWS",
+    "characters": 1596,
+    "retrieved": "2026-10-27"
+  },
+  "static-spark-config": {
+    "url": "https://docs.databricks.com/aws/en/optimizations/aqe#what-is-the-difference-between-spark-sql-autobroadcastjointhreshold-and-spark-databricks-adaptive-autobroadcastjointhreshold",
+    "requestedUrl": "https://docs.databricks.com/aws/en/optimizations/aqe#what-is-the-difference-between-spark-sql-autobroadcastjointhreshold-and-spark-databricks-adaptive-autobroadcastjointhreshold",
+    "title": "Adaptive query execution | Databricks on AWS",
+    "characters": 12610,
+    "retrieved": "2026-10-27"
+  },
+  "pandas-conversion": {
+    "url": "https://docs.databricks.com/aws/en/pandas/pyspark-pandas-conversion",
+    "requestedUrl": "https://docs.databricks.com/aws/en/pandas/pyspark-pandas-conversion",
+    "title": "Convert between PySpark and pandas DataFrames | Databricks on AWS",
+    "characters": 2980,
+    "retrieved": "2026-10-27"
+  },
+  "pandas-memory": {
+    "url": "https://docs.databricks.com/aws/en/pandas/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/pandas/",
+    "title": "Can you use pandas on Databricks? | Databricks on AWS",
+    "characters": 4264,
+    "retrieved": "2026-10-27"
   }
 }

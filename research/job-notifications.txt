@@ -1,0 +1,309 @@
+On this page
+Last updated
+on
+Oct 9, 2026
+Add notifications on a job
+You can set up notifications to be sent on runs of a job and individual job tasks for the following events:
+Start
+Successful completion
+Failure
+The duration exceeds a configured threshold
+A streaming backlog metric exceeds a configured threshold
+Maintenance start, for continuous jobs with a configured maintenance window.
+Maintenance complete, for continuous jobs with a configured maintenance window.
+You can send notifications to one or more email addresses or third-party destinations such as Slack, Microsoft Teams, PagerDuty, or any webhook-based service. This article describes the different ways you can set up job-level notifications.
+Add third-party system destinations
+​
+You can set up notifications to be delivered to third-party systems. Third-party system destinations integrate with popular notification tools, including Slack, PagerDuty, Microsoft Teams, and
+HTTP webhooks
+. An administrator must configure system destinations.
+note
+Some external systems, such as Amazon SES and SNS, can integrate using email notifications. See
+Setting up Amazon SES email receiving
+.
+To configure system destinations, go to the admin settings page, click
+Edit system notifications
+and then click
+Create new destination
+. For each job or task, you can configure a maximum of three system destinations for each notification event type. See
+admin settings page
+.
+important
+The content of Slack and Microsoft Teams messages might change in future releases. You should not implement clients or processing that depend on the specific content or formatting of these messages. If you require a specific schema or formatting for notifications, Databricks recommends configuring a user-defined webhook.
+Configure notifications on a job
+​
+Before you begin, consider the following:
+Job-level notifications aren't sent when failed tasks are retried. To receive a failure notification after every failed task, use task notifications instead. To add notifications for task runs, click Add next to
+Notifications
+in the task pane when you add or edit a job task.
+For each job or task, you can configure a maximum of three system destinations for each notification event type.
+A job that has been completed in a
+Succeeded with failures state
+is considered to be in a successful state. To be notified when jobs have been completed in this state, you must select Success when you configure notifications.
+To be notified when your job exceeds a duration limit, you must set the limit. See
+Configure notifications for slow jobs
+.
+To add or edit notifications on a job, you need the CAN MANAGE or IS OWNER permission on the job. See
+Control access to a job
+.
+To add one or more notifications when a job run begins, is completed, or fails, do the following:
+In the
+Job details
+pane for your job, scroll down to the
+Job notifications
+section, and then click
+Edit notifications
+.
+In the lower-left corner, click
+Add notification
+.
+In
+Destination
+, select
+Email address
+or a system destination.
+Select the check boxes for each type of event that you want to be notified about:
+Start
+,
+Success
+,
+Failure
+,
+Duration warning
+, or
+Streaming backlog
+.
+To configure another destination, click
+Add notification
+again and follow the previous steps.
+After you have configured all of the notifications, click
+Save
+.
+To remove a notification, click
+Edit notifications
+, click the
+next to the notification, and then click
+Save
+.
+Configure notifications for slow jobs
+​
+If you have configured an
+expected duration for a job
+, you can add an email or system notification if the job or task exceeds the configured threshold. To receive a notification for a job or task that exceeds a duration threshold, select
+Duration Warning
+when you add or edit a notification. To receive a notification for a job or task that exceeds a streaming backlog metric, select
+Streaming backlog
+when you add or edit a notification.
+The following applies to streaming backlog metrics:
+Notifications are sent when the average backlog over a 10-minute period exceeds the defined threshold.
+To prevent excessive messages,
+Databricks
+waits 30 minutes before determining whether to send another message. While the backlog remains high, you'll receive updates at 30-minute intervals.
+Streaming backlog notifications aren't supported for pipeline tasks. See
+Streaming backlog alerts and pipeline tasks
+.
+note
+Streaming backlog notifications require that the Jobs service can track the active streaming query. Do not use
+awaitTermination()
+in jobs. See
+When to use
+awaitTermination()
+.
+Filter out notifications for skipped or canceled runs
+​
+You can reduce the number of notifications sent by filtering out notifications when a run is skipped or canceled. To filter notifications, select
+Mute notifications for skipped runs
+or
+Mute notifications for canceled runs
+when you add or modify email notifications or system notifications.
+By default, tasks are retried three times before failing fully. When configuring task notifications, you can select
+Mute notifications until the last retry
+to filter out all notifications until the final retry.
+note
+When you select
+Mute notifications for skipped runs
+or
+Mute notifications for canceled runs
+for a job, it doesn't filter out notifications configured for job tasks. To filter all notifications for skipped or canceled runs, you must also filter out any task-level notifications you have configured.
+HTTP webhook payloads
+​
+You can configure HTTP webhooks to be sent on the events listed in the following table.
+Event_type code
+When is it sent?
+jobs.on_start
+Sent when a run starts.
+jobs.on_success
+Sent when a run stops and is completed in a successful or succeeded with failures state.
+jobs.on_failure
+Sent when a run stops in an unsuccessful state.
+jobs.on_duration_warning_threshold_exceeded
+Sent when a run exceeds the configured duration threshold.
+←
+✕
+Event_type code
+When is it sent?
+jobs.on_start
+Sent when a run starts.
+jobs.on_success
+Sent when a run stops and is completed in a successful or succeeded with failures state.
+jobs.on_failure
+Sent when a run stops in an unsuccessful state.
+jobs.on_duration_warning_threshold_exceeded
+Sent when a run exceeds the configured duration threshold.
+The following are example payloads sent by
+Databricks
+to your configured endpoint. These webhooks can be applied to either jobs or tasks.
+Notification for a job run start event:
+JSON
+{
+"event_type"
+:
+"jobs.on_start"
+,
+"workspace_id"
+:
+"your_workspace_id"
+,
+"run"
+:
+{
+"run_id"
+:
+"run_id"
+}
+,
+"job"
+:
+{
+"job_id"
+:
+"job_id"
+,
+"name"
+:
+"job_name"
+}
+}
+Notification for a task run start event:
+JSON
+{
+"event_type"
+:
+"jobs.on_start"
+,
+"workspace_id"
+:
+"your_workspace_id"
+,
+"task"
+:
+{
+"task_key"
+:
+"task_name"
+}
+,
+"run"
+:
+{
+"run_id"
+:
+"run_id_of_task"
+,
+"parent_run_id"
+:
+"run_id_of_parent_job_run"
+}
+,
+"job"
+:
+{
+"job_id"
+:
+"job_id"
+,
+"name"
+:
+"job_name"
+}
+}
+Notification for a job run failure:
+JSON
+{
+"event_type"
+:
+"jobs.on_failure"
+,
+"workspace_id"
+:
+"your_workspace_id"
+,
+"run"
+:
+{
+"run_id"
+:
+"run_id"
+}
+,
+"job"
+:
+{
+"job_id"
+:
+"job_id"
+,
+"name"
+:
+"job_name"
+}
+}
+Notification for a task run success:
+JSON
+{
+"event_type"
+:
+"jobs.on_success"
+,
+"workspace_id"
+:
+"your_workspace_id"
+,
+"task"
+:
+{
+"task_key"
+:
+"task_name"
+}
+,
+"run"
+:
+{
+"run_id"
+:
+"run_id_of_task"
+,
+"parent_run_id"
+:
+"run_id_of_parent_job_run"
+}
+,
+"job"
+:
+{
+"job_id"
+:
+"job_id"
+,
+"name"
+:
+"job_name"
+}
+}
+On this page
+Add third-party system destinations
+Configure notifications on a job
+Configure notifications for slow jobs
+Filter out notifications for skipped or canceled runs
+HTTP webhook payloads

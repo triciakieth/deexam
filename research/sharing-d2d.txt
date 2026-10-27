@@ -1,0 +1,233 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+What is the
+OpenSharing
+Databricks-to-Databricks protocol?
+This page gives an overview of how to use Databricks-to-Databricks
+OpenSharing
+to share data securely with any Databricks user, regardless of account or cloud host, as long as that user has access to a workspace enabled for
+Unity Catalog
+.
+Who should use Databricks-to-Databricks
+OpenSharing
+?
+​
+There are three ways to share data using
+OpenSharing
+.
+The Databricks-to-Databricks sharing protocol
+, covered in this article, lets you share data from your
+Unity Catalog
+-enabled workspace with users who also have access to a
+Unity Catalog
+-enabled Databricks workspace.
+This approach uses the
+OpenSharing
+server that is built into
+Databricks
+and provides support for notebook sharing,
+Unity Catalog
+data governance, auditing, and usage tracking for both providers and recipients. The integration with
+Unity Catalog
+simplifies setup and governance for both providers and recipients and improves performance.
+The
+Databricks-to-Open sharing
+protocol
+lets you share data that you manage in a
+Unity Catalog
+-enabled Databricks workspace with users on any computing platform.
+See
+What is the
+Databricks-to-Open sharing
+protocol?
+.
+A customer-managed implementation of the open-source
+OpenSharing
+server
+lets you share from any platform to any platform, whether Databricks or not.
+See
+the open source project
+.
+For an introduction to
+OpenSharing
+and more information about these three approaches, see
+What is
+OpenSharing
+?
+.
+Databricks-to-Databricks
+OpenSharing
+workflow
+​
+This section provides a high-level overview of the Databricks-to-Databricks sharing workflow, with links to detailed documentation for each step.
+In the Databricks-to-Databricks
+OpenSharing
+model:
+The data provider creates a
+share
+in the provider's
+Unity Catalog
+metastore. This named object contains a collection of tables, views, volumes, and notebooks registered in the metastore.
+For details, see
+Create shares for
+OpenSharing
+.
+The data provider creates a
+recipient
+object in the provider's
+Unity Catalog
+metastore, representing the user or group of users who access the data included in the share. The provider can either invite the recipient by
+email
+or identify them with the
+sharing identifier
+of the
+Unity Catalog
+metastore attached to the workspace the recipient uses to access the share.
+For details, see
+Create a recipient object for
+Databricks
+users
+.
+The data provider grants the recipient access to the share.
+For details, see
+Manage access to
+OpenSharing
+data shares (for providers)
+.
+The share becomes available in the recipient's Databricks workspace, and recipients can access it using Catalog Explorer, the Databricks CLI, or SQL commands in
+a Databricks
+notebook or the
+Databricks SQL
+query editor.
+To access the tables, views, volumes, and notebooks in a share, a metastore admin or
+privileged user
+must create a catalog from the share. Then that user or another user who is granted the appropriate privilege can give other users access to the catalog and objects in the catalog. Granting permissions on shared catalogs and data assets works just like it does with any other assets registered in
+Unity Catalog
+, with the important distinction being that users can be granted only read access on objects in catalogs that are created from
+OpenSharing
+shares.
+Shared notebooks live at the catalog level, and any user with the
+USE CATALOG
+privilege on the catalog can access them.
+For details, see
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Improve table read performance with history sharing
+​
+Databricks-to-Databricks table shares can improve performance by enabling history sharing. Sharing history improves performance by leveraging temporary security credentials from your cloud storage, scoped-down to the root directory of the provider's shared Delta table, resulting in performance that is comparable to direct access to source tables.
+For new table shares, specify
+WITH HISTORY
+when creating the table share. See
+Add tables to a share
+. When you share a table using compute on
+Databricks Runtime
+16.2 and above,
+WITH HISTORY
+is the default.
+For existing table shares, you must alter the share to share table history. See
+Update shares
+. When you share a table using compute on
+Databricks Runtime
+16.2 and above,
+WITH HISTORY
+is the default.
+When you share an entire schema, all tables in the schema are shared with history by default.
+note
+Tables with partitioning enabled do not receive the performance benefits of history sharing. See
+Specify table partitions to share
+When you share a
+streaming table
+,
+WITH HISTORY
+has no effect. Catalog Explorer shows a blank history value for the
+streaming table
+, and the sharing API returns
+history_data_sharing_status
+as
+DISABLED
+. This is expected and doesn't indicate a misconfiguration. Recipients read the
+streaming table
+through
+serverless compute
+, which accesses the underlying history it needs. See
+Add
+streaming tables
+to a share
+.
+For cloud token eligibility requirements and data privacy considerations, see
+Cloud token eligibility
+.
+Databricks-to-Databricks
+OpenSharing
+support matrix for cloud environments
+​
+Databricks-to-Databricks
+OpenSharing
+supports sharing within the same environment type. Commercial clouds include workspaces with compliance controls enabled, such as FedRAMP Moderate. Sharing with Azure Government environments is not supported.
+Preview
+Sharing across regulatory domains is in
+Public Preview
+.
+In this matrix, each row represents the provider environment (the metastore sharing data), and each column represents the recipient environment (the metastore receiving shared data).
+Provider
+Recipient: Commercial clouds
+Recipient: AWS GovCloud
+Recipient: AWS GovCloud DoD
+Recipient: Azure China
+Commercial clouds
+✓
+✓
+✓
+✓
+AWS GovCloud
+✓
+✓
+✓
+AWS GovCloud DoD
+✓
+✓
+✓
+Azure China
+✓
+✓
+←
+✕
+Provider
+Recipient: Commercial clouds
+Recipient: AWS GovCloud
+Recipient: AWS GovCloud DoD
+Recipient: Azure China
+Commercial clouds
+✓
+✓
+✓
+✓
+AWS GovCloud
+✓
+✓
+✓
+AWS GovCloud DoD
+✓
+✓
+✓
+Azure China
+✓
+✓
+Limitations
+​
+The following limitations apply to cross-regulatory domain sharing:
+Cloud tokens
+are used unless a share crosses into or out of AWS GovCloud or AWS GovCloud DoD. In these following cases, tables are shared using pre-signed URLs instead:
+A commercial cloud shares to or receives shares from either AWS GovCloud or AWS GovCloud DoD.
+AWS GovCloud and AWS GovCloud DoD share with each other.
+GCP commercial workspaces cannot share with or receive shares from AWS GovCloud DoD.
+On this page
+Who should use Databricks-to-Databricks OpenSharing?
+Databricks-to-Databricks OpenSharing workflow
+Improve table read performance with history sharing
+Databricks-to-Databricks OpenSharing support matrix for cloud environments
+Limitations

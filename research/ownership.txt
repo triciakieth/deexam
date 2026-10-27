@@ -1,0 +1,693 @@
+On this page
+Last updated
+on
+Oct 15, 2026
+Manage privileges in
+Unity Catalog
+This page explains how to grant, revoke, and inspect privileges on
+Unity Catalog
+securable objects, and how to manage object ownership. For conceptual background on the permissions model, privilege inheritance, and ownership, see
+Unity Catalog
+permissions model concepts
+.
+Who can manage privileges?
+​
+Initially, users have no access to data in a metastore.
+Databricks
+account admins, workspace admins, and metastore admins have default privileges for managing
+Unity Catalog
+. See
+Admin privileges in
+Unity Catalog
+.
+All securable objects in
+Unity Catalog
+have an owner. Object owners have all privileges on that object, including the ability to grant privileges to other principals. Owners can grant other users the
+MANAGE
+privilege on the object, which allows users to manage privileges on the object. See
+Manage object ownership
+.
+Privileges can be granted by any of the following:
+The owner of the object.
+The owner of the catalog or schema that contains the object.
+A user with the
+MANAGE
+privilege on the object.
+A metastore admin.
+Account admins can also grant privileges directly on a metastore.
+Workspace catalog privileges
+​
+If your workspace was enabled for
+Unity Catalog
+automatically, the workspace is attached to a metastore by default and a workspace catalog is created for your workspace in the metastore. Workspace admins are the default owners of the workspace catalog. As owners, they can manage privileges on the workspace catalog and all child objects.
+All workspace users receive the
+USE CATALOG
+privilege on the workspace catalog. Workspace users also receive the
+USE SCHEMA
+,
+CREATE TABLE
+,
+CREATE VOLUME
+,
+CREATE MODEL
+,
+CREATE FUNCTION
+, and
+CREATE MATERIALIZED VIEW
+privileges on the
+default
+schema in the catalog.
+For more information, see
+Get started with
+Unity Catalog
+.
+Show, grant, and revoke privileges
+​
+You can manage privileges for metastore objects using SQL commands, the
+Databricks CLI
+, the
+Databricks Terraform provider
+, or Catalog Explorer.
+In the SQL commands that follow, replace these placeholder values:
+<privilege-type>
+is a Unity Catalog privilege type. See
+Privilege types
+.
+<securable-type>
+: The type of securable object, such as
+CATALOG
+or
+TABLE
+. See
+Securable objects
+<securable-name>
+: The name of the securable. If the securable type is
+METASTORE
+, do not provide the securable name. It is assumed to be the metastore attached to the workspace.
+<principal>
+is a user, service principal (represented by its applicationId value), or group. You must enclose users, service principals, and group names that include
+special characters
+in backticks (
+` `
+). See
+Principal
+.
+Show grants on an object
+​
+note
+Currently, users with the
+MANAGE
+privilege on an object cannot view all grants for that object in the
+INFORMATION_SCHEMA
+. Instead, the
+INFORMATION_SCHEMA
+only shows users their own grants on the object. This behavior will be corrected in the future.
+Users with
+MANAGE
+privilege can view all grants on an object using SQL commands or Catalog Explorer. See
+Manage privileges in
+Unity Catalog
+.
+Permissions required:
+Metastore admins, users with the
+READ METADATA
+or
+MANAGE
+privilege on the object, the owner of the object, or the owner of the catalog or schema that contains the object can see all grants on the object.
+If you do not have the above permissions, you can view only your own grants on the object.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, or view.
+Go to the
+Permissions
+tab.
+Run the following SQL command in a notebook or SQL query editor. You can show grants on a specific principal, or you can show all grants on a securable object.
+SQL
+SHOW
+GRANTS
+[
+principal
+]
+ON
+<
+securable
+-
+type
+>
+<
+securable
+-
+name
+>
+For example, the following command shows all grants on a schema named
+default
+in the parent catalog named
+main
+:
+SQL
+SHOW
+GRANTS
+ON
+SCHEMA
+main
+.
+default
+;
+The command returns:
+SQL
+principal     actionType     objectType objectKey
+------------- -------------  ---------- ------------
+finance
+-
+team
+CREATE
+TABLE
+SCHEMA
+main
+.
+default
+finance
+-
+team
+USE
+SCHEMA
+SCHEMA
+main
+.
+default
+Show my grants on an object
+​
+Permissions required:
+You can always view your own grants on an object.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, or view.
+Go to the
+Permissions
+tab.
+If you are not an object owner or metastore admin, you can view only your own grants on the object.
+Run the following SQL command in a notebook or SQL query editor to show your grants on an object.
+SQL
+SHOW
+GRANTS
+`
+<user>@<domain-name>
+`
+ON
+<
+securable
+-
+type
+>
+<
+securable
+-
+name
+>
+Grant permissions on an object
+​
+Permissions required:
+Metastore admin, the
+MANAGE
+privilege on the object, the owner of the object, or the owner of the catalog or schema that contains the object.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, or view.
+Go to the
+Permissions
+tab.
+Click
+Grant
+.
+Enter the email address for a user or the name of a group.
+Select the permissions to grant.
+Click
+OK
+.
+Run the following SQL command in a notebook or SQL query editor.
+SQL
+GRANT
+<
+privilege
+-
+type
+>
+ON
+<
+securable
+-
+type
+>
+<
+securable
+-
+name
+>
+TO
+<
+principal
+>
+For example, the following command grants a group named
+finance-team
+access to create tables in a schema named
+default
+with the parent catalog named
+main
+:
+SQL
+GRANT
+CREATE
+TABLE
+ON
+SCHEMA
+main
+.
+default
+TO
+`
+finance-team
+`
+;
+GRANT
+USE
+SCHEMA
+ON
+SCHEMA
+main
+.
+default
+TO
+`
+finance-team
+`
+;
+GRANT
+USE
+CATALOG
+ON
+CATALOG main
+TO
+`
+finance-team
+`
+;
+Note that registered models are a type of function. To grant a privilege on a model, you must use
+GRANT ON FUNCTION
+. For example, to grant the group
+ml-team-acme
+the
+EXECUTE
+privilege on the model
+prod.ml_team.iris_model
+, you'd use:
+SQL
+GRANT
+EXECUTE
+ON
+FUNCTION
+prod
+.
+ml_team
+.
+iris_model
+TO
+`
+ml-team-acme
+`
+;
+Revoke permissions on an object
+​
+Permissions required:
+Metastore admin, the
+MANAGE
+privilege on the object, the owner of the object, or the owner of the catalog or schema that contains the object.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, or view.
+Go to the
+Permissions
+tab.
+Select a privilege that has been granted to a user, service principal, or group.
+Click
+Revoke
+.
+To confirm, click
+Revoke
+.
+Run the following SQL command in a notebook or SQL query editor.
+SQL
+REVOKE
+<
+privilege
+-
+type
+>
+ON
+<
+securable
+-
+type
+>
+<
+securable
+-
+name
+>
+FROM
+<
+principal
+>
+For example, the following command revokes a group named
+finance-team
+access to create tables in a schema named
+default
+with the parent catalog named
+main
+:
+SQL
+REVOKE
+CREATE
+TABLE
+ON
+SCHEMA
+main
+.
+default
+FROM
+`
+finance-team
+`
+;
+A
+REVOKE
+statement succeeds even if the specified privileges were not granted in the first place. It ensures that the privileges are not present, regardless of their previous state.
+Show grants on a metastore
+​
+Permissions required:
+Metastore admin or account admin. You can also view your own grants on a metastore.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+At the top of the
+Catalog
+pane, click the
+gear icon and select
+Metastore
+.
+Click the
+Permissions
+tab.
+Run the following SQL command in a notebook or SQL query editor. You can show grants on a specific principal, or you can show all grants on a metastore.
+SQL
+SHOW
+GRANTS
+[
+principal
+]
+ON
+METASTORE
+Grant permissions on a metastore
+​
+Permissions required:
+Metastore admin or account admin.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+At the top of the
+Catalog
+pane, click the
+gear icon and select
+Metastore
+.
+On the
+Permissions
+tab, click
+Grant
+.
+Enter the email address for a user or the name of a group.
+Select the permissions to grant.
+Click
+OK
+.
+Run the following SQL command in a notebook or SQL query editor.
+SQL
+GRANT
+<
+privilege
+-
+type
+>
+ON
+METASTORE
+TO
+<
+principal
+>
+;
+When you grant privileges on a metastore, you do not include the metastore name, because the metastore that is attached to your workspace is assumed.
+Revoke permissions on a metastore
+​
+Permissions required:
+Metastore admin or account admin.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+At the top of the
+Catalog
+pane, click the
+gear icon and select
+Metastore
+.
+On the
+Permissions
+tab, select a user or group and click
+Revoke
+.
+To confirm, click
+Revoke
+.
+Run the following SQL command in a notebook or SQL query editor.
+SQL
+REVOKE
+<
+privilege
+-
+type
+>
+ON
+METASTORE
+FROM
+<
+principal
+>
+;
+When you revoke privileges on a metastore, you do not include the metastore name, because the metastore that is attached to your workspace is assumed.
+Manage object ownership
+​
+View an object's owner
+​
+You can use
+Catalog Explorer
+or SQL statements to view an object's owner.
+Permissions required
+: Any user with the
+BROWSE
+privilege on the object or a parent of the object can view the object owner.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, view, volume, external location, or storage credential.
+How to navigate to the object depends on the object. Catalogs, schemas, and the contents of schemas (such as tables and volumes) are selectable in the left
+Catalog
+pane. You can find other objects, such as external locations or
+OpenSharing
+shares, by clicking the
+gear icon above the Catalog pane and selecting the object category from the menu.
+For most objects, the owner is displayed on the
+Overview
+tab on the object details page. For some objects, such as external locations, it is displayed at the top of the object details page.
+Run the following SQL command in a notebook or SQL query editor. Replace the placeholder values:
+<securable-type>
+: The type of securable, such as
+CATALOG
+or
+TABLE
+.
+<catalog>
+: The parent catalog if you are viewing a schema or the contents of a schema.
+<schema>
+: The parent schema if you are viewing the contents of a schema, such as a table or view.
+<securable-name>
+: The name of the securable object.
+DESCRIBE <securable-type> EXTENDED <catalog>.<schema>.<securable-name>;
+Transfer ownership
+​
+You can use
+Catalog Explorer
+or SQL statements to transfer an object's owner.
+Permissions required
+: You can transfer object ownership if you are the current owner, a metastore admin, the owner of the container (the catalog for a schema, the schema for a table), or a user with the
+MANAGE
+privilege on the object.
+OpenSharing
+share objects are an exception: only a metastore admin can transfer share ownership.
+To prevent privilege escalations, only a metastore admin can transfer ownership of a view, function, or model to any user, service principal, or group in the account. Current owners and users with the
+MANAGE
+privilege are restricted to transferring ownership to their username or to a group that they are member of.
+tip
+Transferring ownership of a view or metric view to a group enables collaborative editing. When a group owns a view or metric view, all group members can edit its definition while data access remains limited to what the group has permission to see. For detailed guidance, see
+Enable collaborative editing
+.
+note
+Materialized views
+and
+streaming tables
+created with
+Databricks SQL
+can have ownership transferred. For details see
+Change the owner of a
+materialized view
+and
+Change the owner of a
+streaming table
+.
+Materialized views
+and
+streaming tables
+created with
+Lakeflow pipelines
+can't have their ownership directly transferred. Instead, change the run-as user of the pipeline that owns the datasets. With the next refresh, the owner will be updated to the run-as user. See
+Set the run-as user
+.
+Catalog Explorer
+SQL
+In your
+Databricks
+workspace, click
+Catalog
+.
+Select the object, such as a catalog, schema, table, view, external location, or storage credential.
+How to navigate to the object depends on the object. Catalogs, schemas, and the contents of schemas (such as tables and volumes) are selectable in the left
+Catalog
+pane. You can find other objects, such as external locations or
+OpenSharing
+shares, by clicking the
+gear icon above the Catalog pane and selecting the object category from the menu.
+For most objects, the owner is displayed on the
+Overview
+tab on the object details page. For some objects, such as external locations, it is displayed at the top of the object details page.
+Click the
+edit icon next to the
+Owner
+.
+Search for and select a group, user, or service principal.
+Click
+Save
+.
+Run the following SQL command in a notebook or SQL query editor. Replace the placeholder values:
+<securable-type>
+: The type of securable object, such as
+CATALOG
+or
+TABLE
+.
+METASTORE
+is not supported as a securable object in this command.
+<securable-name>
+: The name of the securable. If you are modifying a schema or the contents of a schema, you must use the complete three-level namespace (
+catalog.schema.object
+), unless you have already specified the parent catalog and/or schema.
+<principal>
+is a user, service principal (represented by its applicationId value), or group. You must enclose users, service principals, and group names that include
+special characters
+in backticks (
+` `
+). See
+Principal
+.
+SQL
+ALTER
+<
+securable
+-
+type
+>
+<
+securable
+-
+name
+>
+OWNER
+TO
+<
+principal
+>
+;
+For example, to transfer ownership of the
+orders
+table to the
+accounting
+group:
+SQL
+ALTER
+TABLE
+mycatalog
+.
+myschema
+.
+orders OWNER
+TO
+`
+accounting
+`
+;
+On this page
+Who can manage privileges?
+Workspace catalog privileges
+Show, grant, and revoke privileges
+Show grants on an object
+Show my grants on an object
+Grant permissions on an object
+Revoke permissions on an object
+Show grants on a metastore
+Grant permissions on a metastore
+Revoke permissions on a metastore
+Manage object ownership
+View an object's owner
+Transfer ownership

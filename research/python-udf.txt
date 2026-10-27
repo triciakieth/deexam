@@ -1,0 +1,1434 @@
+On this page
+Last updated
+on
+Sep 22, 2026
+Python scalar user-defined functions (UDFs)
+Python scalar UDFs let you run custom Python logic inside SQL queries on
+Databricks
+. This page shows how to register and invoke them, use service credentials and secrets, and handle subexpression evaluation-order caveats in Spark SQL.
+Requirements
+​
+In
+Databricks Runtime
+12.2 LTS and below, Python UDFs and Pandas UDFs are not supported on
+Unity Catalog
+compute that uses standard access mode.
+Scalar Python UDFs and Pandas UDFs are supported in
+Databricks Runtime
+13.3 LTS and above for all access modes.
+Graviton instance support for Python UDFs on
+Unity Catalog
+-enabled clusters requires
+Databricks Runtime
+15.2 or above.
+In
+Databricks Runtime
+14.0 and below, Python UDFs and Pandas UDFs are not supported on
+Unity Catalog
+clusters that use standard access mode. Scalar Python UDFs and Pandas UDFs are supported for all access modes in
+Databricks Runtime
+14.1 and above.
+In
+Databricks Runtime
+14.1 and above, you can register scalar Python UDFs to
+Unity Catalog
+using SQL syntax. See
+SQL and Python user-defined functions (UDFs) in
+Unity Catalog
+.
+Register a function as a UDF
+​
+Python
+def
+squared
+(
+s
+)
+:
+return
+s
+*
+s
+spark
+.
+udf
+.
+register
+(
+"squaredWithPython"
+,
+squared
+)
+You can optionally set the return type of your UDF. The default return type is
+StringType
+.
+Python
+from
+pyspark
+.
+sql
+.
+types
+import
+LongType
+def
+squared_typed
+(
+s
+)
+:
+return
+s
+*
+s
+spark
+.
+udf
+.
+register
+(
+"squaredWithPython"
+,
+squared_typed
+,
+LongType
+(
+)
+)
+Call the UDF in Spark SQL
+​
+Python
+spark
+.
+range
+(
+1
+,
+20
+)
+.
+createOrReplaceTempView
+(
+"test"
+)
+SQL
+%
+sql
+select
+id
+,
+squaredWithPython
+(
+id
+)
+as
+id_squared
+from
+test
+Use UDF with DataFrames
+​
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+LongType
+squared_udf
+=
+udf
+(
+squared
+,
+LongType
+(
+)
+)
+df
+=
+spark
+.
+table
+(
+"test"
+)
+display
+(
+df
+.
+select
+(
+"id"
+,
+squared_udf
+(
+"id"
+)
+.
+alias
+(
+"id_squared"
+)
+)
+)
+Alternatively, you can declare the same UDF using annotation syntax:
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+udf
+@udf
+(
+"long"
+)
+def
+squared_udf
+(
+s
+)
+:
+return
+s
+*
+s
+df
+=
+spark
+.
+table
+(
+"test"
+)
+display
+(
+df
+.
+select
+(
+"id"
+,
+squared_udf
+(
+"id"
+)
+.
+alias
+(
+"id_squared"
+)
+)
+)
+Variants with UDF
+​
+The PySpark type for variant is
+VariantType
+and the values are of type
+VariantVal
+. For information about variants, see
+Query variant data
+.
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+,
+lit
+,
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+VariantType
+,
+VariantVal
+# Return Variant
+@udf
+(
+returnType
+=
+VariantType
+(
+)
+)
+def
+toVariant
+(
+jsonString
+)
+:
+return
+VariantVal
+.
+parseJson
+(
+jsonString
+)
+spark
+.
+range
+(
+1
+)
+.
+select
+(
+lit
+(
+'{"a" : 1}'
+)
+.
+alias
+(
+"json"
+)
+)
+.
+select
+(
+toVariant
+(
+col
+(
+"json"
+)
+)
+)
+.
+display
+(
+)
++---------------+
+|toVariant(json)|
++---------------+
+|        {"a":1}|
++---------------+
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+,
+lit
+,
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+StructField
+,
+StructType
+,
+VariantType
+,
+VariantVal
+# Return Struct<Variant>
+@udf
+(
+returnType
+=
+StructType
+(
+[
+StructField
+(
+"v"
+,
+VariantType
+(
+)
+,
+True
+)
+]
+)
+)
+def
+toStructVariant
+(
+jsonString
+)
+:
+return
+{
+"v"
+:
+VariantVal
+.
+parseJson
+(
+jsonString
+)
+}
+spark
+.
+range
+(
+1
+)
+.
+select
+(
+lit
+(
+'{"a" : 1}'
+)
+.
+alias
+(
+"json"
+)
+)
+.
+select
+(
+toStructVariant
+(
+col
+(
+"json"
+)
+)
+)
+.
+display
+(
+)
++---------------------+
+|toStructVariant(json)|
++---------------------+
+|        {"v":{"a":1}}|
++---------------------+
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+,
+lit
+,
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+ArrayType
+,
+VariantType
+,
+VariantVal
+# Return Array<Variant>
+@udf
+(
+returnType
+=
+ArrayType
+(
+VariantType
+(
+)
+)
+)
+def
+toArrayVariant
+(
+jsonString
+)
+:
+return
+[
+VariantVal
+.
+parseJson
+(
+jsonString
+)
+]
+spark
+.
+range
+(
+1
+)
+.
+select
+(
+lit
+(
+'{"a" : 1}'
+)
+.
+alias
+(
+"json"
+)
+)
+.
+select
+(
+toArrayVariant
+(
+col
+(
+"json"
+)
+)
+)
+.
+display
+(
+)
++--------------------+
+|toArrayVariant(json)|
++--------------------+
+|           [{"a":1}]|
++--------------------+
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+,
+lit
+,
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+MapType
+,
+StringType
+,
+VariantType
+,
+VariantVal
+# Return Map<String, Variant>
+@udf
+(
+returnType
+=
+MapType
+(
+StringType
+(
+)
+,
+VariantType
+(
+)
+,
+True
+)
+)
+def
+toMapVariant
+(
+jsonString
+)
+:
+return
+{
+"v1"
+:
+VariantVal
+.
+parseJson
+(
+jsonString
+)
+,
+"v2"
+:
+VariantVal
+.
+parseJson
+(
+"["
++
+jsonString
++
+"]"
+)
+}
+spark
+.
+range
+(
+1
+)
+.
+select
+(
+lit
+(
+'{"a" : 1}'
+)
+.
+alias
+(
+"json"
+)
+)
+.
+select
+(
+toMapVariant
+(
+col
+(
+"json"
+)
+)
+)
+.
+display
+(
+)
++-----------------------------+
+|           toMapVariant(json)|
++-----------------------------+
+|{"v2":[{"a":1}],"v1":{"a":1}}|
++-----------------------------+
+Files with UDF
+​
+Beta
+This feature is in
+Beta
+.
+The PySpark type for a file is
+FileType
+. Use it as a parameter or return type in a UDF, either as a top-level type or nested. For the type, its nesting rules, and the
+FileRef
+API, see
+FileType
+.
+To read a file's contents in a UDF, call
+file.as_local_file()
+to get a local path you can open, or
+file.open()
+to read its bytes as a stream. For examples in Python, Scala, and SQL, including image processing, file-type detection, and video frame extraction, see
+Process files with UDFs
+. For the type reference, see
+FILE
+type
+.
+A UDF registered in
+Unity Catalog
+(
+CREATE FUNCTION
+) can read a
+FILE
+'s metadata, but not its contents, and it can't create files. Use a session-scoped UDF to read a file's contents (
+open
+,
+as_local_file
+) or create one (
+from_bytes
+,
+from_local_file
+).
+In the UDF body, each
+FILE
+value is a
+FileRef
+object:
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+col
+,
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+FileRef
+,
+StringType
+@udf
+(
+returnType
+=
+StringType
+(
+)
+)
+def
+file_content_type
+(
+file
+:
+FileRef
+)
+-
+>
+str
+:
+return
+file
+.
+content_type
+df
+=
+spark
+.
+table
+(
+"documents"
+)
+display
+(
+df
+.
+select
+(
+col
+(
+"file"
+)
+.
+uri
+,
+file_content_type
+(
+col
+(
+"file"
+)
+)
+)
+)
+Evaluation order and null checking
+​
+Spark SQL (including SQL and the DataFrame and Dataset API) does not guarantee the order of
+evaluation of subexpressions. In particular, the inputs of an operator or function are not
+necessarily evaluated left-to-right or in any other fixed order. For example, logical
+AND
+and
+OR
+expressions do not have left-to-right “short-circuiting” semantics.
+Therefore, it is dangerous to rely on the side effects or order of evaluation of Boolean
+expressions, and the order of
+WHERE
+and
+HAVING
+clauses, since such expressions and clauses can be
+reordered during query optimization and planning. Specifically, if a UDF relies on short-circuiting semantics in SQL for null checking, there's no
+guarantee that the null check will happen before invoking the UDF. For example,
+Python
+spark
+.
+udf
+.
+register
+(
+"strlen"
+,
+lambda
+s
+:
+len
+(
+s
+)
+,
+"int"
+)
+spark
+.
+sql
+(
+"select s from test1 where s is not null and strlen(s) > 1"
+)
+# no guarantee
+This
+WHERE
+clause does not guarantee the
+strlen
+UDF to be invoked after filtering out nulls.
+To perform proper null checking, we recommend that you do either of the following:
+Make the UDF itself null-aware and do null checking inside the UDF itself
+Use
+IF
+or
+CASE WHEN
+expressions to do the null check and invoke the UDF in a conditional branch
+Python
+spark
+.
+udf
+.
+register
+(
+"strlen_nullsafe"
+,
+lambda
+s
+:
+len
+(
+s
+)
+if
+not
+s
+is
+None
+else
+-
+1
+,
+"int"
+)
+spark
+.
+sql
+(
+"select s from test1 where s is not null and strlen_nullsafe(s) > 1"
+)
+# ok
+spark
+.
+sql
+(
+"select s from test1 where if(s is not null, strlen(s), null) > 1"
+)
+# ok
+Access
+Unity Catalog
+secrets
+​
+To access a
+Unity Catalog
+secret from a session-scoped Python UDF, see
+Use a secret in a session-scoped Python UDF
+. To access declared secrets from a scalar or Batch
+Unity Catalog
+Python UDF, see
+Use secrets in a Python UDF
+.
+Service credentials in Python UDFs
+​
+Session-scoped scalar Python UDFs and scalar
+Unity Catalog
+Python UDFs can use
+Unity Catalog
+service credentials to securely access external cloud services. This is useful for integrating operations such as cloud-based tokenization, encryption, or secret management directly into your data transformations.
+Requirements vary by UDF type and compute. See
+Use a service credential in a Python UDF
+.
+To create a service credential, see
+Create service credentials
+.
+Use a service credential in a session-scoped scalar Python UDF
+​
+To access the service credential, use the
+databricks.service_credentials.getServiceCredentialsProvider()
+utility in your UDF logic to initialize cloud SDKs with the appropriate credential. All code must be encapsulated in the UDF body.
+Python
+@udf
+def
+use_service_credential
+(
+)
+:
+from
+databricks
+.
+service_credentials
+import
+getServiceCredentialsProvider
+import
+boto3
+# Assuming there is a service credential named 'testcred' set up in Unity Catalog
+boto3_session
+=
+boto3
+.
+Session
+(
+botocore_session
+=
+getServiceCredentialsProvider
+(
+'testcred'
+)
+)
+# Use the S3 session to perform operations
+Service credentials permissions
+​
+Session-scoped UDFs use the caller's permissions. See
+Use a service credential in a Python UDF
+for the required privileges.
+Compute-level default credentials for session-scoped UDFs
+​
+When used in scalar Python UDFs, Databricks automatically uses the default service credential from the compute environment variable. This behavior allows you to securely reference external services without explicitly managing credential aliases in your UDF code. See
+Specify a default service credential for a compute resource
+Default credential support is only available in Standard and Dedicated access mode clusters. It is not available on SQL warehouses.
+Python
+@udf
+def
+use_service_credential
+(
+)
+:
+from
+databricks
+.
+service_credentials
+import
+getServiceCredentialsProvider
+import
+boto3
+# The default service credential for the compute is automatically used
+boto3_session
+=
+boto3
+.
+Session
+(
+)
+# Use the S3 client to perform operations
+Session-scoped Python UDF AWS Lambda function example
+​
+The following example uses a service credential to call an AWS Lambda function from a Python UDF. It does the following:
+Retrieve the default credential using the Databricks service credentials provider.
+Sets up a
+boto3
+session.
+Invokes a Lambda function to process an input string.
+Python
+from
+pyspark
+.
+sql
+.
+functions
+import
+udf
+from
+pyspark
+.
+sql
+.
+types
+import
+StringType
+@udf
+(
+StringType
+(
+)
+)
+def
+call_lambda_udf
+(
+input_str
+)
+:
+import
+boto3
+import
+json
+import
+base64
+from
+databricks
+.
+service_credentials
+import
+getServiceCredentialsProvider
+from
+pyspark
+.
+taskcontext
+import
+TaskContext
+# Create a session using the default Unity Catalog service credential
+session
+=
+boto3
+.
+Session
+(
+)
+client
+=
+session
+.
+client
+(
+"lambda"
+,
+region_name
+=
+"us-west-2"
+)
+# Optionally attach Spark TaskContext metadata to the Lambda request
+user_ctx
+=
+{
+"custom"
+:
+{
+"user"
+:
+TaskContext
+.
+get
+(
+)
+.
+getLocalProperty
+(
+"user"
+)
+}
+}
+# Build the Lambda payload
+payload
+=
+json
+.
+dumps
+(
+{
+"values"
+:
+[
+input_str
+]
+,
+"is_debug"
+:
+False
+}
+)
+# Encode context for Lambda's client context
+encoded_ctx
+=
+base64
+.
+b64encode
+(
+json
+.
+dumps
+(
+user_ctx
+)
+.
+encode
+(
+"utf-8"
+)
+)
+.
+decode
+(
+"utf-8"
+)
+# Call the Lambda function
+response
+=
+client
+.
+invoke
+(
+FunctionName
+=
+"HashValuesFunction"
+,
+InvocationType
+=
+"RequestResponse"
+,
+ClientContext
+=
+encoded_ctx
+,
+Payload
+=
+payload
+,
+)
+response_payload
+=
+json
+.
+loads
+(
+response
+[
+"Payload"
+]
+.
+read
+(
+)
+.
+decode
+(
+"utf-8"
+)
+)
+if
+"errorMessage"
+in
+response_payload
+:
+raise
+Exception
+(
+response_payload
+[
+"errorMessage"
+]
+)
+return
+response_payload
+[
+"values"
+]
+[
+0
+]
+Use a service credential in a scalar
+Unity Catalog
+Python UDF
+​
+Specify the service credential in the
+CREDENTIALS
+clause of the UDF definition. You can mark one credential as
+DEFAULT
+so that patched cloud SDKs automatically use it. On classic compute, this feature requires
+Databricks Runtime
+18.1 or above. On serverless compute and on pro and serverless SQL warehouses, explicitly set the UDF's
+environment_version
+to
+6
+or above. For complete compute, networking, and permission requirements, see
+Use a service credential in a Python UDF
+.
+Service credential example: AWS Lambda function
+​
+The following example uses a service credential to call an AWS Lambda function from a scalar
+Unity Catalog
+Python UDF. The example uses serverless environment version 6.
+SQL
+CREATE
+OR
+REPLACE
+FUNCTION
+main
+.
+test
+.
+call_lambda_func
+(
+data
+STRING
+,
+debug
+BOOLEAN
+)
+RETURNS
+STRING
+LANGUAGE
+PYTHON
+CREDENTIALS
+(
+`
+scalar-uc-udf-service-creds-example-cred
+`
+DEFAULT
+)
+ENVIRONMENT
+(
+dependencies
+=
+'["boto3"]'
+,
+environment_version
+=
+'6'
+)
+AS
+$$
+import
+base64
+import
+boto3
+import
+json
+from
+pyspark
+.
+taskcontext
+import
+TaskContext
+session
+=
+boto3
+.
+Session
+(
+)
+client
+=
+session
+.
+client
+(
+"lambda"
+,
+region_name
+=
+"us-west-2"
+)
+user_context
+=
+{
+"custom"
+: {
+"user"
+: TaskContext
+.
+get
+(
+)
+.
+getLocalProperty
+(
+"user"
+)
+}}
+payload
+=
+json
+.
+dumps
+(
+{
+"values"
+:
+[
+data
+]
+,
+"is_debug"
+: debug}
+)
+response
+=
+client
+.
+invoke
+(
+FunctionName
+=
+"HashValuesFunction"
+,
+InvocationType
+=
+"RequestResponse"
+,
+ClientContext
+=
+base64
+.
+b64encode
+(
+json
+.
+dumps
+(
+user_context
+)
+.
+encode
+(
+"utf-8"
+)
+)
+.
+decode
+(
+"utf-8"
+)
+,
+Payload
+=
+payload
+,
+)
+response_payload
+=
+json
+.
+loads
+(
+response
+[
+"Payload"
+]
+.
+read
+(
+)
+.
+decode
+(
+"utf-8"
+)
+)
+if
+"errorMessage"
+in
+response_payload:
+raise Exception
+(
+str
+(
+response_payload
+)
+)
+return
+response_payload
+[
+"values"
+]
+[
+0
+]
+$$
+;
+Call the UDF after it is registered:
+SQL
+SELECT
+main
+.
+test
+.
+call_lambda_func
+(
+data
+,
+false
+)
+FROM
+VALUES
+(
+'abc'
+)
+,
+(
+'def'
+)
+AS
+t
+(
+data
+)
+Get task execution context
+​
+Use the TaskContext PySpark API to get context information such as user's identity, cluster tags, spark job ID and more. See
+Get task context in a UDF
+.
+Limitations
+​
+The following limitations apply to PySpark UDFs:
+File access restrictions:
+On
+Databricks Runtime
+14.2 and below, PySpark UDFs on shared clusters cannot access Git folders, workspace files, or
+Unity Catalog
+Volumes.
+Broadcast variables:
+PySpark UDFs on standard access mode clusters and serverless compute do not support broadcast variables.
+Instance profiles:
+PySpark UDFs on standard access mode clusters and serverless compute do not support instance profiles.
+Memory limit on serverless
+: PySpark UDFs on serverless compute have a memory limit of 1GB per PySpark UDF. Exceeding this limit results in an error of type
+UDF_PYSPARK_USER_CODE_ERROR.MEMORY_LIMIT_SERVERLESS
+.
+Memory limit on standard access mode
+: PySpark UDFs on standard access mode have a memory limit based on the available memory of the instance type chosen. Exceeding available memory results in an error of type
+UDF_PYSPARK_USER_CODE_ERROR.MEMORY_LIMIT
+.
+Network access in serverless SQL warehouses
+: By default, Python UDFs in serverless SQL warehouses cannot make outbound network requests, and queries that attempt network calls hang indefinitely. To enable outbound network access, enable the Public Preview feature
+Enable networking for isolated workloads in Serverless SQL Warehouses
+in your workspace's
+Previews page
+. Otherwise, use serverless compute or classic compute for UDFs that require network access.
+On this page
+Requirements
+Register a function as a UDF
+Call the UDF in Spark SQL
+Use UDF with DataFrames
+Variants with UDF
+Files with UDF
+Evaluation order and null checking
+Access Unity Catalog secrets
+Service credentials in Python UDFs
+Use a service credential in a session-scoped scalar Python UDF
+Service credentials permissions
+Compute-level default credentials for session-scoped UDFs
+Session-scoped Python UDF AWS Lambda function example
+Use a service credential in a scalar Unity Catalog Python UDF
+Get task execution context
+Limitations

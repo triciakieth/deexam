@@ -1,0 +1,238 @@
+On this page
+Last updated
+on
+Oct 14, 2026
+Create a
+Unity Catalog
+metastore
+This page shows how to create a
+Unity Catalog
+metastore and link it to workspaces.
+important
+For workspaces that were enabled for
+Unity Catalog
+automatically, the instructions in this page are unnecessary. Databricks began to enable new workspaces for
+Unity Catalog
+automatically on
+November 8, 2023
+, with a rollout proceeding gradually across accounts. You must follow the instructions in this page only if you have a workspace and don't already have a metastore in your workspace region. To determine whether a metastore already exists in your region, see
+Get started with
+Unity Catalog
+.
+A metastore is the top-level container for data in
+Unity Catalog
+.
+Unity Catalog
+metastores register metadata about securable objects (such as tables, volumes, external locations, and shares) and the permissions that govern access to them. Each metastore exposes a three-level namespace (
+catalog
+.
+schema
+.
+table
+) by which data can be organized. You must have one metastore for each region in which your organization operates. To work with
+Unity Catalog
+, users must be on a workspace that is attached to a metastore in their region.
+To create a metastore, you do the following:
+In your
+AWS
+account, optionally create a storage location for metastore-level storage of managed tables and volumes.
+For information to help you decide whether you need metastore-level storage, see
+Specify a managed storage location in
+Unity Catalog
+.
+In your
+AWS
+account, create
+an IAM role
+that gives access to that storage location.
+In
+Databricks
+, create the metastore, attaching the storage location, and assign workspaces to the metastore.
+note
+In addition to the approaches described in this article, you can also create a metastore by using the
+Databricks Terraform provider
+, specifically the
+databricks_metastore
+resource. To enable
+Unity Catalog
+to access the metastore, use
+databricks_metastore_data_access
+. To link workspaces to a metastore, use
+databricks_metastore_assignment
+.
+Requirements
+​
+Before you begin, you should familiarize yourself with the basic
+Unity Catalog
+concepts, including metastores and managed storage. See
+What is
+Unity Catalog
+?
+.
+You should also confirm that you meet the following requirements for all setup steps:
+You must be
+a Databricks
+account admin.
+Your
+Databricks
+account must be on the
+Premium plan or above
+.
+If you want to set up metastore-level root storage, you must have the ability to create S3 buckets, IAM roles, IAM policies, and cross-account trust relationships in your AWS account.
+Step 1 (Optional): Create an S3 bucket for metastore-level managed storage in AWS
+​
+In this step, which is optional, you create the S3 bucket required by
+Unity Catalog
+to store managed table and volume data at the metastore level. You create the S3 bucket in your own AWS account. To determine whether you need metastore-level storage, see
+Specify a managed storage location in
+Unity Catalog
+.
+In AWS, create an S3 bucket.
+This S3 bucket will be the metastore-level storage location for managed tables and managed volumes in
+Unity Catalog
+. This storage location can be overridden at the catalog and schema levels. See
+Specify a managed storage location in
+Unity Catalog
+Requirements:
+If you have more than one metastore, you should use a dedicated S3 bucket for each one.
+Locate the bucket in the same region as the workspaces you want to access the data from.
+Do not use dot notation (for example,
+incorrect.bucket.name.notation
+) in S3 bucket names. Although AWS allows dots in bucket names,
+Databricks
+does not support S3 buckets with dot notation. Buckets containing dots can cause compatibility issues with features like
+OpenSharing
+due to SSL certificate validation failures. For more information, see the
+AWS bucket naming best practices
+.
+The bucket cannot have an S3 access control list attached to it.
+Make a note of the S3 bucket path, which starts with
+s3://
+.
+If you enable KMS encryption on the S3 bucket, make a note of the name of the KMS encryption key.
+Step 2 (Optional): Create an IAM role to access the storage location
+​
+In this step, which is required only if you completed step 1, you create the IAM role required by
+Unity Catalog
+to access the S3 bucket that you created in the previous step. Follow these instructions in
+Create a storage credential that accesses an AWS S3 bucket
+:
+Step 1: Create an IAM role
+Step 2: Give
+Databricks
+the IAM role details
+Step 3: Update the IAM role trust relationship policy
+Step 3: Create the metastore and attach a workspace
+​
+Each
+Databricks
+region requires its own
+Unity Catalog
+metastore.
+You create a metastore for each region in which your organization operates. You can link each of these regional metastores to any number of workspaces in that region. Each linked workspace has the same view of the data in the metastore, and data access control can be managed across workspaces. You can access data in other metastores using
+OpenSharing
+.
+If you chose to create metastore-level storage, the metastore will use the
+the S3 bucket and IAM role
+that you created in the previous steps.
+To create a metastore:
+Log in to the
+Databricks
+account console
+.
+Click
+Catalog
+.
+Click
+Create metastore
+.
+Enter the following:
+A name for the metastore.
+The region where you want to deploy the metastore.
+This must be in the same region as the workspaces you want to use to access the data. Make sure that this matches the region of the storage bucket you created earlier.
+(Optional) The S3 bucket path (you can omit
+s3://
+) and IAM role name for the bucket and role you created in the previous steps.
+Click
+Create
+.
+When prompted, select workspaces to link to the metastore.
+For details, see
+Enable a workspace for
+Unity Catalog
+.
+Transfer the metastore admin role to a group.
+The user who creates a metastore is its owner, also called the metastore admin. The metastore admin can create top-level objects in the metastore such as catalogs and can manage access to tables and other objects. Databricks recommends that you reassign the metastore admin role to a group. See
+Assign a metastore admin
+.
+Enable
+Databricks
+management of uploads to managed volumes.
+Databricks
+uses cross-origin resource sharing (CORS) to upload data to
+managed volumes
+in
+Unity Catalog
+.
+If, instead of using the instructions that follow, you want to use an AWS CloudFormation template, be aware that CloudFormation uses some property names that differ from those listed in these instructions. Use the
+CORS configuration instructions
+in the AWS CloudFormation reference to get the correct property names.
+Use the AWS console to select your bucket from the buckets list.
+Select
+Permissions
+.
+Select
+Edit
+under
+Cross-origin resource sharing (CORS)
+.
+Copy the following JSON configuration into the text box:
+JSON
+[
+{
+"AllowedHeaders"
+:
+[
+]
+,
+"AllowedMethods"
+:
+[
+"PUT"
+]
+,
+"AllowedOrigins"
+:
+[
+"https://*.databricks.com"
+]
+,
+"ExposeHeaders"
+:
+[
+]
+,
+"MaxAgeSeconds"
+:
+1800
+}
+]
+Select
+Save changes
+.
+Next steps
+​
+Create catalogs
+Create schemas
+Databricks
+tables
+Manage
+Unity Catalog
+metastores
+Learn more about Unity Catalog
+On this page
+Requirements
+Step 1 (Optional): Create an S3 bucket for metastore-level managed storage in AWS
+Step 2 (Optional): Create an IAM role to access the storage location
+Step 3: Create the metastore and attach a workspace
+Next steps

@@ -1,0 +1,1279 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+GROUP BY clause
+Applies to:
+Databricks SQL
+Databricks Runtime
+The
+GROUP BY
+clause is used to group the rows based on a set of specified grouping expressions and compute aggregations on the group of rows based on one or more specified aggregate functions.
+Databricks SQL
+also supports advanced aggregations to do multiple aggregations for the same input record set via
+GROUPING SETS
+,
+CUBE
+,
+ROLLUP
+clauses.
+The grouping expressions and advanced aggregations can be mixed in the
+GROUP BY
+clause and nested in a
+GROUPING SETS
+clause.
+See more details in the Mixed/Nested Grouping Analytics section.
+When a
+FILTER
+clause is attached to an aggregate function, only the matching rows are passed to that function.
+Syntax
+​
+GROUP BY ALL
+GROUP BY group_expression [, ...] [ WITH ROLLUP | WITH CUBE ]
+GROUP BY { group_expression | { ROLLUP | CUBE | GROUPING SETS } ( grouping_set [, ...] ) } [, ...]
+grouping_set
+{ expression |
+( [ expression [, ...] ] ) }
+While aggregate functions are defined as
+aggregate_name ( [ DISTINCT ] expression [, ...] ) [ FILTER ( WHERE boolean_expression ) ]
+Parameters
+​
+ALL
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.2 LTS and above
+A shorthand notation to add all
+SELECT
+-list expressions not containing aggregate functions as
+group_expression
+s.
+If no such expression exist
+GROUP BY ALL
+is equivalent to omitting the
+GROUP BY
+clause which results in a global aggregation.
+GROUP BY ALL
+is not guaranteed to produce a set of group expressions which can be resolved.
+Databricks
+raises
+UNRESOLVED_ALL_IN_GROUP_BY
+or
+MISSING_AGGREGATION
+if the produced clause is not well-formed.
+group_expression
+Specifies the criteria for grouping rows together.
+The grouping of rows is performed based on result values of the grouping expressions.
+A grouping expression may be a column name like
+GROUP BY a
+, column position like
+GROUP BY 0
+, or an expression like
+GROUP BY a + b
+.
+If a position is out of range,
+Databricks
+raises
+GROUP_BY_POS_OUT_OF_RANGE
+.
+If
+group_expression
+contains an
+aggregate function
+Databricks
+raises a
+GROUP_BY_AGGREGATE
+error.
+If a positional reference resolves to an aggregate expression,
+Databricks
+raises
+GROUP_BY_POS_AGGREGATE
+.
+grouping_set
+A grouping set is specified by zero or more comma-separated expressions in parentheses.
+When the grouping set has only one element, parentheses can be omitted.
+For example,
+GROUPING SETS ((a), (b))
+is the same as
+GROUPING SETS (a, b)
+.
+GROUPING SETS
+Groups the rows for each grouping set specified after
+GROUPING SETS
+. For example:
+GROUP BY GROUPING SETS ((warehouse), (product))
+is semantically equivalent to a union of results of
+GROUP BY warehouse
+and
+GROUP BY product
+.
+This clause is a shorthand for a
+UNION ALL
+where each leg of the
+UNION ALL
+operator performs aggregation of each grouping set specified in the
+GROUPING SETS
+clause.
+Similarly,
+GROUP BY GROUPING SETS ((warehouse, product), (product), ())
+is semantically equivalent to the union of results of
+GROUP BY warehouse, product
+,
+GROUP BY product
+and a global aggregate.
+note
+For Hive compatibility
+Databricks SQL
+allows
+GROUP BY ... GROUPING SETS (...)
+.
+The
+GROUP BY
+expressions are usually ignored, but if they contain extra expressions in addition to the
+GROUPING SETS
+expressions, the extra expressions will be included in the grouping expressions and the value is always null.
+For example, in
+SELECT a, b, c FROM ... GROUP BY a, b, c GROUPING SETS (a, b)
+, the output of column c is always null.
+ROLLUP
+Specifies multiple levels of aggregations in a single statement.
+This clause is used to compute aggregations based on multiple grouping sets.
+ROLLUP
+is a shorthand for
+GROUPING SETS
+. For example:
+SQL
+GROUP
+BY
+warehouse
+,
+product
+WITH ROLLUP
+or
+SQL
+GROUP
+BY
+ROLLUP
+(
+warehouse
+,
+product
+)
+is equivalent to
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+)
+,
+(
+warehouse
+)
+,
+(
+)
+)
+While
+SQL
+GROUP
+BY
+ROLLUP
+(
+warehouse
+,
+product
+,
+location
+)
+)
+is equivalent to
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+,
+location
+)
+,
+(
+warehouse
+,
+product
+)
+,
+(
+warehouse
+)
+,
+(
+)
+)
+The N elements of a
+ROLLUP
+specification result in N+1
+GROUPING SETS
+.
+CUBE
+The
+CUBE
+clause is used to perform aggregations based on a combination of grouping columns specified in the
+GROUP BY
+clause.
+CUBE
+is a shorthand for
+GROUPING SETS
+.
+For example:
+SQL
+GROUP
+BY
+warehouse
+,
+product
+WITH
+CUBE
+or
+SQL
+GROUP
+BY
+CUBE
+(
+warehouse
+,
+product
+)
+is equivalent to:
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+)
+,
+(
+warehouse
+)
+,
+(
+product
+)
+,
+(
+)
+)
+While
+SQL
+GROUP
+BY
+CUBE
+(
+warehouse
+,
+product
+,
+location
+)
+is equivalent to the following:
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+,
+location
+)
+,
+(
+warehouse
+,
+product
+)
+,
+(
+warehouse
+,
+location
+)
+,
+(
+product
+,
+location
+)
+,
+(
+warehouse
+)
+,
+(
+product
+)
+,
+(
+location
+)
+,
+(
+)
+)
+The N elements of a
+CUBE
+specification results in 2^N
+GROUPING SETS
+.
+aggregate_name
+An aggregate function name (MIN, MAX, COUNT, SUM, AVG, etc.).
+DISTINCT
+Removes duplicates in input rows before they are passed to aggregate functions.
+FILTER
+Filters the input rows for which the
+boolean_expression
+in the
+WHERE
+clause evaluates
+to true are passed to the aggregate function; other rows are discarded.
+Mixed/Nested Grouping Analytics
+​
+A
+GROUP BY
+clause can include multiple
+group_expressions
+and multiple
+CUBE
+,
+ROLLUP
+, and
+GROUPING SETS
+s.
+GROUPING SETS
+can also have nested
+CUBE
+,
+ROLLUP
+, or
+GROUPING SETS
+clauses. For example:
+SQL
+GROUPING SETS
+(
+ROLLUP
+(
+warehouse
+,
+location
+)
+,
+CUBE
+(
+warehouse
+,
+location
+)
+)
+,
+GROUPING SETS
+(
+warehouse
+,
+GROUPING SETS
+(
+location
+,
+GROUPING SETS
+(
+ROLLUP
+(
+warehouse
+,
+location
+)
+,
+CUBE
+(
+warehouse
+,
+location
+)
+)
+)
+)
+CUBE
+and
+ROLLUP
+is just syntax sugar for
+GROUPING SETS
+.
+Please refer to the sections above for how to translate
+CUBE
+and
+ROLLUP
+to
+GROUPING SETS
+.
+group_expression
+can be treated as a single-group
+GROUPING SETS
+in this context.
+For multiple
+GROUPING SETS
+in the
+GROUP BY
+clause,
+Databricks SQL
+generates a single
+GROUPING SETS
+by doing a cross-product of the original
+GROUPING SETS
+.
+For nested
+GROUPING SETS
+in the
+GROUPING SETS
+clause,
+Databricks SQL
+takes its grouping sets and strips them. For example, the following queries:
+SQL
+GROUP
+BY
+warehouse
+,
+GROUPING SETS
+(
+(
+product
+)
+,
+(
+)
+)
+,
+GROUPING SETS
+(
+(
+location
+,
+size
+)
+,
+(
+location
+)
+,
+(
+size
+)
+,
+(
+)
+)
+;
+GROUP
+BY
+warehouse
+,
+ROLLUP
+(
+product
+)
+,
+CUBE
+(
+location
+,
+size
+)
+;
+are equivalent to the following:
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+,
+location
+,
+size
+)
+,
+(
+warehouse
+,
+product
+,
+location
+)
+,
+(
+warehouse
+,
+product
+,
+size
+)
+,
+(
+warehouse
+,
+product
+)
+,
+(
+warehouse
+,
+location
+,
+size
+)
+,
+(
+warehouse
+,
+location
+)
+,
+(
+warehouse
+,
+size
+)
+,
+(
+warehouse
+)
+)
+While
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+GROUPING SETS
+(
+warehouse
+)
+,
+GROUPING SETS
+(
+(
+warehouse
+,
+product
+)
+)
+)
+`
+is equivalent to
+SQL
+GROUP
+BY
+GROUPING SETS
+(
+(
+warehouse
+)
+,
+(
+warehouse
+,
+product
+)
+)
+`
+.
+Common error conditions
+​
+GROUP_BY_AGGREGATE
+GROUP_BY_POS_AGGREGATE
+GROUP_BY_POS_OUT_OF_RANGE
+GROUPING_COLUMN_MISMATCH
+GROUPING_ID_COLUMN_MISMATCH
+GROUPING_SIZE_LIMIT_EXCEEDED
+MISSING_AGGREGATION
+MISSING_GROUP_BY
+STAR_GROUP_BY_POS
+UNRESOLVED_ALL_IN_GROUP_BY
+UNSUPPORTED_GROUPING_EXPRESSION
+Examples
+​
+SQL
+CREATE
+TEMP
+VIEW
+dealer
+(
+id
+,
+city
+,
+car_model
+,
+quantity
+)
+AS
+VALUES
+(
+100
+,
+'Fremont'
+,
+'Honda Civic'
+,
+10
+)
+,
+(
+100
+,
+'Fremont'
+,
+'Honda Accord'
+,
+15
+)
+,
+(
+100
+,
+'Fremont'
+,
+'Honda CRV'
+,
+7
+)
+,
+(
+200
+,
+'Dublin'
+,
+'Honda Civic'
+,
+20
+)
+,
+(
+200
+,
+'Dublin'
+,
+'Honda Accord'
+,
+10
+)
+,
+(
+200
+,
+'Dublin'
+,
+'Honda CRV'
+,
+3
+)
+,
+(
+300
+,
+'San Jose'
+,
+'Honda Civic'
+,
+5
+)
+,
+(
+300
+,
+'San Jose'
+,
+'Honda Accord'
+,
+8
+)
+;
+-- Sum of quantity per dealership. Group by `id`.
+>
+SELECT
+id
+,
+sum
+(
+quantity
+)
+FROM
+dealer
+GROUP
+BY
+id
+ORDER
+BY
+id
+;
+id
+sum
+(
+quantity
+)
+--- -------------
+100
+32
+200
+33
+300
+13
+-- Use column position in GROUP by clause.
+>
+SELECT
+id
+,
+sum
+(
+quantity
+)
+FROM
+dealer
+GROUP
+BY
+1
+ORDER
+BY
+1
+;
+id
+sum
+(
+quantity
+)
+--- -------------
+100
+32
+200
+33
+300
+13
+-- Multiple aggregations.
+-- 1. Sum of quantity per dealership.
+-- 2. Max quantity per dealership.
+>
+SELECT
+id
+,
+sum
+(
+quantity
+)
+AS
+sum
+,
+max
+(
+quantity
+)
+AS
+max
+FROM
+dealer
+GROUP
+BY
+id
+ORDER
+BY
+id
+;
+id sum max
+--- --- ---
+100
+32
+15
+200
+33
+20
+300
+13
+8
+-- Count the number of distinct dealers in cities per car_model.
+>
+SELECT
+car_model
+,
+count
+(
+DISTINCT
+city
+)
+AS
+count
+FROM
+dealer
+GROUP
+BY
+car_model
+;
+car_model count
+------------ -----
+Honda Civic
+3
+Honda CRV
+2
+Honda Accord
+3
+-- Count the number of distinct dealers in cities per car_model, using GROUP BY ALL
+>
+SELECT
+car_model
+,
+count
+(
+DISTINCT
+city
+)
+AS
+count
+FROM
+dealer
+GROUP
+BY
+ALL
+;
+car_model count
+------------ -----
+Honda Civic
+3
+Honda CRV
+2
+Honda Accord
+3
+-- Sum of only 'Honda Civic' and 'Honda CRV' quantities per dealership.
+>
+SELECT
+id
+,
+sum
+(
+quantity
+)
+FILTER
+(
+WHERE
+car_model
+IN
+(
+'Honda Civic'
+,
+'Honda CRV'
+)
+)
+AS
+`
+sum(quantity)
+`
+FROM
+dealer
+GROUP
+BY
+id
+ORDER
+BY
+id
+;
+id
+sum
+(
+quantity
+)
+--- -------------
+100
+17
+200
+23
+300
+5
+-- Aggregations using multiple sets of grouping columns in a single statement.
+-- Following performs aggregations based on four sets of grouping columns.
+-- 1. city, car_model
+-- 2. city
+-- 3. car_model
+-- 4. Empty grouping set. Returns quantities for all city and car models.
+>
+SELECT
+city
+,
+car_model
+,
+sum
+(
+quantity
+)
+AS
+sum
+FROM
+dealer
+GROUP
+BY
+GROUPING SETS
+(
+(
+city
+,
+car_model
+)
+,
+(
+city
+)
+,
+(
+car_model
+)
+,
+(
+)
+)
+ORDER
+BY
+city
+;
+city    car_model sum
+--------- ------------ ---
+null
+null
+78
+null
+HondaAccord
+33
+null
+HondaCRV
+10
+null
+HondaCivic
+35
+Dublin
+null
+33
+Dublin  HondaAccord
+10
+Dublin     HondaCRV
+3
+Dublin   HondaCivic
+20
+Fremont
+null
+32
+Fremont  HondaAccord
+15
+Fremont     HondaCRV
+7
+Fremont   HondaCivic
+10
+San Jose
+null
+13
+San Jose  HondaAccord
+8
+San Jose   HondaCivic
+5
+-- Group by processing with `ROLLUP` clause.
+-- Equivalent GROUP BY GROUPING SETS ((city, car_model), (city), ())
+>
+SELECT
+city
+,
+car_model
+,
+sum
+(
+quantity
+)
+AS
+sum
+FROM
+dealer
+GROUP
+BY
+city
+,
+car_model
+WITH ROLLUP
+ORDER
+BY
+city
+,
+car_model
+;
+city    car_model sum
+--------- ------------ ---
+null
+null
+78
+Dublin
+null
+33
+Dublin  HondaAccord
+10
+Dublin     HondaCRV
+3
+Dublin   HondaCivic
+20
+Fremont
+null
+32
+Fremont  HondaAccord
+15
+Fremont     HondaCRV
+7
+Fremont   HondaCivic
+10
+San Jose
+null
+13
+San Jose  HondaAccord
+8
+San Jose   HondaCivic
+5
+-- Group by processing with `CUBE` clause.
+-- Equivalent GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ())
+>
+SELECT
+city
+,
+car_model
+,
+sum
+(
+quantity
+)
+AS
+sum
+FROM
+dealer
+GROUP
+BY
+city
+,
+car_model
+WITH
+CUBE
+ORDER
+BY
+city
+,
+car_model
+;
+city    car_model sum
+--------- ------------ ---
+null
+null
+78
+null
+HondaAccord
+33
+null
+HondaCRV
+10
+null
+HondaCivic
+35
+Dublin
+null
+33
+Dublin  HondaAccord
+10
+Dublin     HondaCRV
+3
+Dublin   HondaCivic
+20
+Fremont
+null
+32
+Fremont  HondaAccord
+15
+Fremont     HondaCRV
+7
+Fremont   HondaCivic
+10
+San Jose
+null
+13
+San Jose  HondaAccord
+8
+San Jose   HondaCivic
+5
+--Prepare data for ignore nulls example
+>
+CREATE
+TEMP
+VIEW
+person
+(
+id
+,
+name
+,
+age
+)
+AS
+VALUES
+(
+100
+,
+'Mary'
+,
+NULL
+)
+,
+(
+200
+,
+'John'
+,
+30
+)
+,
+(
+300
+,
+'Mike'
+,
+80
+)
+,
+(
+400
+,
+'Dan'
+,
+50
+)
+;
+--Select the first row in column age
+>
+SELECT
+FIRST
+(
+age
+)
+FROM
+person
+;
+first
+(
+age
+,
+false
+)
+--------------------
+NULL
+--Get the first row in column `age` ignore nulls,last row in column `id` and sum of column `id`.
+>
+SELECT
+FIRST
+(
+age
+IGNORE
+NULLS
+)
+,
+LAST
+(
+id
+)
+,
+SUM
+(
+id
+)
+FROM
+person
+;
+first
+(
+age
+,
+true
+)
+last
+(
+id
+,
+false
+)
+sum
+(
+id
+)
+------------------- ------------------ ----------
+30
+400
+1000
+-- Aggregate function in `GROUP BY` is not allowed.
+>
+SELECT
+id
+FROM
+dealer
+GROUP
+BY
+sum
+(
+quantity
+)
+;
+Error: GROUP_BY_AGGREGATE
+-- Column not in `GROUP BY` and not aggregated.
+>
+SELECT
+city
+,
+car_model
+FROM
+dealer
+GROUP
+BY
+city
+;
+Error: MISSING_AGGREGATION
+-- Positional reference out of range.
+>
+SELECT
+city
+FROM
+dealer
+GROUP
+BY
+2
+;
+Error: GROUP_BY_POS_OUT_OF_RANGE
+Related articles
+​
+HAVING
+QUALIFY
+SELECT
+On this page
+Syntax
+Parameters
+Mixed/Nested Grouping Analytics
+Common error conditions
+Examples
+Related articles

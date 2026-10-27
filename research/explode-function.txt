@@ -1,0 +1,389 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+explode
+table-valued generator function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns a set of rows by un-nesting
+collection
+.
+In
+Databricks SQL
+and
+Databricks Runtime
+13.3 LTS and above this function supports
+named parameter invocation
+.
+Syntax
+​
+explode(collection)
+Arguments
+​
+collection
+: An
+ARRAY
+or
+MAP
+expression.
+Returns
+​
+A set of rows composed of the elements of the array or the keys and values of the map.
+The column produced by
+explode
+of an array is named
+col
+.
+The columns for a map are called
+key
+and
+value
+.
+If
+collection
+is
+NULL
+no rows are produced. To return a single row with
+NULL
+s for the array or map values use the
+explode_outer()
+function.
+Applies to:
+Databricks Runtime
+12.1 and earlier:
+explode
+can only be placed in the
+SELECT
+list as the root of an expression or following a
+LATERAL VIEW
+.
+When placing the function in the
+SELECT
+list there must be no other generator function in the same
+SELECT
+list or
+UNSUPPORTED_GENERATOR.MULTI_GENERATOR
+is raised.
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.2 LTS and above:
+Invocation from the
+LATERAL VIEW clause
+or the
+SELECT
+list is deprecated.
+Instead, invoke
+explode
+as a
+table_reference
+.
+Examples
+​
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.1 and earlier:
+SQL
+>
+SELECT
+explode
+(
+array
+(
+10
+,
+20
+)
+)
+AS
+elem
+,
+'Spark'
+;
+10
+Spark
+20
+Spark
+>
+SELECT
+explode
+(
+map
+(
+1
+,
+'a'
+,
+2
+,
+'b'
+)
+)
+AS
+(
+num
+,
+val
+)
+,
+'Spark'
+;
+1
+a   Spark
+2
+b   Spark
+>
+SELECT
+explode
+(
+array
+(
+1
+,
+2
+)
+)
+,
+explode
+(
+array
+(
+3
+,
+4
+)
+)
+;
+Error: UNSUPPORTED_GENERATOR
+.
+MULTI_GENERATOR
+-- The difference between explode() and explode_outer() is that explode_outer() returns NULL if the array is NULL.
+>
+SELECT
+explode_outer
+(
+c1
+)
+AS
+elem
+,
+'Spark'
+FROM
+VALUES
+(
+array
+(
+10
+,
+20
+)
+)
+,
+(
+null
+)
+AS
+T
+(
+c1
+)
+;
+10
+Spark
+20
+Spark
+NULL
+Spark
+>
+SELECT
+explode
+(
+c1
+)
+AS
+elem
+,
+'Spark'
+FROM
+VALUES
+(
+array
+(
+10
+,
+20
+)
+)
+,
+(
+null
+)
+AS
+T
+(
+c1
+)
+;
+10
+Spark
+20
+Spark
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.2 LTS and above:
+SQL
+>
+SELECT
+elem
+,
+'Spark'
+FROM
+explode
+(
+array
+(
+10
+,
+20
+)
+)
+AS
+t
+(
+elem
+)
+;
+10
+Spark
+20
+Spark
+>
+SELECT
+num
+,
+val
+,
+'Spark'
+FROM
+explode
+(
+map
+(
+1
+,
+'a'
+,
+2
+,
+'b'
+)
+)
+AS
+t
+(
+num
+,
+val
+)
+;
+1
+a   Spark
+2
+b   Spark
+>
+SELECT
+*
+FROM
+explode
+(
+array
+(
+1
+,
+2
+)
+)
+,
+explode
+(
+array
+(
+3
+,
+4
+)
+)
+;
+1
+3
+1
+4
+2
+3
+2
+4
+-- Using lateral correlation in Databricks 12.2 and above
+>
+SELECT
+*
+FROM
+explode
+(
+array
+(
+1
+,
+2
+)
+)
+AS
+t
+,
+LATERAL explode
+(
+array
+(
+3
+*
+t
+.
+col
+,
+4
+*
+t
+.
+col
+)
+)
+;
+1
+3
+1
+4
+2
+6
+2
+8
+Related functions
+​
+explode_outer
+table-valued generator function
+posexplode
+table-valued generator function
+posexplode_outer
+table-valued generator function
+inline
+table-valued generator function
+inline_outer
+table-valued generator function
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Related functions
