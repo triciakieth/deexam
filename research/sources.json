@@ -1,0 +1,195 @@
+{
+  "lakehouse": {
+    "url": "https://docs.databricks.com/aws/en/lakehouse/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/lakehouse/",
+    "title": "What is a data lakehouse? | Databricks on AWS",
+    "characters": 7011,
+    "retrieved": "2026-10-27"
+  },
+  "medallion": {
+    "url": "https://docs.databricks.com/aws/en/lakehouse/medallion",
+    "requestedUrl": "https://docs.databricks.com/aws/en/lakehouse/medallion",
+    "title": "What is the medallion lakehouse architecture? | Databricks on AWS",
+    "characters": 12251,
+    "retrieved": "2026-10-27"
+  },
+  "auto-loader": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/",
+    "title": "What is Auto Loader? | Databricks on AWS",
+    "characters": 7860,
+    "retrieved": "2026-10-27"
+  },
+  "vacuum": {
+    "url": "https://docs.databricks.com/aws/en/tables/operations/vacuum",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/vacuum",
+    "title": "Remove unused data files with vacuum | Databricks on AWS",
+    "characters": 10856,
+    "retrieved": "2026-10-27"
+  },
+  "delete": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/delta-delete-from",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/delta-delete-from",
+    "title": "DELETE FROM | Databricks on AWS",
+    "characters": 1765,
+    "retrieved": "2026-10-27"
+  },
+  "insert": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into",
+    "title": "INSERT | Databricks on AWS",
+    "characters": 22357,
+    "retrieved": "2026-10-27"
+  },
+  "optimize": {
+    "url": "https://docs.databricks.com/aws/en/tables/operations/optimize",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/optimize",
+    "title": "Optimize data file layout | Databricks on AWS",
+    "characters": 4448,
+    "retrieved": "2026-10-27"
+  },
+  "delta": {
+    "url": "https://docs.databricks.com/aws/en/delta/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta/",
+    "title": "What is Delta Lake in Databricks? | Databricks on AWS",
+    "characters": 8145,
+    "retrieved": "2026-10-27"
+  },
+  "copy": {
+    "url": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/copy-into/",
+    "title": "Get started using COPY INTO to load data | Databricks on AWS",
+    "characters": 7933,
+    "retrieved": "2026-10-27"
+  },
+  "bundles": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/bundles/variables",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/bundles/variables",
+    "title": "Substitutions and variables in Declarative Automation Bundles | Databricks on AWS",
+    "characters": 12576,
+    "retrieved": "2026-10-27"
+  },
+  "jobs": {
+    "url": "https://docs.databricks.com/aws/en/jobs/run-if",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/run-if",
+    "title": "Configure task dependencies | Databricks on AWS",
+    "characters": 4262,
+    "retrieved": "2026-10-27"
+  },
+  "file-arrival": {
+    "url": "https://docs.databricks.com/aws/en/jobs/file-arrival-triggers",
+    "requestedUrl": "https://docs.databricks.com/aws/en/jobs/file-arrival-triggers",
+    "title": "Trigger jobs when new files arrive | Databricks on AWS",
+    "characters": 12482,
+    "retrieved": "2026-10-27"
+  },
+  "connect": {
+    "url": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/dev-tools/databricks-connect/",
+    "title": "Databricks Connect | Databricks on AWS",
+    "characters": 4109,
+    "retrieved": "2026-10-27"
+  },
+  "federation": {
+    "url": "https://docs.databricks.com/aws/en/query-federation/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/query-federation/",
+    "title": "Connect to external databases and catalogs | Databricks on AWS",
+    "characters": 7969,
+    "retrieved": "2026-10-27"
+  },
+  "sql-warehouses": {
+    "url": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior",
+    "requestedUrl": "https://docs.databricks.com/aws/en/compute/sql-warehouse/warehouse-behavior",
+    "title": "SQL warehouse sizing, scaling, and queuing behavior | Databricks on AWS",
+    "characters": 6600,
+    "retrieved": "2026-10-27"
+  },
+  "notebooks": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/notebooks-code",
+    "requestedUrl": "https://docs.databricks.com/aws/en/notebooks/notebooks-code",
+    "title": "Develop code in Databricks notebooks | Databricks on AWS",
+    "characters": 14759,
+    "retrieved": "2026-10-27"
+  },
+  "git": {
+    "url": "https://docs.databricks.com/aws/en/repos/git-operations-with-repos",
+    "requestedUrl": "https://docs.databricks.com/aws/en/repos/git-operations-with-repos",
+    "title": "Create and manage Git folders | Databricks on AWS",
+    "characters": 25134,
+    "retrieved": "2026-10-27"
+  },
+  "expectations": {
+    "url": "https://docs.databricks.com/aws/en/ldp/expectations",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-live-tables/expectations",
+    "title": "Manage data quality with pipeline expectations | Databricks on AWS",
+    "characters": 12358,
+    "retrieved": "2026-10-27"
+  },
+  "streaming": {
+    "url": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+    "requestedUrl": "https://docs.databricks.com/aws/en/structured-streaming/triggers",
+    "title": "Configure Structured Streaming trigger intervals | Databricks on AWS",
+    "characters": 8036,
+    "retrieved": "2026-10-27"
+  },
+  "architecture": {
+    "url": "https://docs.databricks.com/aws/en/getting-started/high-level-architecture",
+    "requestedUrl": "https://docs.databricks.com/aws/en/getting-started/overview",
+    "title": "High-level architecture | Databricks on AWS",
+    "characters": 7420,
+    "retrieved": "2026-10-27"
+  },
+  "countif": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count_if",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/functions/count_if",
+    "title": "count_if aggregate function | Databricks on AWS",
+    "characters": 1151,
+    "retrieved": "2026-10-27"
+  },
+  "views": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view",
+    "title": "CREATE VIEW | Databricks on AWS",
+    "characters": 16841,
+    "retrieved": "2026-10-27"
+  },
+  "create-table": {
+    "url": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using",
+    "requestedUrl": "https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using",
+    "title": "CREATE TABLE [USING] | Databricks on AWS",
+    "characters": 18135,
+    "retrieved": "2026-10-27"
+  },
+  "privileges": {
+    "url": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/access-control/privileges-reference",
+    "requestedUrl": "https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/privileges",
+    "title": "Unity Catalog privileges reference | Databricks on AWS",
+    "characters": 55981,
+    "retrieved": "2026-10-27"
+  },
+  "debugger": {
+    "url": "https://docs.databricks.com/aws/en/notebooks/debugger",
+    "requestedUrl": "https://docs.databricks.com/aws/en/notebooks/debugger",
+    "title": "Debug Databricks notebooks | Databricks on AWS",
+    "characters": 4995,
+    "retrieved": "2026-10-27"
+  },
+  "pools": {
+    "url": "https://docs.databricks.com/aws/en/compute/pools-index",
+    "error": "HTTP Error 404: Not Found"
+  },
+  "sharing": {
+    "url": "https://docs.databricks.com/aws/en/opensharing",
+    "requestedUrl": "https://docs.databricks.com/aws/en/delta-sharing/",
+    "title": "What is OpenSharing? | Databricks on AWS",
+    "characters": 34226,
+    "retrieved": "2026-10-27"
+  },
+  "python": {
+    "url": "https://docs.databricks.com/aws/en/pyspark/",
+    "requestedUrl": "https://docs.databricks.com/aws/en/pyspark/",
+    "title": "PySpark on Databricks | Databricks on AWS",
+    "characters": 7215,
+    "retrieved": "2026-10-27"
+  }
+}

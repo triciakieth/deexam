@@ -1,0 +1,842 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+CREATE TABLE [USING]
+Applies to:
+Databricks SQL
+Databricks Runtime
+Defines a managed, temporary, or
+external table
+, and, for non-temporary tables, optionally using a data source.
+The
+CREATE TEMP TABLE
+command creates a session-local temporary table that persists data temporarily during the session. The table name must be unqualified (no schema or catalog prefix). Temporary tables don't reside in the current schema or catalog and are only accessible within the session that created them. Databricks drops temporary tables automatically when the session ends.
+important
+When you set
+table
+options that carry a credential, such as a password or token, to keep them secure, provide the value using the
+secret
+function rather than entering the literal value directly in the
+OPTIONS
+clause. This lets you reference a secret stored in the
+Databricks secret service
+instead of including the credential value in your statement.
+See the
+examples
+.
+Syntax
+​
+{ { [CREATE OR] REPLACE { TEMP | TEMPORARY } TABLE | CREATE [EXTERNAL] TABLE [ IF NOT EXISTS ] | CREATE { TEMP | TEMPORARY } TABLE}
+table_name
+[ table_specification ]
+[ USING data_source ]
+[ table_clauses ]
+[ AS query ] }
+table_specification
+( { column_identifier column_type [ column_properties ] } [, ...]
+[ , table_constraint ] [...] )
+column_properties
+{ NOT NULL |
+COLLATE collation_name |
+GENERATED ALWAYS AS ( expr ) |
+GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( [ START WITH start | INCREMENT BY step ] [ ...] ) ] |
+DEFAULT default_expression |
+COMMENT column_comment |
+column_constraint |
+MASK clause } [ ... ]
+table_clauses
+{ OPTIONS clause |
+PARTITIONED BY clause |
+CLUSTER BY clause |
+clustered_by_clause |
+LOCATION path [ WITH ( CREDENTIAL credential_name ) ] |
+COMMENT table_comment |
+TBLPROPERTIES clause |
+DEFAULT COLLATION default_collation_name |
+WITH { ROW FILTER clause } } [...]
+clustered_by_clause
+{ CLUSTERED BY ( cluster_column [, ...] )
+[ SORTED BY ( { sort_column [ ASC | DESC ] } [, ...] ) ]
+INTO num_buckets BUCKETS }
+Prior to
+Databricks Runtime
+16.1
+START WITH
+must precede
+INCREMENT BY
+.
+Parameters
+​
+REPLACE
+If specified, replaces the table and its content if it already exists.
+This clause is only supported for Delta and
+Apache Iceberg
+tables.
+REPLACE
+preserves the
+table history
+and granted privileges, row filters, and column masks.
+note
+Databricks
+strongly recommends using
+REPLACE
+instead of dropping and re-creating tables.
+EXTERNAL
+If specified, creates an
+external table
+.
+When creating an external table you must also provide a
+LOCATION
+clause.
+When an external table is dropped the files at the
+LOCATION
+will not be dropped.
+TEMP or TEMPORARY
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.1 and above
+If specified, it creates or replaces a temporary table. When creating or replacing a temporary table, don't specify a data source in the
+USING
+clause or a
+LOCATION
+clause. The following clauses are not supported:
+PARTITIONED BY
+,
+CLUSTER BY
+, and row-level filters. The following column properties are not supported:
+GENERATED
+and column masks.
+For REPLACE command, if the
+TEMPORARY
+keyword is not specified, the command only replaces a permanent table. It will generate an error
+TEMP_TABLE_REPLACE_PERMANENT_NAME_CONFLICT
+if there exists a temporary table with the same unqualified name.
+IF NOT EXISTS
+If specified and a table with the same name already exists, the statement is ignored.
+IF NOT EXISTS
+cannot coexist with
+REPLACE
+, which means
+CREATE OR REPLACE TABLE IF NOT EXISTS
+is not allowed.
+table_name
+The name of the table to be created. The name must not include a
+temporal specification or options specification
+. If the name is not qualified, the table is created in the current schema.
+Tables created in
+hive_metastore
+can only contain alphanumeric ASCII characters and underscores (
+INVALID_SCHEMA_OR_RELATION_NAME
+).
+Iceberg tables must be created in
+Unity Catalog
+. Creating Iceberg tables in the
+hive_metastore
+isn't supported.
+Use an unqualified name (no catalog or schema) when creating temporary tables. If a temporary table or view has the same name as a permanent object, the unqualified name refers to the temporary object. Access permanent objects by using a qualified name that includes the catalog or schema. See
+Table and view resolution
+for more information.
+table_specification
+This optional clause defines the list of columns, their types, properties, descriptions, and column constraints.
+If you do not define columns the table schema you must specify either
+AS query
+or
+LOCATION
+.
+column_identifier
+A unique name for the column.
+Column identifiers of Delta tables without column mapping property (
+'delta.columnMapping.mode' = 'name'
+) must not contain spaces or the following characters:
+, ; { } ( ) \n \t =
+.
+Column identifiers of
+AVRO
+tables must start with an underscore (
+_
+) or a Unicode letter (including non-ASCII letters) and be followed by a combination of Unicode letters, digits, and underscores.
+Column identifiers of
+ICEBERG
+tables must be unique, case-insensitive, and follow standard SQL identifier rules. Avoid using spaces or special characters, as they might not be supported by all query engines.
+column_type
+Specifies the data type of the column.
+Not all
+data types
+supported by
+Databricks
+are supported by all data sources.
+NOT NULL
+If specified, the column doesn't accept
+NULL
+values. This clause is supported only for Delta and Iceberg tables.
+COLLATE
+collation_name
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.1 and above
+For
+STRING
+column_type
+optionally names the collation to apply for comparison and sort operations on this column.
+The default collation is the table
+default_collation_name
+.
+GENERATED ALWAYS AS (
+expr
+)
+When you specify this clause the value of this column is determined by the specified
+expr
+.
+The
+DEFAULT COLLATION
+of the table must be
+UTF8_BINARY
+.
+expr
+may be composed of literals, column identifiers within the table, and deterministic, built-in SQL functions or operators except:
+Aggregate functions
+Analytic window functions
+Ranking window functions
+Table valued generator functions
+Columns with a collation other than
+UTF8_BINARY
+Also
+expr
+must not contain any
+subquery
+.
+GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( [ START WITH start ] [ INCREMENT BY step ] ) ]
+Applies to:
+Databricks SQL
+Databricks Runtime
+10.4 LTS and above
+Defines an identity column. When you write to the table, and do not provide values for the identity column, it will be automatically assigned a unique and statistically increasing (or decreasing if
+step
+is negative) value. This clause is only supported for Delta tables. This clause can only be used for columns with BIGINT data type.
+The automatically assigned values start with
+start
+and increment by
+step
+. Assigned values are unique but are not guaranteed to be contiguous. Both parameters are optional, and the default value is 1.
+step
+cannot be
+0
+.
+If the automatically assigned values are beyond the range of the identity column type, the query will fail.
+When
+ALWAYS
+is used, you cannot provide your own values for the identity column.
+The following operations are not supported:
+PARTITIONED BY
+an identity column
+UPDATE
+an identity column
+note
+Declaring an identity column on a table disables concurrent transactions. Only use identity columns in use cases where concurrent writes to the target table are not required.
+DEFAULT default_expression
+Applies to:
+Databricks SQL
+Databricks Runtime
+11.3 LTS and above
+Defines a
+DEFAULT
+value for the column which is used on
+INSERT
+,
+UPDATE
+, and
+MERGE ... INSERT
+when the column is not specified.
+If no default is specified
+DEFAULT NULL
+is applied for nullable columns.
+default_expression
+may be composed of literals, and built-in SQL functions or operators except:
+Aggregate functions
+Analytic window functions
+Ranking window functions
+Table valued generator functions
+Also
+default_expression
+must not contain any
+subquery
+.
+DEFAULT
+is supported for
+CSV
+,
+JSON
+,
+PARQUET
+, and
+ORC
+sources.
+COMMENT column_comment
+A string literal to describe the column.
+column_constraint
+Adds a primary key or foreign key constraint to the column in a table.
+Constraints are not supported for tables in the
+hive_metastore
+catalog.
+To add a check constraint to a table use
+ALTER TABLE
+.
+MASK clause
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.2 LTS and above
+Unity Catalog
+only
+Adds a column mask function to anonymize sensitive data. All subsequent queries from that column receive the result of evaluating that function over the column in place of the column's original value. This can be useful for fine-grained access control purposes where the function can inspect the identity or group memberships of the invoking user to decide whether to redact the value.
+If you are replacing a table and the new table includes the same column names as the original, any existing column masks are retained, even if they’re not explicitly redefined. This prevents accidental loss of data access policies.
+table_constraint
+Adds an informational primary key or informational foreign key constraints to the table.
+Key constraints are not supported for tables in the
+hive_metastore
+catalog.
+To add a check constraint to a table use
+ALTER TABLE
+.
+USING data_source
+data_source
+can be either a file-format or a federated JDBC data source.
+The file-format must be one of the following:
+AVRO
+BINARYFILE
+CSV
+DELTA
+ICEBERG
+JSON
+ORC
+PARQUET
+TEXT
+For any file-format other than
+DELTA
+or
+ICEBERG
+, if you do not specify a
+LOCATION
+or
+AS query
+, the table is created as a managed table with no data.
+The following federated JDBC sources are supported:
+POSTGRESQL
+SQLSERVER
+MYSQL
+BIGQUERY
+NETSUITE
+ORACLE
+REDSHIFT
+SNOWFLAKE
+SQLDW
+SYNAPSE
+SALESFORCE
+SALESFORCE_DATA_CLOUD
+TERADATA
+WORKDAY_RAAS
+MONGODB
+When specifying a federated JDBC source, you must also specify the
+OPTIONS
+clause with the necessary connection information.
+See
+Query databases using JDBC
+for more information on querying federated data sources.
+The following additional file formats to use for the table are supported in
+Databricks Runtime
+:
+JDBC
+LIBSVM
+a fully-qualified class name of a custom implementation of
+org.apache.spark.sql.sources.DataSourceRegister
+.
+If
+USING
+is omitted, the default is
+DELTA
+.
+The
+USING
+clause is not supported for temporary tables.
+The following applies to:
+Databricks Runtime
+HIVE
+is supported to create a Hive SerDe table in
+Databricks Runtime
+.
+You can specify the Hive-specific
+file_format
+and
+row_format
+using the
+OPTIONS
+clause, which is a case-insensitive string map.
+The
+option_keys
+are:
+FILEFORMAT
+INPUTFORMAT
+OUTPUTFORMAT
+SERDE
+FIELDDELIM
+ESCAPEDELIM
+MAPKEYDELIM
+LINEDELIM
+table_clauses
+Optionally specify location, partitioning, clustering, options, comments, and user defined properties for the new table.
+Each sub clause may only be specified once.
+PARTITIONED BY
+An optional clause to partition the table by a subset of columns.
+The
+PARTITIONED BY
+clause is not supported for temporary tables.
+note
+For managed Iceberg tables,
+Databricks
+doesn't support
+PARTITIONED BY
+. Use liquid clustering (
+CLUSTER BY
+) to optimize data layout instead. For Delta tables, if you omit the table definition,
+Databricks
+places partitioning columns at the end of the table, even if you list them earlier in the column specification.
+CLUSTER BY
+Applies to:
+Databricks SQL
+Databricks Runtime
+13.3 and above
+An optional clause to cluster a Delta or Iceberg table by a subset of columns. See
+Use liquid clustering for tables
+.
+To cluster other tables, use
+clustered_by_clause
+.
+For Iceberg tables, you must explicitly disable deletion vectors and row IDs when you use
+CLUSTER BY
+.
+Use automatic liquid clustering with
+CLUSTER BY AUTO
+, and Databricks intelligently chooses clustering keys to optimize query performance.
+You can't combine liquid clustering with
+PARTITIONED BY
+.
+clustered_by_clause
+Optionally cluster the table or each partition into a fixed number of hash buckets using a subset of the columns.
+This clause isn't supported for Delta or Iceberg tables. Use
+CLUSTER BY
+instead.
+CLUSTERED BY
+Specifies the set of columns by which to cluster each partition, or the table if no partitioning is specified.
+cluster_column
+An identifier referencing a
+column_identifier
+in the table. If you specify more than one column there must be no duplicates.
+Since a clustering operates on the partition level you must not name a partition column also as a cluster column.
+The
+CLUSTERED BY
+clause is not supported for temporary tables.
+SORTED BY
+Optionally maintains a sort order for rows in a bucket.
+sort_column
+A column to sort the bucket by. The column must not be partition column.
+Sort columns must be unique.
+ASC
+or
+DESC
+Optionally specifies whether
+sort_column
+is sorted in ascending (
+ASC
+) or descending (
+DESC
+) order.
+The default values is
+ASC
+.
+INTO num_buckets BUCKETS
+An INTEGER literal specifying the number of buckets into which each partition (or the table if no partitioning is specified) is divided.
+LOCATION path [ WITH ( CREDENTIAL
+credential_name
+) ]
+An optional path to the directory where table data is stored, which could be a path on distributed storage.
+path
+must be a STRING literal.
+If you specify no location the table is considered a
+managed table
+and
+Databricks
+creates a default table location.
+Specifying a location makes the table an
+external table
+.
+For tables that do not reside in the
+hive_metastore
+catalog, the table
+path
+must be protected by an
+external location
+unless a valid
+storage credential
+is specified.
+You cannot create external tables in locations that overlap with the location of
+managed tables
+.
+For Delta tables, the table inherits its configuration from the
+LOCATION
+if data already exists at that path. As a result, any specified
+TBLPROPERTIES
+,
+table_specification
+, or
+PARTITIONED BY
+clauses must exactly match the existing data at the Delta location.
+For Iceberg tables, the
+LOCATION
+clause is not supported. Foreign Iceberg tables are registered automatically when you create a foreign catalog, and you must create managed Iceberg tables without specifying a location.
+The
+LOCATION
+clause is not supported for temporary tables.
+OPTIONS
+Sets or resets one or more user defined table options.
+COMMENT table_comment
+A string literal to describe the table.
+TBLPROPERTIES
+Optionally sets one or more user defined properties.
+DEFAULT COLLATION
+default_collation_name
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Defines the default collation to use for:
+STRING
+columns and fields of the table
+DEFAULT
+expression
+The body of
+CREATE TABLE AS query
+CHECK
+constraints and generated column expressions require a default collation of
+UTF8_BINARY
+.
+If not specified, the default collation is derived from the schema in which the table is created.
+WITH
+ROW FILTER clause
+Applies to:
+Databricks SQL
+Databricks Runtime
+12.2 LTS and above
+Unity Catalog
+only
+Adds a row filter function to the table. All subsequent queries from that table will receive a subset of the rows where the function evaluates to boolean TRUE. This can be useful for fine-grained access control purposes where the function can inspect the identity or group memberships of the invoking user to decide whether to filter certain rows.
+If you are replacing a table, any existing row filters are retained, even if they’re not explicitly redefined. This prevents accidental loss of data access policies.
+The
+ROW FILTER
+clause is not supported for temporary tables.
+AS
+query
+This optional clause populates the table using the data from
+query
+.
+When you specify a
+query
+you must not also specify a
+table_specification
+. The table schema is derived from the query.
+Note that
+Databricks
+overwrites the underlying data source with the data of the
+input query, to make sure the table gets created contains exactly the same data as the input query.
+Examples
+​
+SQL
+-- Creates a Delta table
+>
+CREATE
+TABLE
+student
+(
+id
+INT
+,
+name STRING
+,
+age
+INT
+)
+;
+-- Creates a managed Iceberg table
+>
+CREATE
+TABLE
+edu
+.
+enrollment
+.
+student
+(
+id
+INT
+,
+name STRING
+,
+age
+INT
+)
+USING
+ICEBERG
+;
+-- Use data from another table
+>
+CREATE
+TABLE
+student_copy
+AS
+SELECT
+*
+FROM
+student
+;
+-- Creates a CSV table from an external directory
+>
+CREATE
+TABLE
+student
+USING
+CSV LOCATION
+'/path/to/csv_files'
+;
+-- Specify table comment and properties
+>
+CREATE
+TABLE
+student
+(
+id
+INT
+,
+name STRING
+,
+age
+INT
+)
+COMMENT
+'this is a comment'
+TBLPROPERTIES
+(
+'foo'
+=
+'bar'
+)
+;
+-- Specify table comment and properties with different clauses order
+>
+CREATE
+TABLE
+student
+(
+id
+INT
+,
+name STRING
+,
+age
+INT
+)
+TBLPROPERTIES
+(
+'foo'
+=
+'bar'
+)
+COMMENT
+'this is a comment'
+;
+-- Create partitioned table
+>
+CREATE
+TABLE
+student
+(
+id
+INT
+,
+name STRING
+,
+age
+INT
+)
+PARTITIONED
+BY
+(
+age
+)
+;
+-- Create a table with a generated column
+>
+CREATE
+TABLE
+rectangles
+(
+a
+INT
+,
+b
+INT
+,
+area
+INT
+GENERATED ALWAYS
+AS
+(
+a
+*
+b
+)
+)
+;
+-- Create a table with a string column with a case-insensitive collation.
+>
+CREATE
+TABLE
+names
+(
+name STRING
+COLLATE
+UNICODE_CI
+)
+;
+-- Create a table with a default collation and override for a specific column.
+>
+CREATE
+TABLE
+names
+(
+name STRING
+,
+first_name STRING
+,
+id STRING
+COLLATE
+UTF8_BINARY
+)
+DEFAULT
+COLLATION UNICODE_CI
+;
+-- Create an external table connected to Oracle.
+-- Provide the user and password using the secret function rather than
+-- entering them directly.
+>
+CREATE
+TABLE
+IF
+NOT
+EXISTS
+ora_tab
+USING
+ORACLE
+OPTIONS
+(
+url
+'<jdbc-url>'
+,
+dbtable
+'<table-name>'
+,
+user
+secret
+(
+'secrets.r.us'
+,
+'oracleUser'
+)
+,
+password secret
+(
+'secrets.r.us'
+,
+'oraclePassword'
+)
+)
+;
+>
+SELECT
+*
+FROM
+ora_tab
+;
+-- Create a temporary table, insert values in it, and display its contents.
+>
+CREATE
+TEMP
+TABLE
+temp_1
+(
+a
+INT
+)
+;
+>
+INSERT
+INTO
+temp_1
+VALUES
+(
+1
+)
+;
+>
+SELECT
+*
+FROM
+temp_1
+;
+a
+----
+1
+>
+CREATE
+OR
+REPLACE
+TEMP
+TABLE
+temp_1
+(
+a
+VARCHAR
+(
+100
+)
+)
+;
+>
+DESCRIBE
+TABLE
+temp_1
+;
+colName     dataType
+-------     --------
+a
+varchar
+(
+100
+)
+Related articles
+​
+ALTER TABLE
+CONSTRAINT
+CLUSTER BY
+CREATE TABLE LIKE
+CREATE TABLE CLONE
+DROP TABLE
+PARTITIONED BY
+SHOW TABLES
+Table properties and table options
+On this page
+Syntax
+Parameters
+Examples
+Related articles

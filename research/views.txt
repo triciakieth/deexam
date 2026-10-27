@@ -1,0 +1,1282 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+CREATE VIEW
+Applies to:
+Databricks SQL
+Databricks Runtime
+Constructs a virtual table that has no physical data based on the result-set of a SQL query or a metric view based on a yaml specification.
+ALTER VIEW
+and
+DROP VIEW
+only change metadata.
+To execute this statement, you must be a metastore administrator or have
+USE CATALOG
+and
+USE SCHEMA
+privileges on the catalog and schema, along with
+CREATE TABLE
+privileges in the target schema.
+The user executing this command will become the owner of the view.
+warning
+CHAR
+and
+VARCHAR
+length semantics, including
+CHAR(n)
+space-padding, apply only at the table boundary. A view keeps them only for a column passed through unchanged; any expression on the column, such as a
+CAST
+, function, alias, or added comment, returns plain
+STRING
+. Because
+CHAR
+values are space-padded, comparisons can differ from the base table. For example, a
+CHAR(10)
+value
+'COLLEGE'
+is stored as
+'COLLEGE   '
+, so
+column = 'COLLEGE'
+returns
+true
+on the table but
+false
+through the view.
+Syntax
+​
+-- Query-backed or metric view
+CREATE [ OR REPLACE ] [ [ GLOBAL ] TEMPORARY ] VIEW [ IF NOT EXISTS ] view_name
+[ column_list ]
+[ with_clause |
+COMMENT view_comment |
+DEFAULT COLLATION collation_name |
+TBLPROPERTIES clause |
+{ COPY | NOCOPY } * |
+LANGUAGE YAML ] [...]
+AS { query | $$ yaml_string $$ }
+-- Temporary view backed by a data source
+CREATE [ OR REPLACE ] [ GLOBAL ] TEMPORARY VIEW [ IF NOT EXISTS ] view_name
+[ column_list ]
+USING data_source [ OPTIONS ( option_key [ = ] option_value [, ...] ) ]
+with_clause
+WITH { { schema_binding | METRICS } |
+( { schema_binding | METRICS } [, ...] } )
+schema_binding
+WITH SCHEMA { BINDING | COMPENSATION | [ TYPE ] EVOLUTION }
+column_list
+( { column_alias [ COMMENT column_comment ] } [, ...] )
+Parameters
+​
+OR REPLACE
+If a view of the same name already exists, it is replaced. You must be the owner or have
+MANAGE
+on a view to replace it. The user who replaces the view becomes its new owner.
+For a
+Unity Catalog
+managed view, use the
+COPY *
+or
+NOCOPY *
+clause to control whether the replacement preserves the existing view's metadata, such as grants, comments, and tags.
+For any other view, replacing it does not preserve privileges granted on the original view or the
+table_id
+, and is equivalent to
+DROP VIEW IF EXISTS view_name
+followed by
+CREATE VIEW view_name
+. Use
+ALTER VIEW
+to change a view in place without dropping its privileges.
+TEMPORARY
+TEMPORARY
+views are visible only to the session that created them and are dropped when the session ends.
+GLOBAL TEMPORARY
+Applies to:
+Databricks Runtime
+GLOBAL TEMPORARY
+views are tied to a system preserved temporary schema
+global_temp
+.
+IF NOT EXISTS
+Creates the view only if it does not exist. If a view by this name already exists the
+CREATE VIEW
+statement is ignored.
+You may specify at most one of
+IF NOT EXISTS
+or
+OR REPLACE
+.
+view_name
+The name of the newly created view.
+A temporary view's name must not be qualified.
+The fully qualified view name must be unique.
+View names created in
+hive_metastore
+can only contain alphanumeric ASCII characters and underscores (
+INVALID_SCHEMA_OR_RELATION_NAME
+).
+METRICS
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.4 and above
+Unity Catalog
+only
+Identifies the view as a metric view.
+The view must be defined with
+LANGUAGE YAML
+and the body of the view must be a valid yaml specification.
+Prior to
+Databricks Runtime
+17.2, this clause is not supported for temporary views.
+A metric view does not support the
+DEFAULT COLLATION
+and
+schema_binding
+clauses.
+The YAML specification of the metric view defines
+dimensions
+,
+measures
+, and optional
+parameters
+.
+The
+dimensions
+are the columns of the view by which the invoker can aggregate the measures, while the
+measures
+define the aggregations of the view.
+The invoker of a metric view uses the
+measure
+expression to access the views defined measures instead of specifying aggregation functions.
+Preview
+This feature is in
+Public Preview
+.
+Optionally, the YAML specification defines
+parameters
+: named values that the invoker binds at query time. Each parameter has a name, a data type, and an optional default value. Reference a parameter by name in
+dimensions
+and
+measures
+expressions, then pass values as named arguments when you query the view as a
+table-valued function
+. Parameters require
+Databricks Runtime
+18.2 and above. For the YAML syntax, see
+parameters
+.
+schema_binding
+Applies to:
+Databricks Runtime
+15.3 and above
+Optionally specifies how the view adapts to changes to the schema of the query due to changes in the underlying object definitions.
+This clause is not supported for temporary views, metric views, or
+materialized views
+.
+SCHEMA BINDING
+The view will become invalid if the query column-list changes except for the following conditions:
+The column-list includes a star clause, and there are additional columns. These additional columns are ignored.
+The type of one or more columns changed in a way that allows them to be safely cast to the original column types using implicit casting rules.
+SCHEMA COMPENSATION
+The view will become invalid if the query column list changes except for the following conditions:
+The column-list includes a star clause, and there are additional columns. These additional columns are ignored.
+The type of one or more columns changed in a way that allows them to be cast to the original column types using explicit ANSI cast rules.
+This is the default behavior.
+SCHEMA TYPE EVOLUTION
+The view will adopt any changes to types, in the query column list, into its own definition when the SQL compiler detects such a change in response to a reference to the view.
+SCHEMA EVOLUTION
+This mode behaves like
+SCHEMA TYPE EVOLUTION
+, and also adopts changes in column names, column comments, or added and dropped columns if the view does not include an explicit
+column_list
+.
+The view will only become invalid if the query can no longer be parsed, or the optional view
+column_list
+does not match the number of expressions in the
+query
+select-list anymore.
+column_list
+Optionally labels the columns in the query result of the view.
+If you provide a column list the number of column aliases must match the number of expressions in the query or, for metric views, the YAML specification.
+In case no column list is specified aliases are derived from the body of the view.
+column_alias
+The column aliases must be unique.
+column_comment
+An optional
+STRING
+literal describing the column alias.
+view_comment
+An optional
+STRING
+literal providing a view-level comments.
+DEFAULT COLLATION
+collation_name
+Applies to:
+Databricks SQL
+Databricks Runtime
+16.3 and above
+Defines the default collation to use within
+query
+.
+If not specified, the default collation is derived from the schema in which the view is created.
+This clause is not supported for metric views.
+TBLPROPERTIES
+Optionally sets one or more user defined properties.
+COPY * or NOCOPY *
+Applies to:
+Databricks SQL
+Databricks Runtime
+18.3 and above
+Unity Catalog
+only
+Controls whether replacing an existing view with
+OR REPLACE
+preserves the existing view's metadata, such as its grants, comments, and tags.
+COPY *
+preserves the existing view's metadata.
+NOCOPY *
+drops the existing view's metadata. The replacement keeps only the metadata in the new definition.
+Only the
+*
+form is supported: the clause applies to every category of preservable metadata, not a subset. This clause is supported only for
+Unity Catalog
+managed views, and only with
+OR REPLACE
+. Using it on any other view raises an error.
+If you omit the clause, the default depends on the runtime:
+In
+Databricks Runtime
+18.3, the existing view's metadata is not preserved, the same as
+NOCOPY *
+. Specify
+COPY *
+to preserve it.
+In
+Databricks Runtime
+19 and above, the existing view's metadata is preserved by default, the same as
+COPY *
+. Specify
+NOCOPY *
+to drop it.
+AS
+query
+A query that constructs the view from base tables or other views.
+This clause is not supported for metric views.
+AS $$ yaml_string $$
+A yaml specification that defines a metric view.
+USING data_source
+Backs the view directly with a data source instead of a query, so you can query files without first defining a table.
+This clause is supported only for
+TEMPORARY
+and
+GLOBAL TEMPORARY
+views and can't be combined with
+AS
+.
+data_source
+must be a file format, such as
+CSV
+,
+JSON
+,
+PARQUET
+,
+AVRO
+,
+ORC
+, or
+TEXT
+.
+For the full list of supported file formats, see
+CREATE TABLE [USING]
+.
+OPTIONS
+Sets one or more data source options as key-value pairs, such as the file
+path
+, whether the file has a
+header
+, and the parser
+mode
+.
+For the options supported by each format, see the corresponding format reference, for example
+Read and write CSV files
+.
+Examples
+​
+SQL
+-- Create or replace view for `experienced_employee` with comments.
+>
+CREATE
+OR
+REPLACE
+VIEW
+experienced_employee
+(
+id
+COMMENT
+'Unique identification number'
+,
+Name
+)
+COMMENT
+'View for experienced employees'
+AS
+SELECT
+id
+,
+name
+FROM
+all_employee
+WHERE
+working_years
+>
+5
+;
+-- Replace a Unity Catalog view while preserving its grants, comments, and tags.
+>
+CREATE
+OR
+REPLACE
+VIEW
+experienced_employee COPY
+*
+AS
+SELECT
+id
+,
+name
+,
+department
+FROM
+all_employee
+WHERE
+working_years
+>
+5
+;
+-- Replace the same view but drop its existing metadata, keeping only the new definition.
+>
+CREATE
+OR
+REPLACE
+VIEW
+experienced_employee NOCOPY
+*
+AS
+SELECT
+id
+,
+name
+FROM
+all_employee
+WHERE
+working_years
+>
+5
+;
+-- Create a temporary view `subscribed_movies`.
+>
+CREATE
+TEMPORARY
+VIEW
+subscribed_movies
+AS
+SELECT
+mo
+.
+member_id
+,
+mb
+.
+full_name
+,
+mo
+.
+movie_title
+FROM
+movies
+AS
+mo
+INNER
+JOIN
+members
+AS
+mb
+ON
+mo
+.
+member_id
+=
+mb
+.
+id
+;
+-- Create a temporary view over a CSV file so you can query it with SQL.
+>
+CREATE
+TEMPORARY
+VIEW
+diamonds
+USING
+CSV
+OPTIONS
+(
+path
+'/databricks-datasets/Rdatasets/data-001/csv/ggplot2/diamonds.csv'
+,
+header
+'true'
+,
+mode
+'FAILFAST'
+)
+;
+>
+SELECT
+carat
+,
+cut
+,
+price
+FROM
+diamonds
+LIMIT
+5
+;
+-- Create a view with schema binding (default)
+>
+CREATE
+TABLE
+emp
+(
+name STRING
+,
+income
+INT
+)
+;
+>
+CREATE
+VIEW
+emp_v
+WITH
+SCHEMA
+BINDING
+AS
+SELECT
+*
+FROM
+emp
+;
+– The
+view
+ignores adding a
+column
+to
+the base
+table
+>
+ALTER
+TABLE
+emp
+ADD
+COLUMN
+bonus
+SMALLINT
+;
+>
+SELECT
+*
+FROM
+emp_v
+;
+name  income
+----  ------
+-- The view tolerates narrowing the underlying type
+>
+CREATE
+OR
+REPLACE
+TABLE
+emp
+(
+name STRING
+,
+income
+SMALLINT
+,
+bonus
+SMALLINT
+)
+;
+>
+SELECT
+typeof
+(
+income
+)
+FROM
+emp_v
+;
+INTEGER
+– The
+view
+does
+not
+tolerate widening the underlying
+type
+CREATE
+OR
+REPLACE
+TABLE
+emp
+(
+name STRING
+,
+income
+BIGINT
+,
+bonus
+SMALLINT
+)
+;
+>
+SELECT
+typeof
+(
+income
+)
+FROM
+emp_v
+;
+Error
+–
+Create
+a
+view
+with
+SCHEMA
+COMPENSATION
+>
+CREATE
+TABLE
+emp
+(
+name STRING
+,
+income
+SMALLINT
+,
+bonus
+SMALLINT
+)
+;
+>
+CREATE
+VIEW
+emp_v
+WITH
+SCHEMA
+COMPENSATION
+AS
+SELECT
+*
+FROM
+emp
+;
+-- The view tolerates widening the underlying type but keeps its own signature fixed
+CREATE
+OR
+REPLACE
+TABLE
+emp
+(
+name STRING
+,
+income
+INTEGER
+,
+bonus
+INTEGER
+)
+;
+>
+SELECT
+typeof
+(
+income
+)
+FROM
+emp_v
+;
+INTEGER
+-- The view does not tolerate dropping a needed column
+ALTER
+TABLE
+emp
+DROP
+COLUMN
+bonus
+;
+>
+SELECT
+*
+FROM
+emp_v
+;
+Error
+–
+Create
+a
+view
+with
+SCHEMA
+EVOLUTION
+>
+CREATE
+TABLE
+emp
+(
+name STRING
+,
+income
+SMALLINT
+)
+;
+>
+CREATE
+VIEW
+emp_v
+WITH
+SCHEMA
+EVOLUTION
+AS
+SELECT
+*
+FROM
+emp
+;
+-- The view picks up additional columns
+>
+ALTER
+TABLE
+emp
+ADD
+COLUMN
+bonus
+SMALLINT
+>
+SELECT
+*
+FROM
+emp_v
+;
+name income bonus
+---- ------ -----
+-- The view picks up renamed columns as well
+>
+ALTER
+TABLE
+emp
+RENAME
+COLUMN
+income
+TO
+salary
+SMALLINT
+;
+>
+SELECT
+*
+FROM
+emp_v
+;
+name salary bonus
+---- ------ -----
+-- The view picks up changes to column types and dropped columns
+>
+CREATE
+OR
+REPLACE
+TABLE
+emp
+(
+name STRING
+,
+salary
+BIGINT
+)
+;
+>
+SELECT
+*
+,
+typeof
+(
+salary
+)
+AS
+salary_type
+FROM
+emp_v
+;
+name salary
+---- ------
+-- Create a view using a default collation of UTF8_BINARY
+>
+CREATE
+VIEW
+v
+DEFAULT
+COLLATION UTF8_BINARY
+AS
+SELECT
+5
+::STRING
+AS
+text
+;
+-- Creates a Metric View as specified in the YAML definition, with three dimensions and four measures representing the count of orders.
+>
+CREATE
+OR
+REPLACE
+VIEW
+region_sales_metrics
+(
+month
+COMMENT
+'Month order was made'
+,
+status
+,
+order_priority
+,
+count_orders
+COMMENT
+'Count of orders'
+,
+total_Revenue
+,
+total_revenue_per_customer
+,
+total_revenue_for_open_orders
+)
+WITH
+METRICS
+LANGUAGE
+YAML
+COMMENT
+'A Metric View for regional sales metrics.'
+AS
+$$
+version:
+0.1
+source: samples
+.
+tpch
+.
+orders
+filter: o_orderdate
+>
+'1990-01-01'
+dimensions:
+-
+name:
+month
+expr: date_trunc
+(
+'MONTH'
+,
+o_orderdate
+)
+-
+name:
+status
+expr:
+case
+when
+o_orderstatus
+=
+'O'
+then
+'Open'
+when
+o_orderstatus
+=
+'P'
+then
+'Processing'
+when
+o_orderstatus
+=
+'F'
+then
+'Fulfilled'
+end
+-
+name: prder_priority
+expr: split
+(
+o_orderpriority
+,
+'-'
+)
+[
+1
+]
+measures:
+-
+name: count_orders
+expr:
+count
+(
+1
+)
+-
+name: total_revenue
+expr:
+SUM
+(
+o_totalprice
+)
+-
+name: total_revenue_per_customer
+expr:
+SUM
+(
+o_totalprice
+)
+/
+count
+(
+distinct
+o_custkey
+)
+-
+name: total_revenue_for_open_orders
+expr:
+SUM
+(
+o_totalprice
+)
+filter
+(
+where
+o_orderstatus
+=
+'O'
+)
+$$
+;
+>
+DESCRIBE
+EXTENDED
+region_sales_metrics
+;
+col_name                       data_type
+------------------------------ --------------------------
+month
+timestamp
+status
+string
+order_priority                 string
+count_orders
+bigint
+measure
+total_revenue
+decimal
+(
+28
+,
+2
+)
+measure
+total_revenue_per_customer
+decimal
+(
+38
+,
+12
+)
+measure
+total_revenue_for_open_orders
+decimal
+(
+28
+,
+2
+)
+measure
+# Detailed Table Information
+Catalog                        main
+Database
+default
+Table
+region_sales_metrics
+Owner                          alf
+@melmak.et
+Created
+Time
+Thu May
+15
+13
+:
+03
+:
+01
+UTC
+2025
+Last
+Access                    UNKNOWN
+Created
+By
+Spark
+Type
+METRIC_VIEW
+Comment
+A Metric
+View
+for
+regional sales metrics
+.
+Use
+Remote Filtering
+false
+View
+Text
+"
+version: 0.1
+source: samples.tpch.orders
+filter: o_orderdate > '1990-01-01'
+dimensions:
+- name: month
+expr: date_trunc('MONTH', o_orderdate)
+- name: status
+expr: case
+when o_orderstatus = 'O' then 'Open'
+when o_orderstatus = 'P' then 'Processing'
+when o_orderstatus = 'F' then 'Fulfilled'
+end
+- name: Order_Priority
+expr: split(o_orderpriority, '-')[1]
+measures:
+- name: count_orders
+expr: count(1)
+- name: total_Revenue
+expr: SUM(o_totalprice)
+- name: total_Revenue_per_Customer
+expr: SUM(o_totalprice) / count(distinct o_custkey)
+- name: Total_Revenue_for_Open_Orders
+expr: SUM(o_totalprice) filter (where o_orderstatus='O')
+"
+Language
+YAML
+Table
+Properties
+[
+metric_view
+.
+from
+.
+name
+=
+samples
+.
+tpch
+.
+orders
+,
+metric_view
+.
+from
+.
+type
+=
+ASSET
+,
+metric_view
+.
+where
+=
+o_orderdate
+>
+'1990-01-01'
+]
+-- Create a parameterized metric view (requires DBR 18.2 and above)
+-- The `discount` parameter is bound at query time and referenced in a measure.
+>
+CREATE
+OR
+REPLACE
+VIEW
+discounted_sales_metrics
+WITH
+METRICS
+LANGUAGE
+YAML
+AS
+$$
+version:
+1.1
+source: samples
+.
+tpch
+.
+orders
+parameters:
+-
+name: discount
+data_type:
+double
+default
+:
+0
+dimensions:
+-
+name: order_priority
+expr: o_orderpriority
+measures:
+-
+name: discounted_revenue
+expr:
+SUM
+(
+(
+1
+-
+discount
+)
+*
+o_totalprice
+)
+$$
+;
+-- Query the parameterized metric view, passing `discount` as a named argument
+>
+SELECT
+order_priority
+,
+measure
+(
+discounted_revenue
+)
+FROM
+discounted_sales_metrics
+(
+discount
+=
+>
+0.15
+)
+GROUP
+BY
+ALL
+;
+-- Omit the argument to use the default value of 0
+>
+SELECT
+order_priority
+,
+measure
+(
+discounted_revenue
+)
+FROM
+discounted_sales_metrics
+GROUP
+BY
+ALL
+;
+-- Tracking total_revenue_per_customer by month in 1995
+>
+SELECT
+extract
+(
+month
+from
+month
+)
+as
+month
+,
+measure
+(
+total_revenue_per_customer
+)
+::
+bigint
+AS
+total_revenue_per_customer
+FROM
+region_sales_metrics
+WHERE
+extract
+(
+year
+FROM
+month
+)
+=
+1995
+GROUP
+BY
+ALL
+ORDER
+BY
+ALL
+;
+month
+total_revenue_per_customer
+-----  --------------------------
+1
+167727
+2
+166237
+3
+167349
+4
+167604
+5
+166483
+6
+167402
+7
+167272
+8
+167435
+9
+166633
+10
+167441
+11
+167286
+12
+167542
+-- Tracking total_revenue_per_customer by month and status in 1995
+>
+SELECT
+extract
+(
+month
+from
+month
+)
+as
+month
+,
+status
+,
+measure
+(
+total_revenue_per_customer
+)
+::
+bigint
+AS
+total_revenue_per_customer
+FROM
+region_sales_metrics
+WHERE
+extract
+(
+year
+FROM
+month
+)
+=
+1995
+GROUP
+BY
+ALL
+ORDER
+BY
+ALL
+;
+month
+status
+total_revenue_per_customer
+-----  ---------   --------------------------
+1
+Fulfilled
+167727
+2
+Fulfilled
+161720
+2
+Open
+40203
+2
+Processing
+193412
+3
+Fulfilled
+121816
+3
+Open
+52424
+3
+Processing
+196304
+4
+Fulfilled
+80405
+4
+Open
+75630
+4
+Processing
+196136
+5
+Fulfilled
+53460
+5
+Open
+115344
+5
+Processing
+196147
+6
+Fulfilled
+42479
+6
+Open
+160390
+6
+Processing
+193461
+7
+Open
+167272
+8
+Open
+167435
+9
+Open
+166633
+10
+Open
+167441
+11
+Open
+167286
+12
+Open
+167542
+Related articles
+​
+ALTER VIEW
+CREATE TABLE [USING]
+DROP VIEW
+measure
+query
+SHOW VIEWS
+Table properties
+On this page
+Syntax
+Parameters
+Examples
+Related articles

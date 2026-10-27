@@ -1,0 +1,381 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Remove unused data files with vacuum
+Remove data files no longer referenced by a table that are older than the retention threshold by running the
+VACUUM
+command on the table. Running
+VACUUM
+regularly is important for cost and compliance because of the following considerations:
+Deleting unused data files reduces cloud storage costs.
+Data files removed by
+VACUUM
+might contain records that have been modified or deleted. Permanently removing these files from cloud storage ensures these records are no longer accessible.
+On tables with Iceberg reads enabled,
+VACUUM
+also cleans up Iceberg metadata for older table versions. See
+VACUUM and Iceberg metadata cleanup
+.
+Predictive optimization automatically runs
+VACUUM
+on
+Unity Catalog
+managed tables. Databricks recommends enabling predictive optimizations for all
+Unity Catalog
+managed tables to simplify data maintenance and reduce storage costs. See
+Predictive optimization for
+Unity Catalog
+managed tables
+.
+Caveats for vacuum
+​
+The default retention threshold for data files after running
+VACUUM
+is 7 days. To change this behavior, see
+Configure data retention for time travel queries
+.
+VACUUM
+might leave behind empty directories after removing all files from within them. Subsequent
+VACUUM
+operations delete these empty directories.
+Some table features, such as deletion vectors, use metadata files to mark data as deleted rather than rewriting data files. Use
+REORG TABLE ... APPLY (PURGE)
+to commit these deletions and rewrite data files. See
+Purge metadata-only deletes to force data rewrite
+.
+important
+In
+Databricks Runtime
+13.3 LTS and above,
+VACUUM
+semantics for shallow clones with
+Unity Catalog
+managed tables differ from other tables. See
+Use
+VACUUM
+with
+Unity Catalog
+shallow clones
+.
+VACUUM
+removes all files from directories not managed by
+Databricks
+, ignoring directories beginning with
+_
+or
+.
+. If you're storing additional metadata like
+Structured Streaming
+checkpoints within a table directory, use a directory name such as
+_checkpoints
+.
+Data for change data feed is managed in the
+_change_data
+directory and removed with
+VACUUM
+. See
+Use change data feed on
+Databricks
+.
+Bloom filter indexes (deprecated) use the
+_delta_index
+directory.
+VACUUM
+cleans up files in this directory. See
+Bloom filter indexes (deprecated)
+.
+The ability to query table versions older than the retention period is lost after running
+VACUUM
+.
+Log files are deleted automatically and asynchronously after checkpoint operations and are not governed by
+VACUUM
+. While the default retention period of log files is 30 days, running
+VACUUM
+on a table removes the data files necessary for time travel.
+When disk caching is enabled, a cluster might contain data from Parquet files that have been deleted with
+VACUUM
+. Therefore, it may be possible to query the data of previous table versions whose files have been deleted. Restarting the cluster will remove the cached data. See
+Configure the disk cache
+.
+Example syntax for vacuum
+​
+To remove files no longer required by versions older than the default retention period, run
+VACUUM
+without additional configurations:
+SQL
+VACUUM table_name
+To preview the list of files to be deleted without removing them, run
+VACUUM
+with
+DRY RUN
+:
+SQL
+VACUUM table_name DRY RUN
+For Spark SQL syntax details, see
+VACUUM
+.
+For Scala, Java, and Python syntax details, see the
+Delta Lake
+API documentation
+.
+note
+In
+Databricks Runtime
+18.0 and above, use the
+deletedFileRetentionDuration
+table property to control retention. For
+Unity Catalog
+managed tables, this applies to
+Databricks Runtime
+13.3 LTS and above.
+See
+Configure data retention for time travel queries
+.
+Full versus lite mode
+​
+Preview
+This feature is in Public Preview in
+Databricks Runtime
+16.4 LTS and above.
+To improve performance and reduce costs by avoiding listing all files in the table directory, specify the
+LITE
+keyword in your vacuum statement to trigger an alternative mode of
+VACUUM
+. This is useful for large tables that require frequent
+VACUUM
+operations.
+LITE
+mode uses the transaction log to identify data files that are no longer within the
+VACUUM
+retention threshold and removes these data files from the table.
+note
+Running
+VACUUM
+in
+LITE
+mode will not delete any files that are not referenced in the transaction log. For example, files that were created by an aborted transaction.
+Use the following syntax to
+VACUUM
+in
+LITE
+mode:
+SQL
+VACUUM table_name LITE
+FULL
+mode is the default for vacuum. You can explicitly run full mode with the following command:
+SQL
+VACUUM table_name
+FULL
+See
+VACUUM
+.
+Requirements
+​
+LITE
+mode has the following requirement:
+You must have run at least one successful
+VACUUM
+operation within the configured transaction log retention threshold (30 days by default).
+If this requirement isn't met, when you try to run
+VACUUM
+in
+LITE
+mode, the following error message displays. To continue, you must run
+VACUUM
+in
+FULL
+mode.
+VACUUM <tableName> LITE cannot delete all eligible files as some files are not referenced by the log. Please run VACUUM FULL.
+Purge metadata-only deletes to force data rewrite
+​
+The
+REORG TABLE
+command with the
+APPLY (PURGE)
+syntax allows you to rewrite data to apply soft-deletes. Soft-deletes do not rewrite data or delete data files, but rather use metadata files to indicate that some data values have changed. See
+REORG TABLE
+.
+Operations that create soft-deletes include the following:
+Dropping columns with
+column mapping
+enabled.
+Any data modifications with deletion vectors enabled.
+With soft-deletes enabled, old data may remain physically present in the table's current files even after the data has been deleted or updated. To remove this data physically from the table, complete the following steps:
+Run
+REORG TABLE ... APPLY (PURGE)
+. After doing this, the old data is no longer present in the table's
+current
+files, but it is still present in the older files that are used for time travel.
+Run
+VACUUM
+to delete these older files.
+REORG TABLE
+creates a new version of the table as the operation completes. All table versions in the history prior to this transaction refer to older data files. Conceptually, this is similar to the
+OPTIMIZE
+command, where data files are rewritten even though data in the current table version stays consistent.
+important
+Data files are only deleted when the files have
+expired
+according to the
+VACUUM
+retention period. This means that the
+VACUUM
+must be done with a delay after the
+REORG
+to guarantee that the older files have expired. The retention period of
+VACUUM
+can be reduced to shorten the required waiting time, at the cost of reducing the maximum history that is retained.
+Cluster size recommendations for vacuum
+​
+To select the correct cluster size for
+VACUUM
+, consider that the operation occurs in two phases:
+The job begins by using all available executor nodes to list files in the source directory in parallel. The job compares this list to all files currently referenced in the transaction log to identify files for deletion. The driver sits idle during this time.
+The driver issues deletion commands for each file identified for deletion. Because file deletion is a driver-only operation, all operations occur in a single node while the worker nodes sit idle.
+To optimize cost and performance, Databricks recommends the following, especially for long-running vacuum jobs:
+Run vacuum on a cluster with auto-scaling set for 1-4 workers, where each worker has 8 cores.
+Select a driver with between 8 and 32 cores. Increase the size of the driver to avoid out-of-memory (OOM) errors.
+If
+VACUUM
+operations are regularly deleting more than 10 thousand files or taking over 30 minutes of processing time, you might want to increase either the size of the driver or the number of workers.
+If you find that the slowdown occurs while identifying files to be removed, add more worker nodes. If the slowdown occurs while delete commands are running, try increasing the size of the driver.
+Recommended vacuum frequency
+​
+Databricks recommends regularly running
+VACUUM
+on all tables to reduce excess cloud data storage costs. The default retention threshold for vacuum is 7 days. Setting a higher threshold gives you access to a greater history for your table, but increases the number of data files stored and, as a result, increases storage costs from your cloud provider.
+Vacuum and low retention thresholds
+​
+warning
+Databricks strongly recommends setting a retention interval of at least 7 days. If you have jobs that run for several days, long-running jobs might write files that are not yet committed. If your retention period is too short,
+VACUUM
+could delete these uncommitted files before the job completes.
+There's a safety check to prevent you from running a dangerous
+VACUUM
+command. If you're certain that there are no operations running on this table that take longer than the retention interval you plan to specify, turn off this safety check by setting the
+retentionDurationCheck
+Spark configuration to
+false
+:
+Delta
+Iceberg
+SQL
+SET
+spark
+.
+databricks
+.
+delta
+.
+retentionDurationCheck
+.
+enabled
+=
+false
+SQL
+SET
+spark
+.
+databricks
+.
+iceberg
+.
+retentionDurationCheck
+.
+enabled
+=
+false
+Audit information
+​
+VACUUM
+commits audit information to the transaction log. Query the audit events using
+DESCRIBE HISTORY
+.
+By default, audit logging is enabled on all platforms for
+Unity Catalog
+managed tables. Control vacuum audit logging with the
+vacuum.logging
+Spark configuration:
+Delta
+Iceberg
+SQL
+SET
+spark
+.
+databricks
+.
+delta
+.
+vacuum
+.
+logging
+.
+enabled
+=
+true
+SQL
+SET
+spark
+.
+databricks
+.
+iceberg
+.
+vacuum
+.
+logging
+.
+enabled
+=
+true
+To apply this configuration for an entire workspace, across all clusters, use a cluster policy and add the following to the policy JSON:
+Delta
+Iceberg
+JSON
+{
+"spark_conf.spark.databricks.delta.vacuum.logging.enabled"
+:
+{
+"type"
+:
+"fixed"
+,
+"value"
+:
+"true"
+}
+}
+JSON
+{
+"spark_conf.spark.databricks.iceberg.vacuum.logging.enabled"
+:
+{
+"type"
+:
+"fixed"
+,
+"value"
+:
+"true"
+}
+}
+See
+Create and manage compute policies
+.
+important
+On AWS, audit logging isn't enabled by default for external tables stored on S3 because S3 has limited consistency guarantees when multiple systems write to the same S3 location. To capture audit information for these tables, you must explicitly enable this configuration. Before you enable it, verify that no external clients outside
+Databricks
+, such as other query engines or third-party tools, write to the same location. Writes from multiple
+Databricks
+workspaces are safe. If you skip this check, you might lose data.
+On this page
+Caveats for vacuum
+Example syntax for vacuum
+Full versus lite mode
+Requirements
+Purge metadata-only deletes to force data rewrite
+Cluster size recommendations for vacuum
+Recommended vacuum frequency
+Vacuum and low retention thresholds
+Audit information

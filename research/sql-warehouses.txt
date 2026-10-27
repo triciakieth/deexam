@@ -1,0 +1,192 @@
+On this page
+Last updated
+on
+Oct 8, 2026
+SQL warehouse sizing, scaling, and queuing behavior
+This article explains how to size, scale, and manage query queues for
+Databricks SQL
+warehouses to optimize performance and cost. Databricks recommends using a serverless SQL warehouse for most workloads. Serverless SQL warehouses deliver the best performance and efficiency by dynamically managing resources for your queries.
+Serverless SQL warehouse management
+​
+Serverless SQL warehouses use
+Intelligent Workload Management
+(IWM) to automatically manage query workloads. IWM is a set of AI-powered features that process queries quickly and cost-effectively without requiring you to manage infrastructure.
+Intelligent Workload Management and autoscaling
+​
+IWM uses machine learning models to dynamically manage compute resources:
+When a new query arrives, IWM predicts its resource requirements and checks available capacity.
+If capacity exists, the query starts immediately.
+If not, the query is placed in a queue.
+IWM continuously monitors the queue. If wait times increase, the autoscaler quickly provisions more clusters to process queued queries.
+When demand drops, IWM scales down resources to reduce costs while keeping enough capacity to handle recent peak loads.
+This approach provides:
+Rapid upscaling to maintain low query latency.
+High throughput by admitting queries as soon as hardware is available.
+Quick downscaling to save costs during low demand.
+Sizing a serverless SQL warehouse
+​
+Cluster size (for example, X-Small, Medium, Large) determines the compute resources available for a single cluster. The autoscaler adds or removes clusters of that size as needed.
+Use the following guidelines to help choose the right size:
+Start with a single larger warehouse and let serverless features manage concurrency and performance. It is usually more efficient to size down if necessary than to start small and scale up.
+If queries are spilling to disk, increase the cluster size. Check for spills in the query profile.
+For workloads with many concurrent queries, configure a sufficient maximum number of clusters to handle peak loads. Monitor the
+Peak Queued Queries
+metric on the warehouse monitoring page.
+note
+For serverless SQL warehouses, the cluster sizes may, in some cases, use different instance types than the ones listed in the documentation for pro and classic SQL warehouses for equivalent cluster size. In general, the price/performance ratio of the cluster sizes for serverless SQL warehouses is similar to those for pro and classic SQL warehouses.
+Statement timeout
+​
+Beta
+Warehouse-level statement timeouts are in
+Beta
+. A workspace admin must enable the
+Warehouse Statement Timeout
+preview from the
+Previews
+page. See
+Manage
+Databricks
+previews
+.
+You can set a statement timeout on a single SQL warehouse so that long-running queries on that warehouse are timed out after a duration you specify. Use a warehouse-level timeout when different warehouses run workloads with different expected run times.
+Set the timeout with the
+statement_timeout
+field in the
+Create
+or
+Update
+warehouse APIs. For details, including the value range, how to remove the timeout, and restart behavior, see
+Warehouse-level timeout
+.
+When the timeout is set at multiple scopes, session takes precedence over warehouse, which takes precedence over workspace. For details, see
+Precedence
+.
+Monitoring warehouse performance
+​
+You can monitor and right-size any SQL warehouse using these tools. The maximum number of queries in a queue for all warehouse types is 1,000.
+Monitoring page:
+On the SQL warehouse monitoring tab, check
+Peak Queued Queries
+. A consistent value above 0 indicates that you may need a larger cluster size or more clusters.
+Query history:
+Review historical query performance to identify bottlenecks.
+Query profile:
+Inspect execution plans for metrics such as
+Bytes spilled to disk
+, which indicates that the warehouse size may be too small.
+Classic and pro SQL warehouses
+​
+Classic and pro warehouses use a manual scaling model where you configure the number of clusters.
+Sizing and cluster provisioning
+​
+Preview
+The 5X-Large cluster size is in
+Public Preview
+for pro and serverless SQL warehouses in all regions. Workspace admins can control access to this feature from the
+Previews
+page. See
+Manage
+Databricks
+previews
+.
+When creating a classic or pro warehouse, choose a cluster size and set the minimum and maximum number of clusters. These SKUs have a fixed limit of one cluster per 10 concurrent queries.
+The following table shows cluster sizes with their corresponding driver and worker counts. All workers use
+i3.2xlarge
+instances.
+Cluster size
+Driver instance type
+Worker count
+2X-Small
+i3.2xlarge
+1
+X-Small
+i3.2xlarge
+2
+Small
+i3.4xlarge
+4
+Medium
+i3.8xlarge
+8
+Large
+i3.8xlarge
+16
+X-Large
+i3.16xlarge
+32
+2X-Large
+i3.16xlarge
+64
+3X-Large
+i3.16xlarge
+128
+4X-Large
+i3.16xlarge
+256
+5X-Large
+i3.16xlarge
+512
+←
+✕
+Cluster size
+Driver instance type
+Worker count
+2X-Small
+i3.2xlarge
+1
+X-Small
+i3.2xlarge
+2
+Small
+i3.4xlarge
+4
+Medium
+i3.8xlarge
+8
+Large
+i3.8xlarge
+16
+X-Large
+i3.16xlarge
+32
+2X-Large
+i3.16xlarge
+64
+3X-Large
+i3.16xlarge
+128
+4X-Large
+i3.16xlarge
+256
+5X-Large
+i3.16xlarge
+512
+Availability zones (AZ) for pro and classic SQL warehouses
+​
+For SQL warehouses, AWS availability zones are set to
+auto
+(Auto-AZ), where the AZ is automatically selected based on available IPs in the workspace subnets. Auto-AZ retries in other availability zones if AWS returns insufficient capacity errors. For more information about availability zones, see the
+AWS documentation
+.
+note
+The information in this table can vary based on product or region availability and workspace type.
+Queuing and autoscaling logic
+​
+For classic and pro warehouses, autoscaling adds clusters based on the estimated time to process all running and queued queries:
+2-6 minutes of query load: Add 1 cluster.
+6-12 minutes: Add 2 clusters.
+12-22 minutes: Add 3 clusters.
+Over 22 minutes: Add 3 clusters plus 1 more for every additional 15 minutes of load.
+Additional rules:
+If a query waits in the queue for 5 minutes, the warehouse scales up.
+If load remains low for 15 consecutive minutes, the warehouse scales down to the minimum needed to handle the peak load from that period.
+On this page
+Serverless SQL warehouse management
+Intelligent Workload Management and autoscaling
+Sizing a serverless SQL warehouse
+Statement timeout
+Monitoring warehouse performance
+Classic and pro SQL warehouses
+Sizing and cluster provisioning
+Availability zones (AZ) for pro and classic SQL warehouses
+Queuing and autoscaling logic

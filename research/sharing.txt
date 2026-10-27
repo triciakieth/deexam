@@ -1,0 +1,1124 @@
+On this page
+Last updated
+on
+Oct 12, 2026
+What is
+OpenSharing
+?
+OpenSharing
+is the secure data sharing platform in
+Databricks
+that lets you share data and AI assets with users outside your organization, regardless of whether they use
+Databricks
+.
+OpenSharing
+is also the basis for
+Databricks Marketplace
+, an open forum for exchanging data products, and
+Clean Rooms
+, a secure and privacy-protecting environment where multiple parties can work together on sensitive enterprise data.
+OpenSharing
+is also available as an
+open-source project
+that you can use to share Delta tables from other platforms.
+How does
+OpenSharing
+work?
+​
+OpenSharing
+is an
+open protocol
+developed by Databricks for secure data sharing with other organizations. It works regardless of the computing platforms those organizations use.
+There are a few ways to share data using
+OpenSharing
+:
+The Databricks-to-Databricks sharing protocol
+, which lets you share data and AI assets from your
+Unity Catalog
+-enabled workspace with users who also have access to a
+Unity Catalog
+-enabled Databricks workspace.
+This approach uses the
+OpenSharing
+server that is built into
+Databricks
+. It supports some
+OpenSharing
+features that are not supported in the other protocols, including notebook sharing,
+Unity Catalog
+volume sharing,
+Unity Catalog
+AI model sharing,
+Unity Catalog
+data governance, auditing, and usage tracking for both providers and recipients. The integration with
+Unity Catalog
+simplifies setup and governance for both providers and recipients and improves performance.
+See
+What is the
+OpenSharing
+Databricks-to-Databricks protocol?
+.
+The
+Databricks-to-Open sharing
+protocol
+, which lets you share tabular data that you manage in a
+Unity Catalog
+-enabled Databricks workspace with users on any computing platform.
+This approach uses the
+OpenSharing
+server that is built into
+Databricks
+and is useful when you manage data using
+Unity Catalog
+and want to share it with users who don't use Databricks or don't have access to a
+Unity Catalog
+-enabled Databricks workspace. The integration with
+Unity Catalog
+on the provider side simplifies setup and governance for providers.
+See
+What is the
+Databricks-to-Open sharing
+protocol?
+.
+A customer-managed implementation of the open-source
+OpenSharing
+server
+, which lets you share from any platform to any platform, whether Databricks or not.
+The
+Databricks
+documentation does not cover instructions for setting up your own
+OpenSharing
+server. See
+the open source project
+.
+The SAP Business Data Cloud (BDC) Connector for
+Databricks
+, which lets you share data between your
+Unity Catalog
+-enabled workspace and an SAP BDC account.
+This approach uses the SAP BDC Connector, which utilizes
+OpenSharing
+for live, zero-copy access to SAP BDC data products.
+See
+What is the SAP BDC Connector for
+Databricks
+?
+.
+Shares, providers, and recipients
+​
+The primary concepts underlying
+OpenSharing
+in
+Databricks
+are
+shares
+,
+providers
+, and
+recipients
+.
+What is a share?
+​
+In
+OpenSharing
+, a
+share
+is a read-only collection of tables and table partitions that a provider wants to share with one or more recipients. If your recipient uses a
+Unity Catalog
+-enabled Databricks workspace, you can also include notebook files, views (including dynamic views that restrict access at the row and column level),
+Unity Catalog
+volumes, and
+Unity Catalog
+models in a share.
+You can add or remove tables,
+streaming tables
+, managed Iceberg tables, views, materialized views, metric views, volumes, models, and notebook files from a share at any time, and you can assign or revoke data recipient access to a share at any time.
+In a
+Unity Catalog
+-enabled
+Databricks
+workspace, a share is a securable object registered in
+Unity Catalog
+. If you remove a share from your
+Unity Catalog
+metastore, all recipients of that share lose the ability to access it.
+See
+Create shares for
+OpenSharing
+.
+What is a provider?
+​
+A
+provider
+is an entity that shares data with a recipient. If you are a provider and you want to take advantage of the built-in Databricks
+OpenSharing
+server and manage shares and recipients using
+Unity Catalog
+, you need at least one
+Databricks
+workspace that is enabled for
+Unity Catalog
+. You do not need to migrate all of your existing workspaces to
+Unity Catalog
+. You can simply create a new
+Unity Catalog
+-enabled workspace for your
+OpenSharing
+needs.
+If a recipient is on a
+Unity Catalog
+-enabled Databricks workspace, the provider is also a
+Unity Catalog
+securable object that represents the provider organization and associates that organization with a set of shares.
+What is a recipient?
+​
+A
+recipient
+is an entity that receives shares from a provider. In
+Unity Catalog
+, a recipient is a securable object that represents an organization and associates it with a credential or secure sharing identifier that allows that organization to access one or more shares.
+As a data provider (sharer), you can define multiple recipients for any given
+Unity Catalog
+metastore, but if you want to share data from multiple metastores with a particular user or group of users, you must define the recipient separately for each metastore. A recipient can have access to multiple shares.
+If a provider deletes a recipient from their
+Unity Catalog
+metastore, that recipient loses access to all shares it could previously access.
+See
+Create data recipients for
+OpenSharing
+(Databricks-to-Databricks sharing)
+.
+Databricks-to-Open sharing
+versus Databricks-to-Databricks sharing
+​
+This section describes the two protocols for sharing from a Databricks workspace that is enabled for
+Unity Catalog
+.
+note
+This section assumes that the provider is on a
+Unity Catalog
+-enabled
+Databricks
+workspace. To learn about setting up an open-source
+OpenSharing
+server to share from a non-Databricks platform or non-
+Unity Catalog
+workspace, see
+the open source project
+.
+The way a provider uses
+OpenSharing
+in
+Databricks
+depends on who they are sharing data with:
+Open sharing
+lets you share data with any user, whether or not they have access to
+Databricks
+.
+Databricks-to-Databricks sharing
+lets you share data with
+Databricks
+users whose workspace is attached to a
+Unity Catalog
+metastore that is different from yours. Databricks-to-Databricks also supports notebook, volume, and model sharing, which is not available in
+Databricks-to-Open sharing
+.
+What is open
+OpenSharing
+?
+​
+If you want to share data with users outside of your
+Databricks
+workspace, regardless of whether they use Databricks, you can use open
+OpenSharing
+to share your data securely. As a data provider, you manage authentication with the sharing recipient using either of the following methods:
+You generate a long-lived bearer token and share it securely with the recipient. They use the token to authenticate and get read access to the tables you've included in the shares you've given them access to.
+You use Open ID Connect (OIDC) federation, granting short-lived Databricks OAuth tokens to the recipient in exchange for JWT tokens that the recipient's identity provider (IdP) passes to Databricks.
+Recipients can access the shared data using many computing tools and platforms, including:
+Databricks
+Apache Spark
+Pandas
+Power BI
+For a full list of
+OpenSharing
+connectors and information about how to use them, see the
+OpenSharing
+documentation.
+See also
+What is the
+Databricks-to-Open sharing
+protocol?
+.
+What is Databricks-to-Databricks
+OpenSharing
+?
+​
+If you want to share data with users who have a Databricks workspace that is
+enabled for Unity Catalog
+, you can use Databricks-to-Databricks
+OpenSharing
+. Databricks-to-Databricks sharing lets you share data with users in other Databricks accounts, whether they're on AWS, Azure, or GCP. It's also a great way to securely share data across different
+Unity Catalog
+metastores in your own Databricks account. Note that there is no need to use
+OpenSharing
+to share data between workspaces attached to the same
+Unity Catalog
+metastore, because in that scenario you can use
+Unity Catalog
+itself to manage access to data across workspaces.
+One advantage of Databricks-to-Databricks sharing is that the share recipient doesn't need a token to access the share, and the provider doesn't need to manage recipient tokens. The security of the sharing connection, including all identity verification, authentication, and auditing, is managed entirely through
+OpenSharing
+and the Databricks platform. Another advantage is the ability to share Databricks notebook files,
+Unity Catalog
+volumes, and
+Unity Catalog
+models.
+See also
+What is the
+OpenSharing
+Databricks-to-Databricks protocol?
+.
+How do provider admins set up
+OpenSharing
+and share data?
+​
+This section gives an overview of how providers can enable
+OpenSharing
+and initiate sharing from a
+Unity Catalog
+-enabled
+Databricks
+workspace. For open-source
+OpenSharing
+, see
+the open source project
+.
+Databricks-to-Databricks sharing between
+Unity Catalog
+metastores in the same account is always enabled. To share with
+Databricks
+workspaces in other accounts or with non-Databricks clients, a provider with
+Databricks
+account admin or metastore admin privileges does the following:
+Enable
+OpenSharing
+on the
+Unity Catalog
+metastore that manages the data.
+note
+You do not need to enable
+OpenSharing
+on your metastore if you intend to use
+OpenSharing
+to share data only with users on other
+Unity Catalog
+metastores in your account. Metastore-to-metastore sharing within a single
+Databricks
+account is enabled by default.
+See
+Enable
+OpenSharing
+on a metastore
+.
+Create a share and add data to it. See
+Create shares for
+OpenSharing
+.
+Create a recipient. The provider can share access credentials by email, making it easier for the recipient to access shared data.
+See
+Create data recipients for
+OpenSharing
+(Databricks-to-Databricks sharing)
+.
+If your recipient is not a
+Databricks
+user, or does not have access to a
+Databricks
+workspace that is enabled for
+Unity Catalog
+, you must use
+Databricks-to-Open sharing
+. You can either generate bearer-token-based credentials for that recipient or use OIDC federation.
+Grant your recipients access to the data. See
+Manage access to
+OpenSharing
+data shares (for providers)
+.
+tip
+Use yourself as a test recipient to try out the setup process.
+OpenSharing
+by email
+​
+Beta
+This feature is in
+Beta
+. To use it, an account admin on the provider's account must enable
+OpenSharing
+by email
+from the account console
+Previews
+page. See
+Manage account-level previews
+.
+OpenSharing
+providers use email sharing to invite a recipient using the recipient's email address, instead of first collecting the recipient's sharing identifier for Databricks-to-Databricks sharing or manually delivering a credential file for open sharing. It isn't a new sharing protocol or authentication type. It's a delivery method layered on the recipient that you create.
+When you create the recipient, you choose which connection methods the invitation allows:
+Databricks
+, open sharing, or either one. Email invitations don't support OIDC federation.
+Email sharing simplifies setup for the provider:
+You only need the recipient's email address. You don't have to ask the recipient for their metastore sharing identifier before you create the recipient, or find a secure channel to hand off a credential file.
+OpenSharing
+delivers the secure activation link when you grant access, so you don't manage that hand-off yourself.
+If you allow both connection methods, the same invitation lets the recipient connect through
+Databricks
+or through open sharing, whichever suits their environment.
+The create, grant, and access steps are the same ones that any recipient uses:
+Create the recipient and provide their email address. For Databricks-to-Databricks recipients, see
+Create data recipients for
+OpenSharing
+(Databricks-to-Databricks sharing)
+. For open recipients, see
+Create a recipient object for non-Databricks users using bearer tokens (
+Databricks-to-Open sharing
+)
+.
+Grant the recipient access to a share, which also triggers
+OpenSharing
+to email the recipient a secure activation link. See
+Manage access to
+OpenSharing
+data shares (for providers)
+.
+The recipient follows the link to accept the invitation and read the shared data. See
+Get access to the data shared with you
+.
+For a full list of limitations, see
+Sharing by email invitation
+.
+How do recipients access the shared data?
+​
+Recipients access shared data assets in read-only format. Shared notebook files are read-only, but they can be cloned and then modified and run in the recipient workspace just like any other notebook.
+Secure access depends on the sharing model:
+Databricks-to-Open sharing
+(recipient does not have a Databricks workspace enabled for
+Unity Catalog
+) has two options:
+In the bearer token flow, the recipient provides the credential whenever they access the data in their tool of choice, including
+Apache Spark
+, pandas, Power BI, Databricks, and many more. See
+Read data shared with bearer tokens
+.
+In the OIDC token federation flow, the recipient or the recipient's client app accesses the data using their own identity provider (IdP). See
+Read data shared using Open ID Connect (OIDC) federation in a U2M flow
+and
+Read data shared using Open ID Connect (OIDC) federation in an M2M flow
+.
+Databricks-to-Databricks (recipient workspace is enabled for
+Unity Catalog
+): The recipient accesses the data using Databricks. They can use
+Unity Catalog
+to grant and deny access to other users in their Databricks account. See
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Whenever the data provider updates data tables or volumes in their own Databricks account, the updates appear in near real time in the recipient's system. To learn how to access data that has been shared with you using
+OpenSharing
+, see
+Access data shared with you using
+OpenSharing
+(for recipients)
+.
+How do you keep track of who is sharing and accessing shared data?
+​
+Data providers on
+Unity Catalog
+-enabled
+Databricks
+workspaces can use
+Databricks
+audit logging and system tables to monitor the creation and modification of shares and recipients, and can monitor recipient activity on shares. See
+Audit and monitor data sharing
+.
+Data recipients who use shared data in a Databricks workspace can use Databricks audit logging and system tables to understand who is accessing which data. See
+Audit and monitor data sharing
+.
+Sharing volumes
+​
+You can share volumes using the Databricks-to-Databricks sharing flow. See
+Add volumes to a share
+(for providers) and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+(for recipients).
+Sharing models
+​
+You can share models using the Databricks-to-Databricks sharing flow. See
+Add models to a share
+(for providers) and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+(for recipients).
+Sharing notebooks
+​
+You can use
+OpenSharing
+to share notebook files using the Databricks-to-Databricks sharing flow. See
+Add notebook files to a share
+(for providers) and
+Read shared notebooks
+(for recipients).
+Restricting access at the row and column level when sharing views
+​
+You can share dynamic views that restrict access to certain table data based on recipient properties. See
+Add dynamic views to a share to filter rows and columns
+.
+OpenSharing
+and streaming
+​
+OpenSharing
+supports
+Apache Spark
+Structured Streaming
+. A provider can share a table with history or a
+streaming table
+so that a recipient can use it as a
+Structured Streaming
+source, processing shared data incrementally with low latency. Recipients can also perform
+Delta Lake time travel queries
+on tables shared with history.
+To learn how to share tables with history, see
+Add tables to a share
+. To learn how to use shared tables as streaming sources, see
+Query a table using
+Apache Spark
+Structured Streaming
+(for recipients of Databricks-to-Databricks sharing) or
+Access a shared table using Spark Structured Streaming
+(for recipients of
+Databricks-to-Open sharing
+data).
+To learn how to share streaming tables, see
+Add
+streaming tables
+to a share
+.
+See also
+Structured Streaming
+concepts
+.
+Delta Lake feature support matrix
+​
+OpenSharing
+supports most Delta Lake features when you share a table. This support matrix lists:
+Delta features that require specific versions of
+Databricks Runtime
+, the open-source
+OpenSharing
+Spark connector, or the open-source
+OpenSharing
+Python connector.
+Partially supported features.
+Feature
+Provider
+Databricks recipient
+Open source recipient
+Deletion vectors
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+OpenSharing
+Python connector 1.1.0+
+Power BI v2.132.908.0+
+Column mapping
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+Supported with
+limitations
+in
+OpenSharing
+Python connector
+Power BI v2.132.908.0+
+Delta with Iceberg reads
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+OpenSharing
+Python connector 1.1.0+
+Power BI v2.132.908.0+
+V2 checkpoint
+Supported with
+limitations
+Supported with
+limitations
+Supported with
+limitations
+TimestampNTZ
+Supported
+Databricks Runtime
+14.1+
+OpenSharing
+Spark connector 3.3+
+Liquid clustering
+Supported with
+limitations
+Supported with
+limitations
+Supported with
+limitations
+←
+✕
+Feature
+Provider
+Databricks recipient
+Open source recipient
+Deletion vectors
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+OpenSharing
+Python connector 1.1.0+
+Power BI v2.132.908.0+
+Column mapping
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+Supported with
+limitations
+in
+OpenSharing
+Python connector
+Power BI v2.132.908.0+
+Delta with Iceberg reads
+Tables must be shared with history.
+Databricks Runtime
+14.1+ for batch queries
+Databricks Runtime
+14.2+ for CDF and streaming queries
+OpenSharing
+Spark connector 3.1+
+OpenSharing
+Python connector 1.1.0+
+Power BI v2.132.908.0+
+V2 checkpoint
+Supported with
+limitations
+Supported with
+limitations
+Supported with
+limitations
+TimestampNTZ
+Supported
+Databricks Runtime
+14.1+
+OpenSharing
+Spark connector 3.3+
+Liquid clustering
+Supported with
+limitations
+Supported with
+limitations
+Supported with
+limitations
+OpenSharing
+FAQs
+​
+The following are frequently asked questions about
+OpenSharing
+.
+Do I need
+Unity Catalog
+to use
+OpenSharing
+?
+​
+No, you do not need
+Unity Catalog
+to share (as a provider) or consume shared data (as a recipient). However,
+Unity Catalog
+provides benefits such as support for non-tabular and AI asset sharing, out-of-the-box governance, simplicity, and query performance.
+Providers can share data in two ways:
+Put the assets to share under
+Unity Catalog
+management and share them using the built-in
+Databricks
+OpenSharing
+server.
+You do not need to migrate all assets to
+Unity Catalog
+. You need only one
+Databricks
+workspace that is enabled for
+Unity Catalog
+to manage assets that you want to share. In some accounts, new workspaces are enabled for
+Unity Catalog
+automatically. See
+Get started with
+Unity Catalog
+.
+Implement the
+Databricks-to-Open sharing
+server
+to share data, without necessarily using your
+Databricks
+account.
+Recipients can consume data in two ways:
+Without a Databricks workspace. Use open source
+OpenSharing
+connectors that are available for many data platforms, including Power BI, pandas, and open source
+Apache Spark
+. See
+Read data shared with bearer tokens
+and the
+OpenSharing
+open source project
+.
+In a Databricks workspace. Recipient workspaces don't need to be enabled for
+Unity Catalog
+, but there are advantages of governance, simplicity, and performance if they are.
+Recipient organizations who want these advantages don't need to migrate all assets to
+Unity Catalog
+. You need only one
+Databricks
+workspace that is enabled for
+Unity Catalog
+to manage assets that are shared with you. In some accounts, new workspaces are enabled for
+Unity Catalog
+automatically. See
+Get started with
+Unity Catalog
+.
+See
+Read data shared with bearer tokens
+and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Do I need to be a Databricks customer to use
+OpenSharing
+?
+​
+No,
+OpenSharing
+is an open protocol. You can share non-Databricks data with recipients on any data platform. Providers can configure an open
+OpenSharing
+server to share from any computing platform. Recipients can consume shared data using open source
+OpenSharing
+connectors for many data products, including Power BI, pandas, and open source Spark.
+However, using
+OpenSharing
+on
+Databricks
+, especially sharing from a
+Unity Catalog
+-enabled workspace, has many advantages.
+For details, see the first question in this FAQ.
+How do I incur and check
+OpenSharing
+costs?
+​
+The cost of
+OpenSharing
+incurs when sharing and accessing views,
+materialized views
+, and
+streaming tables
+. These are the potential sources of cost for sharing:
+Compute cost, charged by
+Databricks
+.
+Storage and network transfer (egress) cost, charged by the storage vendor, or by
+Databricks
+if the provider uses
+SecureConnect
+.
+Foreign compute source cost, when sharing foreign schemas and tables.
+The method by which compute is performed and who pays for it depends on several factors:
+The type of recipient compute
+Whether sharing occurs within the same
+Databricks
+account or across accounts
+The following table describes the billing method for sharing and accessing
+views
+using
+OpenSharing
+:
+Recipient compute
+Account relationship
+Who pays
+SKU used for billing
+Access method
+Databricks Serverless
+Any
+Recipient*
+Recipient’s serverless
+Recipient receives direct access to underlying data
+Databricks Classic
+Same account
+Recipient*
+Recipient’s classic
+Recipient receives direct access to underlying data
+Databricks Classic
+Different account
+Recipient
+Provider’s interactive serverless
+Provider performs filtering
+Databricks-to-Open sharing Connectors
+Any
+Provider
+Provider’s interactive serverless
+Provider performs filtering
+←
+✕
+Recipient compute
+Account relationship
+Who pays
+SKU used for billing
+Access method
+Databricks Serverless
+Any
+Recipient*
+Recipient’s serverless
+Recipient receives direct access to underlying data
+Databricks Classic
+Same account
+Recipient*
+Recipient’s classic
+Recipient receives direct access to underlying data
+Databricks Classic
+Different account
+Recipient
+Provider’s interactive serverless
+Provider performs filtering
+Databricks-to-Open sharing Connectors
+Any
+Provider
+Provider’s interactive serverless
+Provider performs filtering
+* When you use
+OpenSharing
+with a recipient using Serverless compute in a different account, or with a recipient in the same account, there is no incremental charge. This means there is no additional cost for materializing the data asset.
+When sharing
+foreign tables
+, materialization is always performed and stored on the provider's side. For foreign Iceberg tables, materialization is performed on the provider's side when sharing with an open recipient not using an Iceberg client. Providers might see an additional charge attributed to default storage used for data materialization.
+When sharing
+foreign tables
+using the Databricks-to-Databricks sharing flow, filtering is always performed on the provider's side, and the recipient pays the filtering compute cost. If you use the Databricks open sharing protocol, filtering is performed on the provider's side and the provider pays the cost.
+Billing attribution is also queryable using the
+Billable usage system table reference
+and
+OpenSharing
+materialization history system table reference
+. If the recipient pays for attribution, then only the recipient can see the associated record in the system table. For example queries, see
+Sample queries
+.
+Does
+OpenSharing
+incur egress costs?
+​
+OpenSharing
+within a region incurs no egress cost. Unlike other data sharing platforms,
+OpenSharing
+does not require data replication. This model has many advantages, but it means that your cloud vendor may charge data egress fees when you share data across clouds or regions.
+Databricks
+supports sharing from Cloudflare R2, which incurs no egress fees, and provides other tools and recommendations to monitor and avoid egress fees. See
+Monitor and manage
+OpenSharing
+egress costs (for providers)
+.
+However, if the provider uses
+SecureConnect
+, data transfer is billed by
+Databricks
+instead of the cloud vendor.
+Do recipients have direct access to the underlying data in shared views,
+materialized views
+, and
+streaming tables
+?
+​
+For shared views,
+materialized views
+, and
+streaming tables
+, the data recipient has direct access if one of the following is true:
+The recipient uses serverless compute or non-dedicated classic compute on the same
+Databricks
+account.
+The recipient uses serverless compute on a different
+Databricks
+account.
+Otherwise, data is materialized and filtered on the provider side.
+When
+SecureConnect
+is enabled, these assets are always materialized and filtered on the provider side, even in the scenarios listed above.
+The data materialization is stored under the shared data asset's parent storage location.
+When sharing materialized assets, the compute processes the request by applying necessary filters and creating temporary materialization cached in the provider's storage. This filtered data is delivered to recipients using pre-signed short-lived URLs, ensuring secure access while maintaining provider-to-recipient access control.
+Can providers revoke recipient access?
+​
+Yes, recipient access can be revoked on-demand and at specified levels of granularity. You can deny recipient access to specific shares and specific IP addresses, filter tabular data for a recipient, revoke recipient tokens, and delete recipients entirely. See
+Revoke recipient access to a share
+and
+Create data recipients for
+OpenSharing
+(Databricks-to-Databricks sharing)
+.
+Isn't it insecure to use pre-signed URLs?
+​
+OpenSharing
+uses pre-signed URLs to provide temporary access to a file in object storage. They are only given to recipients that already have access to the shared data. They are secure because they are short-lived and don't expand the level of access beyond what recipients have already been granted.
+Are the tokens used in the
+Databricks-to-Open sharing
+protocol secure?
+​
+Because
+OpenSharing
+enables cross-platform sharing, unlike other available data sharing platforms, the sharing protocol requires an open token. Providers can ensure token security by configuring the token lifetime, setting networking controls, and revoking access on demand. In addition, the token does not expand the level of access beyond what recipients have already been granted. See
+Security considerations for tokens
+.
+If you prefer not to use tokens to manage access to recipient shares, you should use
+Databricks-to-Databricks sharing
+or contact your Databricks account team for alternatives.
+What is the difference between
+Lakeflow Connect
+and
+OpenSharing
+?
+​
+OpenSharing
+allows you to securely share live data across platforms, clouds, and regions. Databricks recommends ingestion using managed connectors because they scale to accommodate high data volumes, low-latency querying, and third-party API limits. However, you might want to query your data without moving it.
+When you have a choice between managed connectors and
+OpenSharing
+, choose
+OpenSharing
+for the following scenarios:
+Limiting data duplication.
+Querying the freshest possible data.
+Limitations
+​
+Consider the following limitations when you use
+OpenSharing
+to share data and AI assets.
+Sharing by email invitation
+​
+Sharing by email invitation is not supported in the following scenarios:
+OIDC federation
+: Email invitations don't support OIDC federation. See
+Enable Open ID Connect (OIDC) federation for
+OpenSharing
+recipients
+.
+Groups and service principals
+: An email invitation must go to an individual user's email address, so it can't represent a group or a service principal.
+A different accepting
+Databricks
+identity
+: For Databricks-to-Databricks sharing, the person who accepts must sign in with a
+Databricks
+account whose email matches the invited address.
+OpenSharing
+by email has the following limitations:
+An email invitation is tied to a single email address and can't be forwarded. The recipient must accept it while signed in as that user.
+Each email recipient maps to one email address, and you can't create a second email recipient for the same address.
+To accept a Databricks-to-Databricks invitation, the recipient needs the
+CREATE PROVIDER
+privilege on their metastore, and the
+CREATE CATALOG
+privilege to mount the shared data into a catalog.
+For Databricks-to-Databricks sharing, a single email invitation can be accepted by up to 10 metastores.
+An open sharing invitation uses a single credential file that the recipient can download only one time.
+You can't resend an invitation for a share the recipient already has, but granting access to a new share sends a new email. See
+Manage email recipients
+.
+The
+CREATE RECIPIENT
+SQL command and the Databricks CLI don't support email sharing.
+Table format and feature support
+​
+Format requirements:
+Tabular data must be in
+Delta
+or
+managed Iceberg
+table format. You can easily convert Parquet tables to Delta, and back again. See
+CONVERT TO DELTA
+.
+OpenSharing
+can only read tables with Iceberg reads enabled as Delta tables.
+Unsupported tables:
+Providers can't share tables that use liquid clustering with partition filtering.
+Providers can't share R2 tables with V2 checkpoint.
+Providers can't share tables with collations enabled.
+Providers can't share tables with row filters or column masks.
+Providers can't share
+SHALLOW CLONE
+tables.
+Databricks
+does not support presigning URLs for Delta logs that reference absolute paths.
+Foreign key constraints
+are not available in shared tables.
+Databricks-to-Databricks sharing only
+​
+The following assets can only be shared using the Databricks-to-Databricks sharing flow:
+Notebook sharing. See
+Add notebook files to a share
+and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Volume sharing. See
+Add volumes to a share
+(for providers) and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Model sharing. See
+Add models to a share
+(for providers) and
+Read data shared using Databricks-to-Databricks
+OpenSharing
+(for recipients)
+.
+Metric view sharing. See
+Add metric views to a share
+(for providers) and
+Read shared metric views
+(for recipients).
+Views
+​
+Shareable views must be defined on Delta tables, foreign tables, or other shareable views. See
+Add views to a share
+(for providers) and
+Read shared views
+(for recipients).
+Streaming
+​
+OpenSharing
+doesn't support changing
+responseFormat
+while a streaming source is running or during streaming restarts.
+Recipient metadata
+​
+The tables in
+information_schema
+from a shared catalog reflect metadata stored in
+Unity Catalog
+. This metadata is updated from the provider only when you query the shared table directly or run a command such as
+DESCRIBE
+. Until then,
+information_schema
+might appear stale compared to the provider's data.
+Resource and technical limits
+​
+There are limits on the number of files in metadata allowed for a shared table. To learn more, see
+Resource limit exceeded errors
+.
+Schemas named
+information_schema
+cannot be imported into a
+Unity Catalog
+metastore, because that schema name is reserved in
+Unity Catalog
+.
+See also
+Delta Lake feature support matrix
+.
+Cascade deletes bypass share protection
+​
+Deleting a parent object, such as a catalog or schema, triggers a cascade delete of its child objects, even if those child objects are included in active shares. After a cascade delete removes an asset, you can't re-add an asset with the same name to the share.
+To avoid this issue, remove assets from all shares before you delete their parent objects.
+Resource quotas
+​
+Databricks
+enforces resource quotas on all
+OpenSharing
+securable objects. These quotas are listed in
+Resource limits
+. If you expect to exceed these resource limits, contact your
+Databricks
+account team.
+You can monitor your quota usage using the
+Unity Catalog
+resource quotas APIs. See
+Monitor your usage of
+Unity Catalog
+resource quotas
+.
+Additional resources
+​
+Enable your Databricks account for
+OpenSharing
+Create shares
+Create recipients
+Learn more about the
+Databricks-to-Open sharing
+and
+Databricks-to-Databricks
+sharing models
+Learn how recipients access shared data
+On this page
+How does OpenSharing work?
+Shares, providers, and recipients
+What is a share?
+What is a provider?
+What is a recipient?
+Databricks-to-Open sharing versus Databricks-to-Databricks sharing
+What is open OpenSharing?
+What is Databricks-to-Databricks OpenSharing?
+How do provider admins set up OpenSharing and share data?
+OpenSharing by email
+How do recipients access the shared data?
+How do you keep track of who is sharing and accessing shared data?
+Sharing volumes
+Sharing models
+Sharing notebooks
+Restricting access at the row and column level when sharing views
+OpenSharing and streaming
+Delta Lake feature support matrix
+OpenSharing FAQs
+Do I need Unity Catalog to use OpenSharing?
+Do I need to be a Databricks customer to use OpenSharing?
+How do I incur and check OpenSharing costs?
+Does OpenSharing incur egress costs?
+Do recipients have direct access to the underlying data in shared views, materialized views, and streaming tables?
+Can providers revoke recipient access?
+Isn't it insecure to use pre-signed URLs?
+Are the tokens used in the Databricks-to-Open sharing protocol secure?
+What is the difference between Lakeflow Connect and OpenSharing?
+Limitations
+Sharing by email invitation
+Table format and feature support
+Databricks-to-Databricks sharing only
+Views
+Streaming
+Recipient metadata
+Resource and technical limits
+Cascade deletes bypass share protection
+Resource quotas
+Additional resources

@@ -1,0 +1,135 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+DELETE FROM
+Applies to:
+Databricks SQL
+Databricks Runtime
+Deletes the rows that match a predicate. When no predicate is provided, deletes all rows.
+This statement is only supported for
+Delta Lake
+tables.
+Syntax
+​
+[ common_table_expression ]
+DELETE FROM table_name [table_alias] [WHERE predicate]
+Parameters
+​
+common table expression
+Common table expressions (CTE) are one or more named queries which can be reused multiple times within the main
+query block to avoid repeated computations or to improve readability of complex, nested queries.
+table_name
+Identifies an existing table. The name must not include a
+temporal specification
+.
+table_name
+must not be a foreign table.
+table_alias
+Define an alias for the table. The alias must not include a column list.
+WHERE
+Filter rows by predicate.
+The
+WHERE
+predicate supports subqueries, including
+IN
+,
+NOT IN
+,
+EXISTS
+,
+NOT EXISTS
+, and scalar subqueries. The following types of subqueries are not supported:
+Nested subqueries, that is, an subquery inside another subquery
+NOT IN
+subquery inside an
+OR
+, for example,
+a = 3 OR b NOT IN (SELECT c from t)
+In most cases, you can rewrite
+NOT IN
+subqueries using
+NOT EXISTS
+. We recommend using
+NOT EXISTS
+whenever possible, as
+DELETE
+with
+NOT IN
+subqueries can be slow.
+Examples
+​
+SQL
+>
+DELETE
+FROM
+events
+WHERE
+date
+<
+'2017-01-01'
+>
+DELETE
+FROM
+all_events
+WHERE
+session_time
+<
+(
+SELECT
+min
+(
+session_time
+)
+FROM
+good_events
+)
+>
+DELETE
+FROM
+orders
+AS
+t1
+WHERE
+EXISTS
+(
+SELECT
+oid
+FROM
+returned_orders
+WHERE
+t1
+.
+oid
+=
+oid
+)
+>
+DELETE
+FROM
+events
+WHERE
+category
+NOT
+IN
+(
+SELECT
+category
+FROM
+events2
+WHERE
+date
+>
+'2001-01-01'
+)
+common table expression
+COPY
+INSERT
+MERGE
+PARTITION
+query
+UPDATE
+On this page
+Syntax
+Parameters
+Examples

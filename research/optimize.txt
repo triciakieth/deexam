@@ -1,0 +1,254 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Optimize data file layout
+The
+OPTIMIZE
+command rewrites data files to improve data layout for both
+Delta Lake
+and
+Apache Iceberg
+tables. For tables with liquid clustering enabled,
+OPTIMIZE
+rewrites data files to group data by liquid clustering keys. For tables with partitions defined, file compaction and data layout are performed within partitions.
+Predictive optimization automatically runs
+OPTIMIZE
+on
+Unity Catalog
+managed tables. Databricks recommends enabling predictive optimization for all
+Unity Catalog
+managed tables to simplify data maintenance and reduce storage costs. See
+Predictive optimization for
+Unity Catalog
+managed tables
+.
+Delta Lake
+tables without liquid clustering can optionally include a
+ZORDER BY
+clause to improve data clustering on rewrite.
+Apache Iceberg
+tables use clustering and sorting strategies instead of
+ZORDER
+. Databricks recommends using liquid clustering instead of partitions,
+ZORDER
+, or other data layout approaches.
+See
+OPTIMIZE
+.
+important
+In
+Databricks Runtime
+16.0 and above, you can use
+OPTIMIZE <table_name> FULL
+to force reclustering for tables with liquid clustering enabled. See
+Force reclustering
+.
+Syntax examples
+​
+Trigger compaction by running the
+OPTIMIZE
+command:
+SQL
+Python
+Scala
+SQL
+OPTIMIZE
+table_name
+The Python DeltaTable API is
+Delta Lake
+-specific.
+Python
+from
+delta
+.
+tables
+import
+*
+deltaTable
+=
+DeltaTable
+.
+forName
+(
+spark
+,
+"table_name"
+)
+deltaTable
+.
+optimize
+(
+)
+.
+executeCompaction
+(
+)
+The Scala DeltaTable API is
+Delta Lake
+-specific.
+Scala
+import
+io
+.
+delta
+.
+tables
+.
+_
+val
+deltaTable
+=
+DeltaTable
+.
+forName
+(
+spark
+,
+"table_name"
+)
+deltaTable
+.
+optimize
+(
+)
+.
+executeCompaction
+(
+)
+If you have a large amount of data and only want to optimize a subset of it, specify an optional partition predicate using
+WHERE
+:
+SQL
+Python
+Scala
+SQL
+OPTIMIZE
+table_name
+WHERE
+date
+>=
+'2022-11-18'
+The Python DeltaTable API is
+Delta Lake
+-specific.
+Python
+from
+delta
+.
+tables
+import
+*
+deltaTable
+=
+DeltaTable
+.
+forName
+(
+spark
+,
+"table_name"
+)
+deltaTable
+.
+optimize
+(
+)
+.
+where
+(
+"date='2021-11-18'"
+)
+.
+executeCompaction
+(
+)
+The Scala DeltaTable API is
+Delta Lake
+-specific.
+Scala
+import
+io
+.
+delta
+.
+tables
+.
+_
+val
+deltaTable
+=
+DeltaTable
+.
+forName
+(
+spark
+,
+"table_name"
+)
+deltaTable
+.
+optimize
+(
+)
+.
+where
+(
+"date='2021-11-18'"
+)
+.
+executeCompaction
+(
+)
+Consider the following information for bin-packing:
+Bin-packing optimization is
+idempotent
+, meaning that if it is run twice on the same dataset, the second run has no effect.
+Bin-packing aims to produce evenly-balanced data files with respect to their size in storage, but not necessarily by the number of tuples per file. However, the two measures are often correlated.
+Readers of
+Delta Lake
+tables use snapshot isolation, which means that they are not interrupted when
+OPTIMIZE
+removes unnecessary files from the transaction log. Because
+OPTIMIZE
+makes no data changes to the table, a read before and after an
+OPTIMIZE
+has the same results. Performing
+OPTIMIZE
+on a table that is a streaming source does not affect any current or future streams with this table as a source.
+OPTIMIZE
+returns the file statistics (min, max, total, and so on) for the files removed and the files added by the operation. Optimize stats also contains the Z-Ordering statistics, the number of batches, and partitions optimized.
+You can also compact small files automatically using auto compaction. See
+Auto compaction
+.
+Recommended frequency to run
+OPTIMIZE
+​
+Enable predictive optimization for
+Unity Catalog
+managed tables to ensure that
+OPTIMIZE
+runs automatically when it is cost effective.
+When you choose the frequency to run
+OPTIMIZE
+, there is a trade-off between performance and cost. For better end-user query performance, run
+OPTIMIZE
+more often. This will incur a higher cost because of the increased resource usage. To optimize cost, run it less often.
+Databricks recommends that you start by running
+OPTIMIZE
+on a daily basis, preferably at night when spot prices are low, and then adjust the frequency to balance cost and performance trade-offs.
+Recommended instance types for
+OPTIMIZE
+​
+Both operations are CPU intensive operations doing large amounts of Parquet decoding and encoding.
+Databricks recommends
+Compute optimized
+instance types.
+OPTIMIZE
+also benefits from attached SSDs.
+On this page
+Syntax examples
+Recommended frequency to run
+OPTIMIZE
+Recommended instance types for
+OPTIMIZE

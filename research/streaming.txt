@@ -1,0 +1,240 @@
+On this page
+Last updated
+on
+Oct 19, 2026
+Configure
+Structured Streaming
+trigger intervals
+Apache Spark
+Structured Streaming
+processes data incrementally. Trigger intervals control how frequently
+Structured Streaming
+checks for new data. You can configure trigger intervals for near-real-time processing, for scheduled database refreshes, or batch processing all new data for a day or a week.
+Because
+What is
+Auto Loader
+?
+uses
+Structured Streaming
+to load data, understanding how triggers work provides you with the greatest flexibility to control costs while ingesting data with the desired frequency.
+important
+Databricks
+recommends that you set a trigger mode that balances latency and cost for your use case. Otherwise, you might see unexpected storage costs from your cloud provider. See
+Control cloud storage cost
+for details.
+Trigger modes overview
+​
+The following table summarizes the trigger modes available in
+Structured Streaming
+:
+Trigger Mode
+Syntax Example (Python)
+Best For
+Unspecified (Default)
+N/A
+General-purpose streaming with 3-5 second latency. Equivalent to processingTime trigger with 0 ms intervals. Stream processing runs continuously as long as new data arrives.
+Processing Time
+.trigger(processingTime='10 seconds')
+Balancing cost and performance. Reduces overhead by preventing the system from checking for data too frequently.
+Available Now
+.trigger(availableNow=True)
+Scheduled incremental batch processing. Processes as much data as is available at the time the streaming job is triggered.
+Real-time mode
+.trigger(realTime='5 minutes')
+Ultra-low-latency operational workloads requiring sub-second processing, such as fraud detection or real-time personalization. '5 minutes' sets the duration of a long-running batch and the checkpoint interval. Records are processed as they arrive during the batch. The interval does not set the per-record processing latency.
+Continuous
+.trigger(continuous='1 second')
+Not supported. This is an experimental feature included in Spark OSS. Use real-time mode instead.
+←
+✕
+Trigger Mode
+Syntax Example (Python)
+Best For
+Unspecified (Default)
+N/A
+General-purpose streaming with 3-5 second latency. Equivalent to processingTime trigger with 0 ms intervals. Stream processing runs continuously as long as new data arrives.
+Processing Time
+.trigger(processingTime='10 seconds')
+Balancing cost and performance. Reduces overhead by preventing the system from checking for data too frequently.
+Available Now
+.trigger(availableNow=True)
+Scheduled incremental batch processing. Processes as much data as is available at the time the streaming job is triggered.
+Real-time mode
+.trigger(realTime='5 minutes')
+Ultra-low-latency operational workloads requiring sub-second processing, such as fraud detection or real-time personalization. '5 minutes' sets the duration of a long-running batch and the checkpoint interval. Records are processed as they arrive during the batch. The interval does not set the per-record processing latency.
+Continuous
+.trigger(continuous='1 second')
+Not supported. This is an experimental feature included in Spark OSS. Use real-time mode instead.
+note
+In serverless notebooks and jobs, only
+Trigger.AvailableNow()
+and
+Trigger.Once()
+are supported. Databricks recommends
+Trigger.AvailableNow()
+.
+These trigger restrictions do not apply to
+Lakeflow pipelines
+processing modes. For continuous streaming, use a
+serverless pipeline
+in
+continuous mode
+. For sub-second operational workloads, see
+real-time mode in
+Lakeflow pipelines
+.
+See
+Streaming limitations
+.
+processingTime: Time-based trigger intervals
+​
+Structured Streaming
+refers to time-based trigger intervals as "fixed interval micro-batches". Using the
+processingTime
+keyword, specify a time duration as a string, such as
+.trigger(processingTime='10 seconds')
+.
+The configuration of this interval determines how often the system performs checks to see if new data has arrived. Configure your processing time to balance latency requirements and the rate that data arrives in the source.
+AvailableNow
+: Incremental batch processing
+​
+important
+In
+Databricks Runtime
+11.3 LTS and above,
+Trigger.Once
+is deprecated. Use
+Trigger.AvailableNow
+for all incremental batch processing workloads.
+The
+AvailableNow
+trigger option consumes all available records as an incremental batch with the ability to configure batch size with options such as
+maxBytesPerTrigger
+. Sizing options vary by data source.
+Supported data sources
+​
+Databricks
+supports using
+Trigger.AvailableNow
+for incremental batch processing from many
+Structured Streaming
+sources. The following table includes the minimum supported
+Databricks Runtime
+version required for each data source:
+Source
+Minimum
+Databricks Runtime
+version
+File sources (JSON, Parquet, etc.)
+9.1 LTS
+Delta Lake
+10.4 LTS
+Auto Loader
+10.4 LTS
+Apache Kafka
+10.4 LTS
+Kinesis
+13.1
+OpenSharing
+(
+responseFormat=delta
+;
+responseFormat=parquet
+requires
+delta-sharing-client
+1.4.0 or above)
+18.0
+←
+✕
+Source
+Minimum
+Databricks Runtime
+version
+File sources (JSON, Parquet, etc.)
+9.1 LTS
+Delta Lake
+10.4 LTS
+Auto Loader
+10.4 LTS
+Apache Kafka
+10.4 LTS
+Kinesis
+13.1
+OpenSharing
+(
+responseFormat=delta
+;
+responseFormat=parquet
+requires
+delta-sharing-client
+1.4.0 or above)
+18.0
+realTime: Ultra-low-latency operational workloads
+​
+Real-time mode for
+Structured Streaming
+achieves end-to-end latency under 1 second at the tail, and in common cases around 300 ms. For more details on how to effectively configure and use real-time mode, see
+Real-time mode in
+Structured Streaming
+.
+Apache Spark
+has an additional trigger interval known as
+Continuous Processing
+. This mode has been classified as experimental since Spark 2.3.
+Databricks
+doesn't support or recommend this mode. Use real-time mode instead for low-latency use cases.
+note
+The continuous processing mode on this page is unrelated to continuous processing in
+Spark Declarative Pipelines on Lakeflow
+.
+Control cloud storage cost
+​
+By default, if you don't set a trigger mode,
+Structured Streaming
+sets the trigger mode to
+processingTime
+and the interval to
+0
+, which checks for new data every few milliseconds. This can generate a high volume of cloud storage API calls per day and result in unexpected charges from your cloud provider.
+Databricks
+recommends that you configure a trigger mode appropriate for your latency and cost requirements. See
+processingTime
+for information on configuring a time-based trigger interval.
+Change trigger intervals between runs
+​
+You can change the trigger interval between runs while using the same checkpoint.
+Behavior when changing intervals
+​
+If a
+Structured Streaming
+query stops while a micro-batch is currently processing, that micro-batch must complete before the new trigger interval applies. After you change the trigger interval, you might observe that a micro-batch processes with the previously specified configuration. The following describes the expected behavior after a transition:
+From time-based interval to
+AvailableNow
+:
+A micro-batch might process as an incremental batch before all available records process.
+From
+AvailableNow
+to time-based interval:
+Processing might continue for all records that were available when the last
+AvailableNow
+job triggered.
+Recover from query failures
+​
+If you try to recover from a query failure with an incremental batch, a trigger interval change doesn't solve the problem. The previous unsuccessful batch must complete because
+Structured Streaming
+requires idempotent micro-batches. See
+fault tolerance semantics for
+Apache Spark
+.
+To resolve the failure, scale up the compute capacity, such as increasing the size of worker nodes. In rare cases, you might need to restart the stream with a new checkpoint.
+On this page
+Trigger modes overview
+processingTime: Time-based trigger intervals
+AvailableNow
+: Incremental batch processing
+Supported data sources
+realTime: Ultra-low-latency operational workloads
+Control cloud storage cost
+Change trigger intervals between runs
+Behavior when changing intervals
+Recover from query failures

@@ -1,0 +1,1469 @@
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+
+
+
+                               Worksheets                                                  Name
+
+         FTW_Databricks Data Engineer Associate
+                                                                                           Class
+         V3.2
+         Total questions: 90
+                                                                                            Date
+         Worksheet time: 47mins
+
+
+
+
+         1.
+
+
+
+
+              A global retail company sells products across multiple categories (e.g., Electronics, Clothing)
+              and regions (e.g., North, South, East, West).
+              The sales team has provided the data engineer with a PySpark dataframe named sales_df
+              and the team wants the data engineer to analyze the sales data to help them make strategic decisions.
+              sales_df (See screenshot)
+
+              Calculate the total sales amount for each product category and store the results in a new dataframe called
+              category_sales.
+              What will generate the expected result of category_sales? (See screenshot)
+
+              a)                                                          b)
+
+
+
+
+              c)                                                          d)
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                     1/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         2.
+
+
+
+
+              A company sells products across multiple categories (e.g., Electronics, Clothing) and regions.
+              The sales team has provided you with a PySpark dataframe named sales_df as below,
+              and the team wants the data engineer to analyze the sales data to help make strategic decisions.
+
+              Calculate the total sales amount for each region and store the results in a new dataframe called region_sales.
+              Given the expected result: (See image)
+
+              Which code will generate the expected result?
+
+              a)                                                           b)
+
+
+
+
+              c)                                                           d)
+
+
+
+
+         3.   A data engineering team is using Kafka to capture event data and then ingest it into Databricks. The team
+              wants to be able to see these historical events. Medallion architecture is already in place. The team wants to
+              be mindful of costs. Where should this historical event data be stored?
+
+              a) Gold                                                      b) Silver
+              c) Bronze                                                    d) Raw layer
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                         2/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         4.   Which two items are characteristics of the Gold Layer? (Choose two.)
+
+              a) Historical lineage                                        b) Raw Data
+              c) Normalised                                                d) De-normalised
+              e) Read-optimized
+
+
+         5.   A data engineer team has decided to implement a new data platform on Databricks and is
+              currently deciding how to store each kind of data on each data layer.
+              What is the appropriate layer and data pairing for medallion architecture?
+
+              a) Silver Layer - Raw data from deposit account              b) Bronze Layer - Summary of cash deposit amount
+                 application                                                  for each country and city
+              c) Silver Layer - Cleansed master customer data              d) Gold Layer - Deduplicated money transfer
+                                                                              transaction
+
+
+         6.   A data engineer has been provided a PySpark DataFrame named df with columns product and
+              revenue. The data engineer needs to compute complex aggregations to determine each product's
+              total revenue, average revenue, and transaction count.
+              Which code snippet should the data engineer use?
+
+              a)                                                           b)
+
+
+
+
+              c)                                                           d)
+
+
+
+
+         7.   A data engineer is developing an ETL process based on Spark SQL. The execution fails. The
+              data engineer checks the Spark UI and can see the ERRORS as follows:
+              "java.lang.OutofMemoryError: Java heap space"
+              Which two corrective actions should the data engineer perform to resolve this issue? (Choose
+              two.)
+
+              a) Narrow the filters in order to collect less data in      b) Upsize the worker nodes and activate autoshuffle
+                 the query                                                   partitions
+              c) Upsize the driver node and deactivate autoshuffle d) Cache the dataset in order to boost the query
+                 partitions                                           performance
+              e) Fix the shuffle partitions to 50 to ensure the
+                 allocation
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                          3/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         8.    A data engineer is working in a Python notebook on Databricks to process data, but notices that
+               the output is not as expected. The data engineer wants to investigate the issue by stepping
+               through the code and checking the values of certain variables during execution.
+               Which tool should the data engineer use to inspect the code execution and variables in
+               real-time?
+
+               a) Cluster Logs                                             b) Job Execution Dashboard
+               c) Python Notebook Interactive Debugger                     d) SQL Analytics
+
+
+         9.    A data engineer is writing a script that is meant to ingest new data from cloud storage. In the
+               event of the Schema change, the ingestion should fail. It should fail until the changes
+               downstream source can be found and verified as intended changes.
+               Which command will meet the requirements?
+
+               a) failonNewColumns                                         b) none
+               c) rescue                                                   d) addNewColumns
+
+
+         10.      A data engineer needs to ingest from both streaming and batch sources for a firm that relies on
+                  highly accurate data. Occasionally, some of the data picked up by the sensors that provide a
+                  streaming input are outside the expected parameters. If this occurs, the data must be dropped,
+                  but the stream should not fail.
+                  Which feature of Delta Live Tables meets this requirement?
+
+                  a) Change Data Capture                                   b) Error Handling
+                  c) Monitoring                                            d) Expectations
+
+
+         11.   A data engineer has inherited a Databricks pipeline from a previous team. The pipeline is
+               missing SLAs and costs more than the allotted budget. On analysis, it is noted that the cluster is
+               not being fully utilized, and the dataset is getting skewed.
+               How should the data engineer resolve this issue?
+
+               a) Use coalesce() on the dataset to merge partitions b) Increase the number of executors for the job.
+                  and reduce skew.
+               c) Repartition the dataset to have it be more               d) Increase the executor memory for the job.
+                  optimally spread across all nodes.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                    4/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         12.      A data engineer streams customer orders into a Kafka topic (orders_topic) and is currently
+                  writing the ingestion script of a DLT pipeline. The data engineer needs to ingest the data from
+                  Kafka brokers to DLT using Databricks.
+                  What is the correct code for ingesting the data?
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+
+         13.      A data engineer has developed an ETL that produce a Delta managed table with liquid
+                  clustering feature activated as output. Several consumers are having issues regarding time delay
+                  when reading this table.
+                  How could the Data Engineer be sure about the OPTIMIZE command has been executed
+                  explicitly?
+
+                  a) Check the system table                                b) Use SHOW TABLES EXTENDED to check the
+                     system.storage.predictive_optimization                   partitions columns used
+                     operations_history
+                  c) Use DESCRIBE DETAIL table to see the file size and d) Use DESCRIBE HISTORY table to check if exists
+                     number of files for the table                         any OPTIMIZE operation
+
+
+         14.      A data engineer is working on a Databricks project that utilizes cloud storage. The data engineer
+                  wants to load several JSON files from containers on a storage account as soon as the file arrives
+                  within the storage account.
+                  Which syntax should the data engineer follow to first load the files into a dataframe and check
+                  that it is working as expected using Python?
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                     5/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         15.      A data engineer is processing ingested streaming tables and needs to filter out NULL values in
+                  the order_datetime column from the raw streaming table orders_raw and store the results in a
+                  new table orders_valid using DLT.
+                  Which code snippet should the data engineer use?
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+
+         16.      What is the functionality of AutoLoader in Databricks?
+
+                  a) Auto Loader automatically ingests and processes       b) Auto Loader automatically
+                     new files from cloud storage, handling both              ingests and processes new files from cloud
+                     batch and streaming data with support for                storage, handling batch and streaming data with
+                     schema evolution.                                        no
+                                                                              support for schema evolution.
+                  c) Auto Loader automatically ingests and processes       d) Auto Loader automatically ingests and processes
+                     new files                                                new files from cloud storage, handling batch
+                     from cloud storage, handling only streaming data         data with support for schema evolution.
+                     with no support for schema evolution.
+
+
+         17.   A data engineer is using the Databricks OPTIMIZE command on a Delta table.
+               What happens when OPTIMIZE is run twice on the same table with the same data?
+
+               a) It has no effect because it is idempotent.               b) It changes the number of tuples per file
+                                                                              significantly.
+               c) It further reduces file sizes by re-clustering the       d) It triggers a full liquid clustering process.
+                  data.
+
+
+         18.      A data engineer is inspecting an ETL pipeline based on a Pyspark job that consistently
+                  encounters performance bottlenecks. Based on developer feedback, the data engineer assumes
+                  the job is low on compute resources. To pinpoint the issue, the data engineer observes the Spark
+                  UI and finds out the job has a high CPU time vs Task time.
+                  Which course of action should the data engineer take?
+
+                  a) High CPU time vs Task time means an under-            b) High CPU time vs Task time means efficient use of
+                     utilized cluster. The data engineer may need to          cluster and no change needed
+                     repartition data to spread the jobs more evenly
+                     throughout the cluster.
+                  c) High CPU time vs Task time means a CPU over-          d) High CPU time vs Task time means over-utilized
+                     utilized job. The data engineer may need to              memory and the need to increase
+                     consider executor and core tuning or resizing the        parallelism
+                     cluster
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            6/26
+9/8/26, 4:51 PM                                        Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         19.      A data engineer needs to parse only png files in a directory that contains files with different
+                  suffixes.
+                  Which code should the data engineer use to achieve this task?
+
+                  a)                                                        b)
+
+
+
+
+                  c)                                                        d)
+
+
+
+
+         20.      A data engineer has inherited a Databricks pipeline from a previous team. The pipeline is
+                  missing its SLAs, and an initial investigation has identified memory spills in Spark. These
+                  increased runtimes are also driving up costs. The data engineer needs to reduce the runtime
+                  without significantly increasing costs.
+                  What should the data engineer do first to address this issue?
+
+                  a) Tweak the "spark.sql.shuffle.partitions"               b) Enable autoscaling in the cluster to match the
+                     configuration.                                            requirements
+                  c) Use a photon enabled execution engine.                 d) Ensure the cluster uses memory optimized node
+                                                                               types.
+
+
+         21.      A data engineer is facing performance bottlenecks in an e-commerce transactions Delta table.
+                  The table is a managed Unity Catalog table, and it uses partitioning and Z-ordering in its data
+                  layout scheme. The predictive optimization for Unity Catalog tables is also enabled. The table
+                  has a frequently changing query filter, and the data engineer does not observe a benefit of the
+                  Data Layout or the Predictive Optimization.
+                  How should the data engineer fix the data layout bottlenecks?
+
+                  a) Re-write the Data Layout with Liquid Clustering        b) Enable Delta Caching so that query results can be
+                     and cluster by the Z-Ordered columns.                     read through caches.
+                  c) Tweak the Z-Order columns and run OPTIMIZE             d) Switch the Data layout from Partition+Z-Ordering
+                     manually.                                                 to Automatic Liquid Clustering.
+
+
+         22.      A data engineer needs to optimize the data layout and query performance for an e-commerce
+                  transactions Delta table. The table is partitioned by "purchase_date" a date column which helps
+                  with time-based queries but does not optimize searches on user statistics "customer_id", a
+                  high-cardinality column.
+                  The table is usually queried with filters on "customer_id" within specific date ranges, but since
+                  this data is spread across multiple files in each partition, it results in full partition scans and
+                  increased runtime and costs.
+                  How should the data engineer optimize the Data Layout for efficient reads?
+
+                  a) Alter table implementing liquid clustering on          b) Alter the table implementing liquid clustering by
+                     "customer_id" while keeping the existing                  "customer_id" and "purchase_date".
+                     partitioning.
+                  c) Alter the table to partition by "customer_id".         d) Enable delta caching on the cluster so that
+                                                                               frequent reads are cached for performance.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                             7/26
+9/8/26, 4:51 PM                                        Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         23.      A Delta Live Table pipeline includes two datasets defined using STREAMING LIVE TABLE.
+                  Three datasets are defined against Delta Lake table sources using LIVE TABLE. The table is
+                  configured to run in Production mode using the Continuous Pipeline Mode.
+                  What is the expected outcome after clicking Start to update the pipeline assuming previously
+                  unprocessed data exists and all definitions are valid?
+
+                  a) All datasets will be updated at set intervals until    b) All datasets will be updated once and the pipeline
+                     the pipeline is shut down. The compute                    will shut down. The compute resources
+                     resources will persist to allow for additional            will persist to allow for additional testing.
+                     testing.
+                  c) All datasets will be updated at set intervals until    d) All
+                     the pipeline is shut down. The compute                    datasets will be updated once and the pipeline
+                     resources will be deployed for the update and             will shut down. The compute resources will be
+                     terminated when the pipeline is stopped.                  terminated.
+
+
+         24.      A data engineer has a Job with multiple tasks that runs nightly. Each of the tasks runs slowly
+                  because the clusters take a long time to start.
+                  Which action can the data engineer perform to improve the start up time for the clusters used for
+                  the Job?
+
+                  a) They can use endpoints available in Databricks         b) They can use jobs clusters instead of all-purpose
+                     SQL                                                       clusters
+                  c) They can configure the clusters to autoscale for       d) They can use clusters that are from a cluster pool
+                     larger data sizes
+
+
+         25.      A data engineer has a single-task Job that runs each morning before they begin working. After
+                  identifying an upstream data issue, they need to set up another task to run a new notebook prior
+                  to the original task.
+                  Which approach can the data engineer use to set up the new task?
+
+                  a) They can clone the existing task in the existing       b) They can create a new task in the existing Job
+                     Job and update it to run the new notebook.                and then add it as a dependency of the original
+                                                                               task.
+                  c) They can create a new task in the existing Job         d) They can create a new job from scratch and add
+                     and then add the original task as a dependency            both tasks to run concurrently.
+                     of the new task.
+
+
+         26.      A single Job runs two notebooks as two separate tasks. A data engineer has noticed that one of
+                  the notebooks is running slowly in the Job's current run. The data engineer asks a tech lead for
+                  help in identifying why this might be the case.
+                  Which approach can the tech lead use to identify why the notebook is running slowly as part of
+                  the Job?
+
+                  a) They can navigate to the Runs tab in the Jobs UI       b) They can navigate to the Tasks tab in the Jobs UI
+                     to immediately review the processing                      and click on the active run to review the
+                     notebook.                                                 processing notebook.
+                  c) They can navigate to the Runs tab in the Jobs Ul       d) They can navigate to the Tasks tab in the Jobs Ul
+                     and click on the active run to review the                 to immediately review the processing
+                     processing notebook.                                      notebook.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                              8/26
+9/8/26, 4:51 PM                                        Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         27.      A data engineer and data analyst are working together on a data pipeline. The data engineer is
+                  working on the raw, bronze, and silver layers of the pipeline using Python, and the data analyst
+                  is working on the gold layer of the pipeline using SQL. The raw source of the pipeline is a
+                  streaming input. They now want to migrate their pipeline to use Delta Live Tables.
+                  Which of the following changes will need to be made to the pipeline when migrating to Delta
+                  Live Tables?
+
+                  a) The pipeline will need to be written entirely in       b) The pipeline will need to stop using the
+                     Python                                                    medallion-based multi-hop architecture
+                  c) The pipeline will need to be written entirely in SQL d) The pipeline will need to use a batch source in
+                                                                             place of a streaming source
+
+
+         28.      A data engineer is working in a Databricks notebook to design and manage a batch ETL
+                  pipeline. The engineer is writing SQL and Python code to clean data, transform it, and join large
+                  datasets from different sources. The engineer wants to organize these steps into a structured
+                  process that can be run regularly and scheduled as part of a data pipeline.
+                  Which Databricks notebook feature is applicable in the use case?
+
+                  a) Real-time streaming support                            b) Collaborative editing
+                  c) Task workflows and job scheduling                      d) Notebook version control
+
+
+         29.      A data engineer needs to develop integration tests for an ETL process and deploy a
+                  version-controlled, packaged workflow into production using an external job scheduler.
+                  Which tool should the data engineer use for this job?
+
+                  a) Databricks Connect                                     b) Databricks Asset Bundles
+                  c) Databricks Command Line Interface                      d) Databricks Software Development Kit
+
+
+         30.      Which Databricks asset bundle format is valid?
+
+                  a)                                                        b)
+
+
+
+
+                  c)                                                        d)
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                         9/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         31.      A data engineer is designing an ETL pipeline to process both streaming and batch data from
+                  multiple sources. The pipeline must ensure data quality, handle schema evolution, and provide
+                  easy maintenance. The team is considering using Delta Live Tables (DLT) in Databricks to
+                  achieve these goals. They want to understand the key features and benefits of DLT that make it
+                  suitable for this use case.
+                  Why is Delta Live Tables (DLT) an appropriate choice?
+
+                  a) Automatic data quality checks, built-in support       b) Manual schema enforcement, high operational
+                     for schema evolution, and declarative                    overhead, and limited scalability
+                     pipeline development
+                  c) Requires custom code for data quality checks, no      d) Supports only batch processing, no data
+                     support for streaming data, and complex                  versioning, and high infrastructure costs
+                     pipeline maintenance
+
+
+         32.      A Data Engineer is building a simple data pipeline using Delta Live Tables (DLT) in Databricks
+                  to ingest customer data. The raw customer data is stored in a cloud storage location in JSON
+                  format. The task is to create a DLT pipeline that reads the raw JSON data and writes it into a
+                  Delta table for further processing.
+                  Which code snippet will correctly ingest the raw JSON data and create a Delta table using DLT?
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+
+         33.      A Python file is ready to go into production and the client wants to use the cheapest but most
+                  efficient type of cluster possible. The workload is quite small, only processing 10GBS of data
+                  with only simple joins and no complex aggregations or wide transformations.
+                  Which cluster meets the requirement?
+
+                  a) Interactive cluster                                   b) Job cluster with spot instances enabled
+                  c) Job cluster with spot instances disabled              d) Job cluster with Photon enabled
+
+
+         34.      A Databricks workflow fails at the last stage due to an error in a notebook. This workflow runs
+                  daily. The data engineer fixes the mistake and wants to rerun the pipeline. This workflow is very
+                  costly and time-intensive to run.
+                  Which action should the data engineer do in order to minimise downtime and cost?
+
+                  a) Re-run the entire workflow                            b) Repair run
+                  c) Restart the cluster                                   d) Switch to another cluster
+
+
+         35.      A Databricks single-task workflow fails at the last task due to an error in a notebook. The data
+                  engineer fixes the mistake in the notebook.
+                  What should the data engineer do to rerun the workflow?
+
+                  a) Repair the task                                       b) Rerun the pipeline
+                  c) Restart the cluster                                   d) Switch the cluster
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                      10/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         36.      What is the structure of an Asset Bundle?
+
+                  a) A Docker image containing runtime environments b) A compressed archive (ZIP) that solely contains
+                     and the source code of the assets                 workspace assets without any
+                                                                       accompanying metadata
+                  c) A single plain text file enumerating the names of     d) A YAML configuration file that specifies the
+                     assets to be migrated to a new workspace                 artifacts, resources, and configurations for the
+                                                                              project
+
+
+         37.      A data engineer is maintaining an ETL pipeline code with a GitHub repository linked to their
+                  Databricks account. The data engineer wants to deploy the ETL pipeline to production as a
+                  databricks workflow.
+                  Which approach should the data engineer use?
+
+                  a) Databricks Asset Bundles (DAB) + GitHub               b) Maintain workflow_config.json and deploy it using
+                     Integration                                              Databricks CLI
+                  c) Maintain workflow_config.json and deploy it using d) Manually create and manage the workflow in UI
+                     Terraform
+
+
+         38.      A data engineer works for an organization that must meet a stringent Service Level Agreement
+                  (SLA) that demands minimal runtime errors and high availability for its data processing
+                  pipelines. The data engineer wants to avoid the operational overhead of managing and tuning
+                  clusters.
+                  Which architectural solution will meet the requirements?
+
+                  a) Use an auto-scaling cluster configured and            b) Implement a hybrid approach with scheduled
+                     monitored by the user.                                   batch jobs on custom cloud VMs.
+                  c) Deploy a dedicated, manually managed cluster          d) Utilize Databricks serverless compute that
+                     optimized by in-house IT staff.                          automatically optimizes resources and abstracts
+                                                                              cluster management.
+
+
+         39.      A data engineer wants to reduce costs and optimize cloud spending. The data engineer has
+                  decided to use Databricks Serverless for lowering cloud costs while maintaining existing SLAs.
+                  What is the first step in migrating to Databricks Serverless?
+
+                  a) Legacy Ingestion pipelines that include ingestion     b) A frequently running and efficient Python-based
+                     from sources API's, files, JDBC/ODBC                     data transformation pipeline compatible
+                     connections                                              with the latest Databricks runtime and Unity
+                                                                              Catalog
+                  c) A frequently running and efficient Scala-based        d) Low frequency BI Dashboarding and
+                     data transformation pipeline compatible with             Adhoc SQL Analytics
+                     the latest Databricks runtime and Unity Catalog
+
+
+         40.      A data engineering project involves processing large batches of data on a daily schedule using
+                  ETL. The jobs are resource-intensive and vary in size, requiring a scalable, cost-efficient
+                  compute solution that can automatically scale based on the workload.
+                  Which compute approach will satisfy the needs described?
+
+                  a) Job Cluster                                           b) Dedicated Cluster
+                  c) All-Purpose Cluster                                   d) Databricks SQL Serverless
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            11/26
+9/8/26, 4:51 PM                                        Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         41.      A data engineer is maintaining a data pipeline. Upon data ingestion, the data engineer notices
+                  that the source data is starting to have a lower level of quality. The data engineer would like to
+                  automate the process of monitoring the quality level.
+                  Which of the following tools can the data engineer use to solve this problem?
+
+                  a) Auto Loader                                            b) Unity Catalog
+                  c) Delta Lake                                             d) Delta Live Tables
+
+
+         42.      A company uses Delta Sharing to collaborate with partners across different cloud providers and
+                  geographic regions.
+                  What will result in additional costs due to cross-region or egress fees?
+
+                  a) Sharing data within the same cloud provider and        b) Transferring data via Delta Sharing across clouds
+                     region                                                    and across different geographic regions
+                  c) Accessing Delta Sharing data using a VPN within        d) Utilizing Delta Sharing for internal data analytics
+                     the same data center                                      within a single cloud environment
+
+
+         43.      An organization has data stored across multiple external systems, including MySQL, Amazon
+                  Redshift, and Google BigQuery. The data engineer wants to perform analytics without ingesting
+                  directly into Databricks, ensuring unified governance and minimizing data duplication.
+                  Which feature of Databricks enables querying these external data sources while maintaining
+                  centralized governance?
+
+                  a) Delta Lake                                             b) Lakehouse Federation
+                  c) MLflow                                                 d) Databricks Connect
+
+
+         44.      An organization needs to share a dataset stored in its Databricks Unity Catalog with an external
+                  partner who uses a different data platform that is not Databricks. The goal is to maintain data
+                  security and ensure the partner can access the data efficiently.
+                  Which method should the data engineer use to securely share the dataset with the external
+                  partner?
+
+                  a) Using Delta Sharing with the open sharing              b) Exporting data as CSV files and emailing them
+                     protocol
+                  c) Using a third-party API to access the Delta table      d) Databricks-to-Databricks Sharing
+
+
+         45.      A data engineer is reviewing the documentation on audit logs in Databricks for compliance
+                  purposes and needs to understand the format in which audit logs output events. How are events
+                  formatted in Databricks audit logs?
+
+                  a) In Databricks, audit logs output events in a JSON      b) In Databricks, audit logs output events in a CSV
+                     format.                                                   format.
+                  c) In Databricks, audit logs output events in an XML      d) In Databricks, audit logs output events in a plain
+                     format.                                                   text format.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                               12/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         46.      A data engineer is managing a data pipeline in Databricks, where multiple Delta tables are used
+                  for various transformations. The team wants to track how data flows through the pipeline,
+                  including identifying dependencies between Delta tables, notebooks, jobs, and dashboards. The
+                  data engineer is utilizing the Unity Catalog lineage feature to monitor this process.
+                  How does Unity Catalog's data lineage feature support the visualization of relationships
+                  between Delta tables, notebooks, jobs, and dashboards?
+
+                  a) Unity Catalog lineage visualizes dependencies         b) Unity Catalog lineage only supports visualizing
+                     between Delta tables, notebooks, and jobs,               relationships at the table level and does not
+                     but does not provide column-level tracing or             extend to notebooks, jobs, or dashboards.
+                     relationships with dashboards.
+                  c) Unity Catalog lineage provides an interactive         d) Unity Catalog provides an interactive graph that
+                     graph that tracks dependencies between tables            visualizes the dependencies between Delta
+                     and notebooks but excludes any job-related               tables, notebooks, jobs, and dashboards, while
+                     dependencies or dashboard visualizations.                also supporting column-level tracking of data
+                                                                              transformations.
+
+
+         47.      A data engineer is configuring Unity Catalog in Databricks and needs to assign a role to a user
+                  who should have the ability to grant and revoke privileges on various data objects within a
+                  specific schema, but should not have read/write access over the schema or its objects.
+                  Which role should the data engineer assign to this user?
+
+                  a) Table Owner                                           b) Catalog Owner
+                  c) Schema Owner                                          d) USE catalog/schema privilege on the schema
+
+
+         48.      A company is collaborating with a partner that does not use Databricks but needs access to a
+                  large historical dataset stored in Delta format. The data engineer needs to ensure that the partner
+                  can access the data securely, without the need for them to set up an account, and with read-only
+                  access.
+                  How should the data be shared?
+
+                  a) Share the dataset by exporting it to a CSV file and b) Grant your partner access to your Databricks
+                     manually transferring the file to the                  workspace and assign them full write
+                     partner's system.                                      permissions to the Delta table, enabling them to
+                                                                            modify the dataset.
+                  c) Share the dataset using Unity Catalog, ensuring       d) Share the dataset using Delta Sharing, which
+                     that both teams have full write access to the            allows your partner to access the data using a
+                     data within the same organization.                       secure, read-only URL without requiring a
+                                                                              Databricks account, ensuring that they cannot
+                                                                              modify the data.
+
+
+         49.      A data engineer at a company that uses Databricks with Unity Catalog needs to share a
+                  collection of tables with an external partner who also uses a Databricks workspace enabled for
+                  Unity Catalog. The data engineer decides to use Delta Sharing to accomplish this.
+                  What is the first piece of information the data engineer should request from the external partner
+                  to set up Delta Sharing?
+
+                  a) The IP address of their Databricks workspace          b) The name of their Databricks cluster
+                  c) The sharing identifier of their Unity Catalog         d) Their Databricks account password
+                     metastore
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                           13/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         50.      A data engineer needs to provide access to a group named manufacturing-team. The team needs
+                  privileges to create tables in the quality schema.
+                  Which set of SQL commands will grant a group named manufacturing-team to create tables in a
+                  schema named production with the parent catalog named manufacturing with the least
+                  privileges?
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+
+         51.      A data engineer is configuring Delta Sharing for a multi-team project where teams from
+                  different departments will need to access shared data. The data engineer has successfully
+                  created a Unity Catalog metastore and is now setting up the Delta Share. The goal is to ensure
+                  that internal teams can access the shared data with full permissions, while external partners can
+                  only read the data. Which action should the Data Engineer take to configure the sharing
+                  correctly?
+
+                  a) Create a Delta Share, set up a secure access URL      b) Create a Delta Share, add the internal team's
+                     for internal teams and external partners,                tables and views, and assign READ/WRITE
+                     and distribute the URL to provide them access to         permissions to both external partners and internal
+                     the shared data.                                         teams.
+                  c) Assign READ permissions to external partners          d) Grant
+                     through the Delta Share and READ/WRITE                   READ permissions to external partners and
+                     permissions to internal teams, and ensure the            READ/WRITE permissions to internal teams
+                     correct tables and views are shared.                     through the Delta Share.
+
+
+         52.      A data engineer manages multiple external tables linked to various data sources. The data
+                  engineer wants to manage these external tables efficiently and ensure that only the necessary
+                  permissions are granted to users for accessing specific external tables.
+                  How should the data engineer manage access to these external tables?
+
+                  a) Set up Azure Blob Storage permissions at the          b) Create a single user role with full access to all
+                     container level, allowing access to all external         external tables and assign it to all users.
+                     tables.
+                  c) Grant permissions on the Databricks workspace         d) Use Unity Catalog to manage access controls and
+                     level, which will automatically apply to all             permissions for each external table
+                     external tables.                                         individually.
+
+
+         53.      An organization plans to share a large dataset stored in a Databricks workspace on AWS with a
+                  partner organization whose Databricks workspace is hosted on Azure. The data engineer wants
+                  to minimize data transfer costs while ensuring secure and efficient data sharing.
+                  Which strategy will reduce data egress costs associated with cross-cloud data sharing?
+
+                  a) Migrating the dataset to Cloudflare R2 object         b) Configure VPN connection between AWS and
+                     storage before sharing                                   Azure for faster data sharing
+                  c) Using Delta Sharing without any additional            d) Sharing data via pre-signed URLS without
+                     configurations                                           monitoring egress costs
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                             14/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         54.      A data engineer is setting up access control in Unity Catalog and needs to ensure that a group of
+                  data analysts can query tables but not modify data. Which permission should the data engineer
+                  grant to the data analysts?
+
+                  a) ALL PRIVILEGES                                        b) MODIFY
+                  c) SELECT                                                d) INSERT
+
+
+         55.      What Databricks feature can be used to check the data sources and tables used in a workspace?
+
+                  a) Use the lineage feature to visualize a graph that     b) Use the lineage feature to visualize a graph that
+                     highlights where the table is used only in               highlights where the table is used only in
+                     reports.                                                 notebooks.
+                  c) Use the lineage feature to visualize a graph that     d) Do not use the lineage feature as it only tracks
+                     shows all dependencies, including where the              activity from the last 3 months and will not
+                     table is used in notebooks, other tables, and            provide full details on dependencies.
+                     reports.
+
+
+         56.      A data engineer is getting a partner organization up to speed with Databricks account. Both the
+                  teams share some business use cases. The data engineer has to share some of your
+                  Unity-Catalog managed delta tables and the notebook jobs creating those tables with the partner
+                  organization.
+                  How can the data engineer seamlessly share the required information?
+
+                  a) Zip all the code and share via email and allow        b) Share required datasets and notebooks via Delta
+                     data ingestion from your data lake                       Sharing. Manage permissions via Unity
+                                                                              Catalog.
+                  c) Data and Notebooks can be shared simply using         d) Share access to codebase via Github and allow
+                     Unity Catalog.                                           them to ingest datasets from your Datalake.
+
+
+         57.      A data engineer needs to audit who made changes to a Delta table in the last 7 days. Which SQL statement
+                  returns the record of past operations, including timestamps, users, and operation types?
+
+                  a) DESCRIBE DETAIL my_table                              b) DESCRIBE HISTORY my_table
+                  c) SHOW TBLPROPERTIES my_table                           d) SELECT * FROM 'delta.my_table/_delta_log/'
+
+
+         58.      A data engineer is attempting to grant a user access to a view. They successfully run GRANT SELECT ON
+                  VIEW sales catalog.market_data.summary TO analyst_group. However, the analyst still receives an
+                  "Insufficient Permissions" error when trying to query the view. In which order should the engineer verify the
+                  Hierarchy of Securable Objects to ensure the analyst has the necessary usage permissions?
+
+                  a) CATALOG -> SCHEMA -> VIEW                             b) METASTORE -> TABLE -> VIEW
+                  c) STORAGE CREDENTIAL -> EXTERNAL LOCATION -             d) WORKSPACE -> CLUSTER -> VIEW
+                     > VIEW
+
+
+         59.      A data engineer needs to support a Unity Catalog Delta table catalog. schema. sales that is currently
+                  registered as an external table. New requirements state:
+                  + Automatic file cleanup after a drop is handled by the platform. » Minimal downtime during migration while
+                  keeping the same table name, permissions, and history.
+                  + Enforced name-based access through Unity Catalog (no path-based access).
+                  Which action should the data engineer take to meet the requirements?
+
+                  a) Run ALTER TABLE catalog.schema.sales SET              b) Run DROP TABLE catalog.schema.sales PURGE to
+                     MANAGED to convert and meet the goals                    delete files and meet goals
+                  c) Run ALTER TABLE catalog.schema.sales SET              d) Create a new managed table with CTAS and
+                     LOCATION to switch external paths now                    migrate workloads to that table today
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            15/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         60.      A data engineering team ingests customer transaction data from three enterprise sources (SQL database,
+                  S3, and Kafka stream) into Unity Catalog tables. The data must maintain lineage and support compliance
+                  audits requiring historical snapshots.
+
+                  Which Lakeflow Connect configuration satisfies both the governance and audit requirements?
+
+                  a) Single Lakeflow connector with all three sources,      b) Separate connectors per source with CDC,
+                     direct Delta writes, and disabled table versioning        individual Unity Catalog schemas per source, and
+                     to reduce storage costs.                                  table versioning enabled for audit compliance.
+                  c) Separate connectors with full-load sync only,          d) Single connector with batch scheduling, shared
+                     archival of historical data, and external tables for      Unity Catalog schema, and incremental
+                     audit queries.                                            snapshots stored externally.
+
+
+         61.      A governance team is evaluating whether to use Unity Catalog attribute-based access control (ABAC)
+                  policies or manually applied row filters and column masks to protect sensitive data across their catalog.
+                  Why should the team use ABAC policies instead of manually applied row filters and column masks?
+
+                  a) ABAC policies use governed tags to dynamically         b) ABAC policies allow row filters and column masks
+                     match tables and columns, so a single policy              to be written in Python and Scala directly,
+                     defined on a catalog automatically applies to all         whereas manually applied filters and masks can
+                     current and future tables within that catalog             only use SQL user-defined functions.
+                     without per-table configuration.
+                  c) ABAC policies can be applied to views and              d) ABAC policies support applying multiple distinct
+                     materialized views in addition to tables, whereas         row filters to the same table for a single user at
+                     manually applied row filters and column masks             query time, whereas manually applied row filters
+                     can only be applied to tables.                            are limited to one filter per table.
+
+
+         62.      A data engineer needs to enforce row-level security on main. secure.events (region STRING, event_id
+                  STRING). Members of the account group all_regions need to see all rows. All other users need to see only
+                  rows where region = 'EU'.
+                  Which SQL sequence satisfies the requirement?
+
+                  a)                                                        b)
+
+
+
+
+                  c)                                                        d)
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                              16/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         63.      A data engineer uses the Databricks workspace UI with Unity Catalog enabled. In Data Explorer, they select
+                  catalog corp marketing, then schema campaigns, and see table email_stats. The engineer must let the
+                  growth-analysts group read email_stats from their SQL warehouses, but not create, alter, or delete any
+                  objects in corp_marketing or campaigns.
+                  Which action sequence meets the requirement?
+
+                  a) 1. On schema campaigns, open Permissions and          b) 1. On catalog corp marketing, open Permissions
+                     grant USE SCHEMA to growth analysts 2. On the            and grant USE CATALOG to growth-analysts 2. On
+                     table email stats, open Permissions and grant            schema campaigns, open Permissions and grant
+                     SELECT and MODIFY to growth-analysts                     USE SCHEMA to growth-analysts 3. On the table
+                                                                              email stats, open Permissions and grant SELECT
+                                                                              to growth-analysts
+                  c) 1. On catalog corp marketing, open Permissions  d) 1. On schema campaigns, open Permissions and
+                     and grant USE CATALOG and CREATE SCHEMA to         grant USE SCHEMA and SELECT to growth-
+                     growth-analysts 2. On schema campaigns, open       analysts 2. On the table email stats, open
+                     Permissions and grant USE SCHEMA to growth-        Permissions and grant SELECT to growth-
+                     analysts 3. On the table email _stats, open        analysts
+                     Permissions and grant SELECT to growth-analysts
+
+
+         64.      A data engineer needs to configure an external location and a storage credential so that a new bronze
+                  ingestion pipeline can land data in cloud storage governed by Unity Catalog. The engineer has CREATE TABLE
+                  permission on schemas but receives a permission error when attempting to create the external location.
+                  Which role is required to unblock this setup, the principle of least privilege?
+
+                  a) Grant CREATE EXTERNAL LOCATION on both the            b) Grant ALL PRIVILEGES on the catalog so the
+                     metastore and the referenced storage credential          engineer can create external locations under its
+                     so the engineer can define the external location.        schemas.
+                  c) Promote the engineer to Workspace Admin so            d) Assign the engineer as Metastore Admin because
+                     they can manage objects and jobs.                        only Metastore Admins can create external
+                                                                              locations.
+
+
+         65.      A data engineer is onboarding a new bronze ingestion pipeline in Databricks with Unity Catalog. The team
+                  wants Databricks to handle storage layout, apply platform optimizations over time, and simplify lifecycle
+                  management so that when a table is dropped, its underlying data is also cleaned up according to
+                  Databricks-managed retention policies.
+                  Which table type should the data engineer create for these ingestion tables?
+
+                  a) Managed tables so that Unity Catalog manages          b) External tables with a LOCATION pointing to an
+                     both metadata and underlying data lifecycle.             external volume for full control of file layout.
+                  c) Foreign tables federated from an external catalog d) Temporary views over files to avoid table-level
+                     to delegate optimization to the source system        governance and lifecycle coupling.
+
+
+         66.      A data engineer is decommissioning a sandbox schema in Unity Catalog. Some tables are ephemeral staging
+                  outputs that can be safety removed entirely, but a few tables point at shared cloud storage used by
+                  downstream jobs outside Databricks. The engineer must avoid deleting any shared files when cleaning up
+                  catalog objects.
+                  How does Unity Catalog behave when dropping Managed vs External tables?
+
+                  a) DROP all tables; Databricks will only remove          b) DROP managed tables that are ephemeral and
+                     metadata for both managed and external tables.           DROP external tables; files for both remain for 7
+                                                                              days.
+                  c) DROP managed staging tables to remove data            d) DROP external tables first to delete their files,
+                     and metadata, and DROP external tables to                then DROP managed tables to keep their files for
+                     remove only metadata                                     recovery.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            17/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         67.      A data engineer wants to delegate day-to-day permission management for the schema main marketing to
+                  the mkt-admins group, without making them workspace admins. They should be able to grant and revoke
+                  privileges for other users on objects within that schema.
+                  Which approach aligns with UC’s ownership and privilege model?
+
+                  a) Grant MANAGE permissions on the metastore to b) Make mkt-admins a workspace-level admins
+                     mkt-admins, which allows managing privileges for group, then SELECT on main.marketing to allow
+                     all schemas and tables globally.                 privilege delegation.
+                  c) Transfer ownership of the schema main.marketing d) Grant USE SCHEMA on main.marketing and
+                     to mkt-admins; owners can manage privileges on     MODIFY on all tables to mkt-admins, which
+                     the schema and its contained objects.              enables managing grants within the schema.
+
+
+         68.      Which Databricks feature can be used to check the data sources and tables used in a workspace?
+
+                  a) Use the lineage feature to visualize a graph that     b) Use the lineage feature to visualize a graph that
+                     shows all dependencies, including where the              highlights where the table is used only in reports.
+                     table is used in notebooks, other tables, and
+                     reports.
+                  c) Use the audit logs feature to review user             d) Use the lineage feature to visualize a graph that
+                     activities, such as who queried or modified a            highlights where the table is used only in
+                     table, instead of visualizing dependencies               notebooks.
+                     between data objects.
+
+
+         69.
+
+
+
+
+                  The Delta transaction log for the ‘students’ tables is shown using the ‘DESCRIBE HISTORY students’
+                  command. A Data Engineer needs to query the table as it existed before the UPDATE operation listed in the
+                  log. Which command should the Data Engineer use to achieve this? (Choose two.)
+
+                  a)                                                       b)
+
+
+
+
+                  c)                                                       d)
+
+
+
+                  e)
+
+
+
+
+         70.      A data engineer needs to access the view created by the sales team, using a shared cluster. The data
+                  engineer has been provided usage permissions on the catalog and schema. In order to access the view
+                  created by sales team. What are the minimum permissions the data engineer would require in addition?
+
+                  a) Needs SELECT permission on the VIEW and the           b) Needs SELECT permission only on the VIEW
+                     underlying TABLE.
+                  c) Needs ALL PRIVILEGES on the VIEW                      d) Needs ALL PRIVILEGES at the SCHEMA level
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                              18/26
+9/8/26, 4:51 PM                                         Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         71.      Which two conditions are applicable for governance in Databricks Unity Catalog? (Choose two.)
+
+                  a) You can have more than 1 metastore within a             b) Both catalog and schema must have a managed
+                     databricks account console but only 1 per region.          location in Unity Catalog provided metastore is
+                                                                                not associated with a location
+                  c) You can have multiple catalogs within metastore         d) If catalog is not associated with location, it’s
+                     and 1 catalog can be associated with multiple              mandatory to associate schema with managed
+                     metastore                                                  locations
+                  e) .If metastore is not associated with location, it’s
+                     mandatory to associate catalog with managed
+                     locations
+
+
+         72.      dentify the impact of ON VIOLATION DROP ROW and ON VIOLATION FAIL UPDATE for a constraint violation. A
+                  data engineer has created an ETL pipeline using Delta Live table to manage their company travel
+                  reimbursement detail, they want to ensure that the if the location details has not been provided by the
+                  employee, the pipeline needs to be terminated. How can the scenario be implemented?
+
+                  a) CONSTRAINT valid_location EXPECT (location =            b) CONSTRAINT valid_location EXPECT (location !=
+                     NULL)                                                      NULL) ON VIOLATION FAIL UPDATE
+                  c) CONSTRAINT valid_location EXPECT (location !=           d) CONSTRAINT valid_location EXPECT (location !=
+                     NULL) ON DROP ROW                                          NULL) ON VIOLATION FAIL
+
+
+         73.      In a healthcare provider organization using Delta Lake to store electronic health records (EHRs), a data
+                  analyst needs to analyze a snapshot of the patient_records table from two weeks ago before some recent
+                  data corrections were applied. What approach should the Data Engineer take to allow the analyst to query
+                  that specific prior version?
+
+                  a) Truncate the table to remove all data, then reload b) Identify the version number corresponding to two
+                     the data from two weeks ago into the truncated        weeks ago from the Delta transaction log, share
+                     table for the analyst to query.                       that version number with the analyst to query
+                                                                           using VERSION AS OF syntax, or export that
+                                                                           version to a new Delta table for the analyst to
+                                                                           query.
+                  c) Restore the table to the version from two weeks         d) Use the VACUUM command to remove all versions
+                     ago using the RESTORE command, and have the                of the table older than two weeks, then the
+                     analyst query the restored table.                          analyst can query the remaining version
+
+
+         74.      A dataset has been defined using Delta Live Tables and includes an expectations clause:
+                  CONSTRAINT valid timestamp EXPECT (timestamp > ‘2020-01 01’) ON VIOLATION DROP ROW
+                  What is the expected behavior when a batch of data containing data that violates these constraints is
+                  processed?
+
+                  a) Records that violate the expectation cause the          b) Records that violate the expectation are added to
+                     job to fail.                                               the target dataset and flagged as invalid in a field
+                                                                                added to the target dataset.
+                  c) Records that violate the expectation are dropped d) Records that violate the expectation are added to
+                     from the target dataset and recorded as invalid in  the target dataset and recorded as invalid in the
+                     the event log.                                      event log.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                                 19/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         75.      A data engineer has three tables in a Delta Live Tables (DLT) pipeline. They have configured the pipeline to
+                  drop invalid records at each table. They notice that some data is being dropped due to quality concerns at
+                  some point in the DLT pipeline. They would like to determine at which table in their pipeline the data is being
+                  dropped. Which approach can the data engineer take to identify the table that is dropping the records?
+
+                  a) They can set up separate expectations for each        b) They can navigate to the DLT pipeline page, click
+                     table when developing their DLT pipeline.                on the “Error” button, and review the present
+                                                                              errors.
+                  c) They can set up DLT to notify them via email          d) They can navigate to the DLT pipeline page, click
+                     when records are dropped.                                on each table, and view the data quality
+                                                                              statistics.
+
+
+         76.      A new data engineering team team has been assigned to an ELT project. The new data engineering team will
+                  need full privileges on the database customers to fully manage the project.
+                  Which of the following commands can be used to grant full permissions on the database to the new data
+                  engineering team?
+
+                  a) GRANT USAGE ON DATABASE customers TO team; b) GRANT ALL PRIVILEGES ON DATABASE team TO
+                                                                   customers;
+                  c) GRANT SELECT PRIVILEGES ON DATABASE                   d) GRANT SELECT CREATE MODIFY USAGE
+                     customers TO teams;                                      PRIVILEGES ON DATABASE customers TO team:
+                  e) GRANT ALL PRIVILEGES ON DATABASE customers
+                     TO team:
+
+
+         77.      A dataset has been defined using Delta Live Tables and includes an expectations clause: CONSTRAINT
+                  valid_timestamp EXPECT (timestamp > ‘2020-01 01’) ON VIOLATION DROP ROW.
+                  What is the expected behavior when a batch of data containing data that violates these constraints is
+                  processed?
+
+                  a) Records that violate the expectation are dropped b) Records that violate the expectation cause the
+                     from the target dataset and loaded into a           job to fail.
+                     quarantine table.
+                  c) Records that violate the expectation are dropped d) Records that violate the expectation are added to
+                     from the target dataset and recorded as invalid in  the target dataset and recorded as invalid in the
+                     the event log.                                      event log.
+
+
+         78.      Which single Databricks CLI command deploys local bundle assets to the target workspace specified in the
+                  configuration file?
+
+                  a) databricks bundle init && databricks bundle           b) databricks bundle plan && databricks bundle run
+                     deployment
+                  c) databricks bundle deploy                              d) databricks bundle validate
+
+
+         79.      A Databricks Job with four sequential tasks is executed. The job failed at Task 3. After the root cause is fixed,
+                  the data engineer needs to complete the workflow without re-running the successful Tasks 1 and 2.
+                  Which action in the Job Run details page allows the engineer to resume execution from the point of failure?
+
+                  a) Repair run                                            b) Reset job
+                  c) Clone task                                            d) Run now
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                                20/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         80.      A data engineering team runs multiple daily batch jobs. The team needs to run the jobs on a fixed overnight
+                  schedule with consistent performance and controlled resource usage. The team wants to minimize
+                  operational overhead and reduce idle cluster costs.
+                  Which compute option should the team use?
+
+                  a) SQL warehouses                                        b) Classic all-purpose compute
+                  c) Serverless jobs compute                               d) Classic jobs compute
+
+
+         81.      A data engineer is building a Silver layer pipeline that should only execute after the Bronze layer table has
+                  been successfully updated with new records.
+                  Which trigger type in Databricks Jobs is specifically designed to orchestrate this dependency by reacting to
+                  changes in the upstream Unity Catalog table?
+
+                  a) Table update trigger                                  b) File arrival trigger
+                  c) Scheduled trigger                                     d) Continuous trigger
+
+
+         82.      A data engineer has a bundle with a job resource keyed as et1_job in databricks.yml. After running
+                  'databricks bundle deploy’, the job appears in the workspace but has not executed.
+                  Which command triggers execution of the deployed job?
+
+                  a) databricks jobs submit --json                         b) databricks bundle run etl_job
+                  c) databricks bundle deploy --run                        d) databricks bundle execute etl_job
+
+
+         83.      A data engineer triggers a scheduled job but finds that the new run was not executed. The run history shows
+                  the run was skipped with a concurrency related queue message.
+                  Which configuration should the engineer investigate?
+
+                  a) The SQL warehouse permissions for the task            b) The task-level timeout_seconds configuration
+                  c) The job-level max_concurrent_runs setting and         d) The cluster spot-instance availability in the cloud
+                     whether queueing is enabled                              provider
+
+
+         84.      A data engineer is preparing a Declarative Automation Bundle (formerly Databricks Asset Bundle) to deploy
+                  a Lakeflow pipeline.
+                  To ensure the pipeline is deployed to the correct environment, where should the workspace specific
+                  configurations, such as the host URL and root storage path, be defined within the bundle project?
+
+                  a) In a global environment variable on the local         b) Within the Python source code of the Lakeflow
+                     development machine                                      pipeline
+                  c) In the targets section of the databricks.ym1 file     d) Inside the README . md file of the bundle root
+                                                                              directory
+
+
+         85.      A data engineer needs Task C to run ONLY if Task A succeeds AND Task B fails.
+                  Which dependency configuration implements this conditional logic?
+
+                  a) Task C depends on Task A (All done) and Task B        b) Task C depends on Task A (Success) with Task B
+                     (All done) with a condition widget.                      listed as a negative dependency.
+                  c) Task C uses two dependency chains: Task A with        d) Create a Python task that checks
+                     All succeeded, Task B with at least one failed.          dbutils.jobs.taskValues from Tasks A and B before
+                                                                              running Task C.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                              21/26
+9/8/26, 4:51 PM                                        Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+         86.      A data engineering team runs nightly batch ETL pipelines that transform large volumes of data stored in
+                  Delta Lake. The workloads are predictable and run on a fixed schedule. The team wants automatic scaling
+                  and cost efficiency, paying only for compute used during job execution.
+                  Which Databricks compute option is appropriate for this workload?
+
+                  a) An all-purpose compute cluster configured with         b) A Databricks SQL warehouse configured for
+                     autoscaling.                                              serverless execution.
+                  c) A single-node compute cluster configured               d) A job compute cluster triggered by a scheduled
+                     without autoscaling.                                      workflow.
+
+
+         87.      A notebook task check_volume calculates a daily data volume and writes it to a Lakeflow Jobs taskValue
+                  named record_count. If the count is greater than 1 million, the job should run high volumepipeline; otherwise,
+                  it should run normal_pipeline.
+                  Which control-flow feature should be used?
+
+                  a) Add an I£/else condition task that reads the           b) Use a For each task over the record_count and
+                     record_count task value and routes to different           stop when it is below the threshold.
+                     downstream tasks.
+                  c) Configure additional retries for check_volume          d) Configure Run if conditions based purely on task
+                     until the count exceeds the threshold.                    status.
+
+
+         88.      A data engineer is designing a Databricks Job that includes a Notebook task for data cleansing and a SQL
+                  Query task for generating a summary report. The summary report must only execute after the cleansing
+                  task completes successfully.
+                  How should the dependency be configured in the Lakeflow Jobs task graph?
+
+                  a) Select the cleansing task as a 'Run if' dependency b) Set both tasks to run on the same schedule with
+                     in the summary report task configuration.             a five-minute start delay for the report.
+                  c) Configure the cleansing task to use an 'On Failure’ d) Place both tasks in the same notebook and use a
+                     trigger to start the summary report.                   standard Python function call.
+
+
+         89.      A data engineer has finished developing a new Declarative Automation Bundle (formerly Databricks Asset
+                  Bundle) for a streaming pipeline. They need to ensure the configuration is syntactically correct, push the
+                  code to the workspace, and finally trigger the pipeline to verify it runs as expected.
+                  Which sequence of Databricks CLI commands should the engineer use to perform these steps in the correct
+                  order?
+
+                  a) databricks bundle init -> databricks bundle            b) databricks bundle validate -> databricks bundle
+                     deploy -> databricks bundle run                           deploy -> databricks bundle run
+                  c) databricks bundle validate -> databricks bundle        d) databricks bundle check -> databricks bundle
+                     sync -> databricks bundle execute                         upload -> databricks bundle start
+
+
+         90.      A company has a strict 15-minute Service Level Agreement (SLA) for updating its currency exchange
+                  dashboard. The source data arrives in small increments every few minutes. The data engineering team
+                  needs a triggering strategy for their Lakeflow Job that keeps end-to-end latency within the SLA while
+                  minimizing compute cost and DBU consumption.
+                  Which triggering strategy for the Lakeflow Job is the recommended way to meet this 15-minute SLA?
+
+                  a) Use a Scheduled trigger set to run every 12            b) Use a Scheduled trigger set to run every 1 minute
+                     minutes, with the streaming task configured to            to ensure the SLA is never at risk.
+                     use Trigger .AvailableNow.
+                  c) Use a File Arrival trigger configured to fire every    d) Use a Continuous trigger to ensure data is
+                     time a single JSON file lands in the bucket.              processed as soon as it arrives.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                             22/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+
+
+
+            Answer Keys
+
+            1. a)                                    2. b)                                   3. c) Bronze
+
+            4. d) De-        , Read-                 5. c) Silver Layer - Cleansed           6. b)
+                  normalised e) optimized                  master customer data
+
+            7. a) Narrow the , Upsize the            8. c) Python Notebook                   9. a) failonNewColumns
+                  filters in   b) worker                   Interactive Debugger
+                  order to        nodes and
+                  collect less    activate
+                  data in the     autoshuffle
+                  query           partitions
+
+            10. d) Expectations                      11. c) Repartition the dataset to       12. c)
+                                                            have it be more optimally
+                                                            spread across all nodes.
+
+            13. d) Use DESCRIBE HISTORY              14. d)                                  15. a)
+                   table to check if exists any
+                   OPTIMIZE operation
+
+            16. a) Auto Loader      batch and        17. a) It has no effect because it      18. c) High CPU time    consider
+                   automatically streaming                  is idempotent.                          vs Task time     executor
+                   ingests and      data with                                                       means a CPU      and core
+                   processes new support                                                            over-utilized    tuning or
+                   files from cloud for                                                             job. The data    resizing
+                   storage,         schema                                                          engineer may     the
+                   handling both evolution.                                                         need to          cluster
+
+            19. b)                                   20. a) Tweak the                      21. d) Switch the Data layout
+                                                            "spark.sql.shuffle.partitions"        from Partition+Z-Ordering
+                                                            configuration.                        to Automatic Liquid
+                                                                                                  Clustering.
+
+            22. b) Alter the table                   23. c) All datasets    resources        24. d) They can use clusters that
+                   implementing liquid                      will be         will be                 are from a cluster pool
+                   clustering by                            updated at      deployed for
+                   "customer_id" and                        set intervals   the update
+                   "purchase_date".                         until the       and
+                                                            pipeline is     terminated
+                                                            shut down.      when the
+                                                            The             pipeline is
+                                                            compute         stopped.
+
+            25. b) They can create a     task.       26. c) They can        processing       27. a) The pipeline will need to be
+                   new task in the                          navigate to the notebook.               written entirely in Python
+                   existing Job and then                    Runs tab in the
+                   add it as a                              Jobs Ul and
+                   dependency of the                        click on the
+                   original                                 active run to
+                                                            review the
+
+            28. c) Task workflows and job            29. b) Databricks Asset Bundles         30. a)
+                   scheduling
+
+            31. a) Automatic      pipeline           32. c)                                  33. b) Job cluster with spot
+                   data quality development                                                         instances enabled
+                   checks, built-
+                   in support for
+                   schema
+                   evolution,
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                             23/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+                   and
+                   declarative
+
+            34. b) Repair run                        35. a) Repair the task                  36. d) A YAML             project
+                                                                                                    configuration file
+                                                                                                    that specifies the
+                                                                                                    artifacts,
+                                                                                                    resources, and
+                                                                                                    configurations for
+                                                                                                    the
+
+            37. a) Databricks Asset Bundles          38. d) Utilize       cluster     39. b) A frequently   with the
+                   (DAB) + GitHub Integration               Databricks    management.        running and    latest
+                                                            serverless                       efficient      Databricks
+                                                            compute                          Python-based runtime
+                                                            that                             data           and Unity
+                                                            automatically                    transformation Catalog
+                                                            optimizes                        pipeline
+                                                            resources                        compatible
+                                                            and
+                                                            abstracts
+
+            40. a) Job Cluster                       41. d) Delta Live Tables                42. b) Transferring data via Delta
+                                                                                                    Sharing across clouds and
+                                                                                                    across different
+                                                                                                    geographic regions
+
+            43. b) Lakehouse Federation              44. a) Using Delta Sharing with         45. a) In Databricks, audit logs
+                                                            the open sharing protocol               output events in a JSON
+                                                                                                    format.
+
+            46. b) Unity Catalog extend to           47. c) Schema Owner                     48. d) Share secure,       modify
+                   lineage only notebooks,                                                          the      read-only the
+                   supports      jobs, or                                                           dataset URL         data.
+                   visualizing   dashboards.                                                        using without
+                   relationships                                                                    Delta requiring a
+                   at the table                                                                     Sharing, Databricks
+                   level and                                                                        which account,
+                   does not                                                                         allows ensuring
+                                                                                                    your     that they
+                                                                                                    partner cannot
+                                                                                                    to
+                                                                                                    access
+                                                                                                    the
+                                                                                                    data
+                                                                                                    using a
+
+            49. c) The sharing identifier of         50. a)                                  51. c) Assign READ    permissions
+                   their Unity Catalog                                                              permissions    to internal
+                   metastore                                                                        to external    teams, and
+                                                                                                    partners       ensure the
+                                                                                                    through the    correct
+                                                                                                    Delta Share    tables and
+                                                                                                    and            views are
+                                                                                                    READ/WRITE     shared.
+
+            52. d) Use Unity      individually.      53. c) Using Delta Sharing              54. c) SELECT
+                   Catalog to                               without any additional
+                   manage                                   configurations
+                   access
+                   controls and
+                   permissions
+                   for each
+                   external table
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            24/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+            55. c) Use the lineage table is          56. b) Share required       Catalog.    57. b) DESCRIBE HISTORY
+                   feature to      used in                  datasets and                            my_table
+                   visualize a     notebooks,               notebooks via
+                   graph that      other                    Delta Sharing.
+                   shows all       tables, and              Manage
+                   dependencies, reports.                   permissions via
+                   including                                Unity
+                   where the
+
+            58. a) CATALOG -> SCHEMA ->              59. a) Run ALTER TABLE                  60. b) Separate connectors per
+                   VIEW                                     catalog.schema.sales SET                source with CDC,
+                                                            MANAGED to convert and                  individual Unity Catalog
+                                                            meet the goals                          schemas per source, and
+                                                                                                    table versioning enabled
+                                                                                                    for audit compliance.
+
+            61. a) ABAC policies use                 62. a)                                  63. b) 1. On catalog corp
+                   governed tags to                                                                 marketing, open
+                   dynamically match tables                                                         Permissions and grant USE
+                   and columns, so a single                                                         CATALOG to growth-
+                   policy defined on a catalog                                                      analysts 2. On schema
+                   automatically applies to all                                                     campaigns, open
+                   current and future tables                                                        Permissions and grant USE
+                   within that catalog without                                                      SCHEMA to growth-
+                   per-table configuration.                                                         analysts 3. On the table
+                                                                                                    email stats, open
+                                                                                                    Permissions and grant
+                                                                                                    SELECT to growth-
+                                                                                                    analysts
+
+            64. a) Grant CREATE EXTERNAL             65. a) Managed tables so that           66. c) DROP managed staging
+                   LOCATION on both the                     Unity Catalog manages                   tables to remove data and
+                   metastore and the                        both metadata and                       metadata, and DROP
+                   referenced storage                       underlying data lifecycle.              external tables to remove
+                   credential so the engineer                                                       only metadata
+                   can define the external
+                   location.
+
+            67. c) Transfer ownership of the         68. a) Use the lineage feature to       69. a) , b)
+                   schema main.marketing to                 visualize a graph that
+                   mkt-admins; owners can                   shows all dependencies,
+                   manage privileges on the                 including where the table
+                   schema and its contained                 is used in notebooks, other
+                   objects.                                 tables, and reports.
+
+            70. b) Needs SELECT permission           71. a) You can     , .If metastore      72. b) CONSTRAINT
+                   only on the VIEW                         have more e) is not                     valid_location EXPECT
+                                                            than 1        associated                (location != NULL) ON
+                                                            metastore     with                      VIOLATION FAIL UPDATE
+                                                            within a      location, it’s
+                                                            databricks    mandatory
+                                                            account       to associate
+                                                            console       catalog with
+                                                            but only 1    managed
+                                                            per region.   locations
+
+            73. b) Identify the version              74. c) Records that violate the         75. d) They can navigate to the
+                   number corresponding to                  expectation are dropped                 DLT pipeline page, click on
+                   two weeks ago from the                   from the target dataset                 each table, and view the
+                   Delta transaction log,                   and recorded as invalid in              data quality statistics.
+                   share that version number                the event log.
+                   with the analyst to query
+                   using VERSION AS OF
+                   syntax, or export that
+                   version to a new Delta
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                            25/26
+9/8/26, 4:51 PM                                       Free Printable FTW_Databricks Data Engineer Associate V3.2
+
+                    table for the analyst to
+                    query.
+
+            76. e) GRANT ALL PRIVILEGES ON           77. c) Records that violate the         78. c) databricks bundle deploy
+                   DATABASE customers TO                    expectation are dropped
+                   team:                                    from the target dataset
+                                                            and recorded as invalid in
+                                                            the event log.
+
+            79. a) Repair run                        80. c) Serverless jobs compute          81. a) Table update trigger
+
+            82. b) databricks bundle run             83. c) The job-level                    84. c) In the targets section of
+                   etl_job                                  max_concurrent_runs                     the databricks.ym1 file
+                                                            setting and whether
+                                                            queueing is enabled
+
+            85. c) Task C uses two                   86. d) A job compute cluster            87. a) Add an I£/else condition
+                   dependency chains: Task                  triggered by a scheduled                task that reads the
+                   A with All succeeded, Task               workflow.                               record_count task value
+                   B with at least one failed.                                                      and routes to different
+                                                                                                    downstream tasks.
+
+            88. a) Select the cleansing task         89. b) databricks bundle validate       90. a) Use a Scheduled trigger
+                   as a 'Run if' dependency in              -> databricks bundle                    set to run every 12
+                   the summary report task                  deploy -> databricks                    minutes, with the
+                   configuration.                           bundle run                              streaming task configured
+                                                                                                    to use Trigger
+                                                                                                    .AvailableNow.
+
+
+
+
+https://wayground.com/print/quiz/6a9fb3be4346f994e8dff716?graded=false                                                          26/26
+

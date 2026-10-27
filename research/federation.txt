@@ -1,0 +1,220 @@
+On this page
+Last updated
+on
+Sep 29, 2026
+Connect to external databases and catalogs
+Databricks
+provides multiple options for querying and accessing data in external databases and catalogs without migrating your data. Choose the approach based on your access pattern, governance requirements, write needs, and compute preferences.
+Choose an approach
+​
+The following table compares query federation and catalog federation to help you choose the right approach.
+Approach
+Description
+Query execution
+Write support
+Governance
+Best for
+Query federation
+Run federated queries against external relational databases using JDBC, with automatic query pushdown and
+Unity Catalog
+governance through foreign catalogs.
+Pushed down to the external database using JDBC. The query runs on both
+Databricks
+and remote compute.
+Not supported (read-only).
+Unity Catalog
+foreign catalog with table-level access controls.
+Ad hoc reporting, BI, and proof-of-concept access to operational databases.
+Catalog federation
+Connect external catalog platforms (such as Hive Metastore, AWS Glue, or Snowflake) so you can query their data directly in object storage.
+Runs directly against object storage on
+Databricks
+compute only. More cost-effective and performance-optimized than query federation.
+Not supported (read-only).
+Unity Catalog
+foreign catalog with table-level access controls.
+Migrating to
+Unity Catalog
+incrementally, or maintaining a long-term hybrid model with data in an external catalog.
+←
+✕
+Approach
+Description
+Query execution
+Write support
+Governance
+Best for
+Query federation
+Run federated queries against external relational databases using JDBC, with automatic query pushdown and
+Unity Catalog
+governance through foreign catalogs.
+Pushed down to the external database using JDBC. The query runs on both
+Databricks
+and remote compute.
+Not supported (read-only).
+Unity Catalog
+foreign catalog with table-level access controls.
+Ad hoc reporting, BI, and proof-of-concept access to operational databases.
+Catalog federation
+Connect external catalog platforms (such as Hive Metastore, AWS Glue, or Snowflake) so you can query their data directly in object storage.
+Runs directly against object storage on
+Databricks
+compute only. More cost-effective and performance-optimized than query federation.
+Not supported (read-only).
+Unity Catalog
+foreign catalog with table-level access controls.
+Migrating to
+Unity Catalog
+incrementally, or maintaining a long-term hybrid model with data in an external catalog.
+Lakehouse Federation
+​
+Lakehouse Federation
+is the
+Databricks
+query federation platform. It provides governed, read-only access to external data through
+Unity Catalog
+foreign catalogs, with automatic query pushdown and fine-grained access controls at the table level.
+There are two types of
+Lakehouse Federation
+: query federation and catalog federation.
+Query federation compared to catalog federation
+​
+The following table describes the key differences between query federation and catalog federation.
+Approach
+Query path
+Use case
+Overview of steps
+Query federation
+Unity Catalog
+queries are pushed down to the foreign database using JDBC. The query is run both in
+Databricks
+and using remote compute.
+You need ad hoc reporting or proof-of-concept access to operational data stored in external databases.
+You want to minimize data movement and maintain live access to external systems.
+When your source supports both
+Lakehouse Federation
+and
+Lakeflow Connect
+,
+Databricks
+recommends
+Lakeflow Connect
+if performance on higher data volumes and lower latency are priorities.
+Create a connection in
+Unity Catalog
+with your access credentials and JDBC URL.
+Create a foreign catalog using the connection.
+Grant privileges to users on tables in the foreign catalog.
+Run queries. These are pushed down to the external database.
+Catalog federation
+Unity Catalog
+queries directly access the foreign table in object storage. Catalog federation is available for platforms that support direct access to their catalog and storage services. The query is only run on
+Databricks
+compute, meaning that catalog federation is more cost-effective and performance-optimized than query federation.
+You're migrating to
+Unity Catalog
+but need to incrementally phase in data managed from a foreign catalog.
+You want a long-term hybrid model in which some data stays in an external catalog and some data is managed by
+Unity Catalog
+.
+Create a connection in
+Unity Catalog
+for accessing the external catalog.
+Create a storage credential and an external location for the table paths.
+Create a foreign catalog using the connection and the external location.
+Grant privileges to users on tables in the foreign catalog.
+Run queries. These run directly against the object storage.
+←
+✕
+Approach
+Query path
+Use case
+Overview of steps
+Query federation
+Unity Catalog
+queries are pushed down to the foreign database using JDBC. The query is run both in
+Databricks
+and using remote compute.
+You need ad hoc reporting or proof-of-concept access to operational data stored in external databases.
+You want to minimize data movement and maintain live access to external systems.
+When your source supports both
+Lakehouse Federation
+and
+Lakeflow Connect
+,
+Databricks
+recommends
+Lakeflow Connect
+if performance on higher data volumes and lower latency are priorities.
+Create a connection in
+Unity Catalog
+with your access credentials and JDBC URL.
+Create a foreign catalog using the connection.
+Grant privileges to users on tables in the foreign catalog.
+Run queries. These are pushed down to the external database.
+Catalog federation
+Unity Catalog
+queries directly access the foreign table in object storage. Catalog federation is available for platforms that support direct access to their catalog and storage services. The query is only run on
+Databricks
+compute, meaning that catalog federation is more cost-effective and performance-optimized than query federation.
+You're migrating to
+Unity Catalog
+but need to incrementally phase in data managed from a foreign catalog.
+You want a long-term hybrid model in which some data stays in an external catalog and some data is managed by
+Unity Catalog
+.
+Create a connection in
+Unity Catalog
+for accessing the external catalog.
+Create a storage credential and an external location for the table paths.
+Create a foreign catalog using the connection and the external location.
+Grant privileges to users on tables in the foreign catalog.
+Run queries. These run directly against the object storage.
+Supported data sources
+​
+Connect to the following sources using query federation:
+MySQL
+PostgreSQL
+Teradata
+Oracle
+Amazon Redshift
+Salesforce Data 360
+Snowflake
+Microsoft SQL Server
+Azure Synapse (SQL Data Warehouse)
+Google BigQuery
+Databricks
+Connect to the following sources using catalog federation:
+Legacy Databricks Hive metastore
+External Hive metastore
+AWS Glue metastore
+Salesforce Data 360
+Snowflake
+Palantir Foundry
+Workday Data Connect
+Spark data sources
+​
+The Spark Data Source API lets you read from and write to external databases directly from
+Databricks
+. Use it when
+Lakehouse Federation
+doesn't support your source, when you need write access, or when you need more control over query execution and parallelization.
+Databricks Runtime
+includes bundled connectors for common databases such as PostgreSQL, SQL Server, MySQL, Snowflake, and Redshift. For any JDBC-compatible database, you can use a JDBC
+Unity Catalog
+connection to bring your own driver with centralized credential management. You can also install third-party connectors on dedicated clusters or build fully custom connectors in Python using the PySpark DataSource API.
+For setup instructions and full details, see
+Spark data sources
+.
+Additional resources
+​
+What is query federation?
+What is catalog federation?
+Spark data sources
+On this page
+Choose an approach
+Lakehouse Federation
+Query federation compared to catalog federation
+Supported data sources
+Spark data sources
+Additional resources

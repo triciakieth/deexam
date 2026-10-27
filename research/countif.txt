@@ -1,0 +1,181 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+count_if
+aggregate function
+Applies to:
+Databricks SQL
+Databricks Runtime
+Returns the number of true values for the group in
+expr
+.
+Syntax
+​
+count_if ( [ALL | DISTINCT] expr ) [ FILTER ( WHERE cond ) ]
+This function can also be invoked as a
+window function
+using the
+OVER
+clause.
+Arguments
+​
+expr
+: A BOOLEAN expression.
+cond
+: An optional boolean expression filtering the rows used for aggregation.
+Returns
+​
+A
+BIGINT
+.
+count_if(expr) FILTER(WHERE cond)
+is equivalent to
+count_if(expr AND cond)
+.
+If
+DISTINCT
+is specified only unique rows are counted.
+Examples
+​
+SQL
+>
+SELECT
+count_if
+(
+col
+%
+2
+=
+0
+)
+FROM
+VALUES
+(
+NULL
+)
+,
+(
+0
+)
+,
+(
+1
+)
+,
+(
+2
+)
+,
+(
+2
+)
+,
+(
+3
+)
+AS
+tab
+(
+col
+)
+;
+3
+>
+SELECT
+count_if
+(
+DISTINCT
+col
+%
+2
+=
+0
+)
+FROM
+VALUES
+(
+NULL
+)
+,
+(
+0
+)
+,
+(
+1
+)
+,
+(
+2
+)
+,
+(
+2
+)
+,
+(
+3
+)
+AS
+tab
+(
+col
+)
+;
+2
+>
+SELECT
+count_if
+(
+col
+IS
+NULL
+)
+FROM
+VALUES
+(
+NULL
+)
+,
+(
+0
+)
+,
+(
+1
+)
+,
+(
+2
+)
+,
+(
+3
+)
+AS
+tab
+(
+col
+)
+;
+1
+Related
+​
+avg
+aggregate function
+sum
+aggregate function
+min
+aggregate function
+max
+aggregate function
+count
+aggregate function
+Window functions
+On this page
+Syntax
+Arguments
+Returns
+Examples
+Related

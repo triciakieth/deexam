@@ -1,0 +1,316 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+What is
+Delta Lake
+in
+Databricks
+?
+Delta Lake
+is the optimized storage layer that provides the foundation for tables in a lakehouse on Databricks.
+Delta Lake
+is
+open source software
+that extends Parquet data files with a file-based transaction log for
+ACID transactions
+and scalable metadata handling.
+Delta Lake
+is fully compatible with
+Apache Spark
+APIs, and was developed for tight integration with
+Structured Streaming
+, allowing you to easily use a single copy of data for both batch and streaming operations and providing incremental processing at scale.
+Delta Lake
+is the default format for all operations on
+Databricks
+. Unless otherwise specified, all tables on
+Databricks
+are
+Delta Lake
+tables. Databricks originally developed the
+Delta Lake
+protocol and continues to actively contribute to the open source project. Many of the optimizations and products in the Databricks platform build upon the guarantees provided by
+Apache Spark
+and
+Delta Lake
+. For information on optimizations on
+Databricks
+, see
+Optimization recommendations on
+Databricks
+.
+For reference information on
+Delta Lake
+SQL commands, see
+Delta Lake
+statements
+.
+The
+Delta Lake
+transaction log has a well-defined open protocol that can be used by any system to read the log. See
+Delta Transaction Log Protocol
+.
+Getting started with
+Delta Lake
+​
+All tables on
+Databricks
+are
+Delta Lake
+tables by default. Whether you're using
+Apache Spark
+DataFrames
+or SQL, you get all the benefits of
+Delta Lake
+just by saving your data to the lakehouse with default settings.
+For examples of basic
+Delta Lake
+operations such as creating tables, reading, writing, and updating data, see
+Tutorial: Create and manage
+Delta Lake
+tables
+.
+For Databricks recommendations and best practices on using
+Delta Lake
+, see
+Best practices:
+Delta Lake
+.
+Converting and ingesting data to
+Delta Lake
+​
+Databricks
+has many features to accelerate and simplify loading data to your lakehouse.
+Tutorial: Build an ETL pipeline with
+Lakeflow pipelines
+Build an end-to-end ETL pipeline using
+Lakeflow pipelines
+.
+Set up incremental ingestion from
+Amazon S3
+Set up incremental ingestion from cloud storage using Auto Loader and
+Lakeflow pipelines
+.
+Streaming tables
+Use streaming tables for append-only ingestion and low-latency streaming in
+Lakeflow pipelines
+.
+Get started using COPY INTO to load data
+Load data incrementally and idempotently from cloud storage using SQL.
+What is
+Auto Loader
+?
+Ingest files from cloud storage incrementally as they arrive.
+Create or modify a table using file upload
+Upload files and create tables from the
+Databricks
+UI.
+Incrementally clone Parquet and
+Apache Iceberg
+tables to
+Delta Lake
+Incrementally clone Parquet or
+Apache Iceberg
+tables to
+Delta Lake
+.
+Convert to
+Delta Lake
+One-time conversion of Parquet or
+Apache Iceberg
+tables to
+Delta Lake
+.
+Technology partners
+Connect third-party partners and tools to your
+Databricks
+lakehouse.
+For a full list of ingestion options, see
+Ingest with SQL and Spark APIs
+.
+Updating and modifying
+Delta Lake
+tables
+​
+Atomic transactions with
+Delta Lake
+allow you to use many options for updating data and metadata. To avoid corrupting your tables, Databricks recommends that you avoid interacting directly with data and transaction log files in
+Delta Lake
+file directories.
+Upsert into a
+Delta Lake
+table using merge
+Upsert data into a
+Delta Lake
+table using the merge operation.
+Selectively overwrite data with
+Delta Lake
+Overwrite subsets of data based on filters and partitions.
+Update table schemas with schema evolution
+Manually or automatically update your table schema without rewriting data.
+Rename and drop columns with
+Delta Lake
+column mapping
+Rename or delete columns without rewriting data.
+Incremental and streaming workloads on
+Delta Lake
+​
+Delta Lake
+is optimized for
+Structured Streaming
+on
+Databricks
+.
+Lakeflow pipelines
+extend built-in capabilities with simplified infrastructure deployment, enhanced scaling, and managed data dependencies.
+Delta Lake
+table streaming reads and writes
+Use
+Delta Lake
+tables as sources and sinks for
+Structured Streaming
+with
+readStream
+and
+writeStream
+.
+Use change data feed on
+Databricks
+Track row-level changes between versions of a
+Delta Lake
+or
+Apache Iceberg
+v3 table.
+Querying previous versions of a table
+​
+Each write to a
+Delta Lake
+table creates a new table version. You can use the transaction log to review modifications to your table and query previous table versions. See
+Work with table history
+.
+Delta Lake
+schema enhancements
+​
+Delta Lake
+validates schema on write, ensuring that all data written to a table matches the requirements you've set.
+Schema enforcement
+Validate data quality by enforcing schema on write.
+Constraints on
+Databricks
+Apply enforced integrity constraints and informational primary key, foreign key, and unique constraints.
+Delta Lake
+generated columns
+Automatically generate column values using user-specified functions.
+Enrich tables with custom metadata
+Add comments and custom metadata to tables and columns to enrich data discovery.
+Managing files and indexing data with
+Delta Lake
+​
+Databricks
+sets many default parameters for
+Delta Lake
+that impact the size of data files and number of table versions that are retained in history.
+Delta Lake
+uses a combination of metadata parsing and physical data layout to reduce the number of files scanned to fulfill any query.
+Use liquid clustering for tables
+Simplify data layout and optimize query performance without partitioning using liquid clustering.
+Data skipping
+Skip irrelevant files at query time using column statistics, Z-order, and optimized data layout.
+Optimize data file layout
+Compact small data files to improve query performance.
+Remove unused data files with vacuum
+Remove stale data files to reduce storage costs.
+Automatic row deletion with auto time-to-live
+Automatically delete rows from managed tables after a configurable time period.
+Control data file size
+Control target file size manually or enable automatic file size tuning.
+Configuring and reviewing
+Delta Lake
+settings
+​
+Databricks
+stores all data and metadata for
+Delta Lake
+tables in cloud object storage. Many configurations can be set at either the table level or within the Spark session. You can review the details of the
+Delta Lake
+table to discover what options are configured.
+Review table details with describe detail
+View table configurations and metadata using the
+DESCRIBE DETAIL
+command.
+Table properties reference
+Reference list of table properties available for
+Delta Lake
+tables.
+Data pipelines using
+Delta Lake
+and
+Lakeflow pipelines
+​
+Databricks
+encourages users to leverage a
+medallion architecture
+to process data through a series of tables as data is cleaned and enriched.
+Lakeflow pipelines
+simplify ETL workloads through optimized execution and automated infrastructure deployment and scaling.
+Delta Lake
+feature compatibility
+​
+Not all
+Delta Lake
+features are in all versions of
+Databricks Runtime
+. For information about
+Delta Lake
+versioning, see
+Delta Lake
+feature compatibility and protocols
+.
+Delta Lake
+API documentation
+​
+For most read and write operations on
+Delta Lake
+tables, you can use
+Spark SQL
+or
+Apache Spark
+DataFrame
+APIs.
+For
+Delta Lake
+-specific SQL statements, see
+Delta Lake
+statements
+.
+Databricks
+ensures binary compatibility with
+Delta Lake
+APIs in
+Databricks Runtime
+. To view the
+Delta Lake
+API version packaged in each
+Databricks Runtime
+version, see the
+System environment
+section on the relevant article in the
+Databricks Runtime release notes
+. For documentation on
+Delta Lake
+APIs for Python, Scala, and Java, see the
+OSS Delta Lake documentation
+.
+On this page
+Getting started with Delta Lake
+Converting and ingesting data to Delta Lake
+Updating and modifying Delta Lake tables
+Incremental and streaming workloads on Delta Lake
+Querying previous versions of a table
+Delta Lake schema enhancements
+Managing files and indexing data with Delta Lake
+Configuring and reviewing Delta Lake settings
+Data pipelines using Delta Lake and Lakeflow pipelines
+Delta Lake feature compatibility
+Delta Lake API documentation

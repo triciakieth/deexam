@@ -1,0 +1,425 @@
+On this page
+Last updated
+on
+Oct 7, 2026
+Trigger jobs when new files arrive
+You can use
+file arrival triggers
+to trigger a run of your job when new files arrive in an
+external location
+such as Amazon S3, Azure storage, or Google Cloud Storage. This feature is useful when a scheduled job's efficiency is compromised by irregular new data arrivals.
+How file arrival triggers work
+​
+File arrival triggers make a best effort to check for new files every minute, although this can be affected by the performance of the underlying cloud storage. File arrival triggers do not incur additional costs other than cloud provider costs associated with listing files in the storage location.
+A file arrival trigger can be configured to monitor the root of a
+Unity Catalog
+external location or volume, or a subpath of an external location or volume. For example, for the
+Unity Catalog
+volume
+/Volumes/mycatalog/myschema/myvolume/
+, the following are valid paths for a file arrival trigger:
+/Volumes/mycatalog/myschema/myvolume/
+/Volumes/mycatalog/myschema/myvolume/mydirectory/
+A file arrival trigger recursively checks for new files in all subdirectories of the configured location. For example, you create a file arrival trigger for the location
+/Volumes/mycatalog/myschema/myvolume/mydirectory/
+and this location has the following subdirectories:
+/Volumes/mycatalog/myschema/myvolume/mydirectory/subdirA
+/Volumes/mycatalog/myschema/myvolume/mydirectory/subdirB
+/Volumes/mycatalog/myschema/myvolume/mydirectory/subdirC/subdirD
+The trigger checks for new files in
+mydirectory
+,
+subdirA
+,
+subdirB
+,
+subdirC
+, and
+subdirC/subdirD
+.
+File arrival triggers with file events
+​
+For optimal performance, the external location should be enabled for
+file events
+. When file events are enabled for an external location,
+Databricks
+uses an internal service to track ingestion metadata by processing change notifications from cloud providers. This service retains the metadata for the latest files created or updated over a service-determined rolling retention period, enhancing the efficiency of file processing.
+Within minutes of enabling file events on an external location, existing file arrival triggers that monitor paths covered by that external location start benefiting from file events enablement, and new triggers benefit within seconds.
+For more information about the performance and capacity advantages of file events on external locations, see
+Limitations
+. For common questions about file events, see
+File events FAQ
+.
+Requirements
+​
+The following are required to use file arrival triggers:
+The workspace must have
+Unity Catalog enabled
+.
+You must use a storage location that is either a volume or an external location configured in
+Unity Catalog
+. See
+What are
+Unity Catalog
+volumes?
+and
+Overview of external locations
+.
+Databricks recommends that you
+enable the external location for managed file events
+. Volumes on these external locations get file event support by default. To enable file events, you must be the external location owner or have the
+MANAGE
+privilege on the external location. For information about the advantages of file events, see
+File arrival triggers with file events
+.
+You must have
+READ
+permission on the storage location and CAN MANAGE permissions on the job. For more information about job permissions, see
+Job ACLs
+.
+Add a file arrival trigger
+​
+To add a file arrival trigger to a job:
+In your
+Databricks
+workspace's sidebar, click
+Jobs & Pipelines
+.
+Optionally, select the
+Jobs
+and
+Owned by me
+filters.
+Click your job's
+Name
+link.
+In the
+Job details
+pane on the right, click
+Add trigger
+.
+In
+Trigger type
+, select
+File arrival
+.
+In
+Storage location
+, enter the URL of the root or a subpath of a
+Unity Catalog
+external location or the root or a subpath of a
+Unity Catalog
+volume to monitor.
+(Optional) Configure advanced options (
+Minimum time between triggers in seconds
+and
+Wait after last change in seconds
+) to control how often runs are triggered. For setup examples, see
+Control how often runs are triggered
+.
+To validate the configuration, click
+Test connection
+.
+Click
+Save
+.
+To edit, pause, or remove this trigger later, use the
+Schedules & Triggers
+section of the
+Job details
+pane. See
+Manage existing triggers
+.
+Control how often runs are triggered
+​
+Two advanced options on a file arrival trigger control how file arrivals translate into job runs. These options apply two common rate-control patterns, a
+cooldown
+and
+debouncing
+:
+Minimum time between triggers in seconds
+: Limits the job to at most one run per this interval (a cooldown between runs). After a run completes, files that arrive during the cooldown don't start a new run until the interval elapses. Use this option to cap how frequently runs are created so that frequent arrivals don't create back-to-back runs.
+Wait after last change in seconds
+: Waits this long after the most recent file arrives before starting a run, and each new arrival resets the timer (debouncing). Use this option when files arrive in batches and you want to process the whole batch in a single run after all the files have landed.
+You can set either option on its own, or set both together. See the following examples.
+Run at most every 15 minutes
+​
+To create runs as files arrive, but no more frequently than every 15 minutes, set the following advanced option:
+Minimum time between triggers in seconds
+:
+900
+After each run completes, the trigger waits 900 seconds (15 minutes) before it starts another run, even if files keep arriving. This limits run creation to at most one run per 15 minutes.
+Wait for a complete batch to arrive
+​
+When files arrive in batches and you want to process each batch in a single run, set
+Wait after last change in seconds
+to a value shorter than the gap between batches but longer than the gap between files within a batch. For example, if a new batch starts about every 5 minutes, set the following advanced option:
+Wait after last change in seconds
+:
+60
+Each new file resets the timer, so the trigger starts a run only after 60 seconds pass with no new arrivals. This setup assumes that files within a batch arrive within 60 seconds of each other, so the timer doesn't expire in the middle of a batch, and that batches are more than 60 seconds apart, so consecutive batches don't merge into a single run.
+Cap frequency and wait for complete batches
+​
+You can combine both options when you want to cap how often runs are created and also avoid starting a run in the middle of a batch. For example:
+Minimum time between triggers in seconds
+:
+900
+Wait after last change in seconds
+:
+60
+With this configuration, the trigger waits until a batch finishes landing (60 seconds with no new files) before starting a run, and it does not start more than one run per 15 minutes.
+Discover and process files on arrival
+​
+To process files that triggered file arrival triggers, you can use
+Auto Loader
+. Auto Loader incrementally and efficiently processes new files with exactly-once guarantees. For example, use the snippet below to load files into a Delta table.
+To use this solution, create a job with a file-arrival trigger and add a notebook containing the code below. Replace each
+[REPLACE]
+placeholder with the appropriate value.
+Python
+# Configuration
+file_location
+=
+"[REPLACE]"
+# The same URL configured for the file arrival trigger.
+checkpoint_location
+=
+"[REPLACE]"
+# a separate URL (outside `file_location`) used to store the Auto Loader checkpoint, which enables exactly-once processing.
+sink_table
+=
+"[REPLACE]"
+# Delta table to write to
+# Use Auto Loader to discover new files.
+# Do not modify code below this line
+streamingQuery
+=
+spark
+.
+readStream
+.
+format
+(
+"cloudFiles"
+)
+\
+.
+option
+(
+"cloudFiles.format"
+,
+"json"
+)
+\
+.
+option
+(
+"cloudFiles.schemaLocation"
+,
+checkpoint_location
+)
+\
+.
+option
+(
+"cloudFiles.useManagedFileEvents"
+,
+"true"
+)
+\
+.
+load
+(
+file_location
+)
+\
+.
+writeStream \
+.
+option
+(
+"checkpointLocation"
+,
+checkpoint_location
+)
+\
+.
+trigger
+(
+availableNow
+=
+True
+)
+\
+.
+toTable
+(
+sink_table
+)
+If you need to process new files with custom logic and only want to discover the URL for new files, you can use
+foreachBatch
+instead, as shown in the code snippet below. Note that
+foreachBatch
+provides only at-least-once processing guarantees. For more information on using
+foreachBatch
+, see
+Use foreachBatch to write to arbitrary data sinks
+Python
+# Configuration
+file_location
+=
+"[REPLACE]"
+# The same URL configured for the file arrival trigger.
+checkpoint_location
+=
+"[REPLACE]"
+# a separate URL (outside `file_location`) used to store the Auto Loader checkpoint, which enables exactly-once processing.
+def
+process_batch
+(
+batch_df
+,
+batch_id
+)
+:
+file_url
+=
+batch_df
+.
+select
+(
+"path"
+)
+.
+collect
+(
+)
+[
+0
+]
+.
+path
+# [REPLACE] Your custom function for processing newly arrived files
+# Use Auto Loader to discover new files.
+# Do not modify code below this line
+streamingQuery
+=
+spark
+.
+readStream
+.
+format
+(
+"cloudFiles"
+)
+\
+.
+option
+(
+"cloudFiles.format"
+,
+"binaryFile"
+)
+\
+.
+option
+(
+"cloudFiles.useManagedFileEvents"
+,
+"true"
+)
+\
+.
+load
+(
+file_location
+)
+\
+.
+drop
+(
+"content"
+)
+\
+.
+writeStream \
+.
+foreachBatch
+(
+process_batch
+)
+\
+.
+option
+(
+"checkpointLocation"
+,
+checkpoint_location
+)
+\
+.
+trigger
+(
+availableNow
+=
+True
+)
+\
+.
+start
+(
+)
+Receive notifications of failed file arrival triggers
+​
+To be notified if a file arrival trigger fails to evaluate, configure email or system destination notifications on job failure. See
+Add notifications on a job
+.
+Limitations
+​
+Only new files trigger runs. Overwriting an existing file with a file of the same name does not trigger a run.
+The path used for a file arrival trigger must not contain external tables or managed locations of catalogs and schemas.
+The path used for a file arrival trigger cannot contain wildcards, for example,
+*
+or
+?
+.
+If the storage location is configured as an external location in
+Unity Catalog
+and that external location is
+enabled for file events
+:
+There no limits on the number of files in the storage location.
+Triggers can error on time out when there are too many extraneous file updates.
+When a file arrival trigger is set on a subpath of a
+Unity Catalog
+external location or volume, changes outside that subpath, such as at the external location's root, can increase the metadata the trigger needs to process. In high-change environments, this may cause the trigger to exceed its processing time limit and enter an error state.
+If an existing file is modified and its metadata falls outside the rolling retention period, that modification is treated as a new file arrival, triggering a job run. You can prevent this by ingesting only immutable files, or you can use file arrival triggers with
+Auto Loader
+to track ingestion progress.
+If the storage location is not enabled for file events:
+A maximum of 50 jobs can be configured with a file arrival trigger on such locations in a
+Databricks
+workspace.
+The storage location can contain up to 10,000 files. If the configured storage location is a subpath of a
+Unity Catalog
+external location or volume, the 10,000 file limit applies to the subpath and not the root of the storage location. For example, the root of the storage location can contain more than 10,000 files across its subdirectories, but the configured subdirectory must not exceed the 10,000 file limit.
+See also
+File events limitations
+.
+File arrival triggers on non-existent paths in S3 and GCS external locations
+​
+When the configured directory does not exist or is deleted from Amazon S3 or Google Cloud Storage, file arrival triggers continue to be evaluated with no error. This behavior occurs because both S3 and GCS do not differentiate between non-existent, deleted, and empty directories.
+As a result, a file arrival trigger monitoring a non-existent or deleted directory path does not fail or generate an error notification. The trigger continues to evaluate, finds no files, and does not trigger any job runs until files are added to that path again. This is expected behavior and not an error condition.
+On this page
+How file arrival triggers work
+File arrival triggers with file events
+Requirements
+Add a file arrival trigger
+Control how often runs are triggered
+Run at most every 15 minutes
+Wait for a complete batch to arrive
+Cap frequency and wait for complete batches
+Discover and process files on arrival
+Receive notifications of failed file arrival triggers
+Limitations
+File arrival triggers on non-existent paths in S3 and GCS external locations

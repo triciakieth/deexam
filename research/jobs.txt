@@ -1,0 +1,117 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+Configure task dependencies
+The
+Run if dependencies
+field allows you to add control flow logic to tasks based on other tasks' success, failure, or completion.
+Dependencies are visually represented in the job DAG as lines between tasks.
+Databricks
+runs upstream tasks before running downstream tasks, running as many of them in parallel as possible.
+note
+Depends on
+is only visible if the job consists of multiple tasks.
+Databricks also has the following functionality for control flow and conditionalization:
+The
+If/else condition
+task is used to run a part of a job DAG based on the results of a boolean expression. The
+If/else condition
+task allows you to add branching logic to your job. For example, run transformation tasks only if the upstream ingestion task adds new data. See
+Add branching logic to a job with the If/else task
+.
+The
+For each
+condition task adds looping logic to another task based on an input array. Input arrays can be manually specified or dynamically generated. See
+Use a
+For each
+task to run another task in a loop
+.
+The
+Run Job
+task lets you trigger another job in your workspace. See
+Run Job task for jobs
+.
+Add a Run if condition to a task
+​
+If you have a task selected in your DAG when you create a new task, your new task has a dependency configured on this task by default.
+To edit or add conditions, do the following:
+Select a task.
+In the
+Depends on
+field, click the
+X
+to remove a task or select tasks to add from the drop-down menu.
+Select one of the conditional options in the
+Run if dependencies
+field.
+Click
+Save task
+.
+Run if
+condition options
+​
+You can add the following
+Run if
+conditions to a task:
+All succeeded
+: All dependencies have run and succeeded. This is the default setting. The task is marked as
+Upstream failed
+if the condition is unmet.
+At least one succeeded
+: At least one dependency has succeeded. The task is marked as
+Upstream failed
+if the condition is unmet.
+None failed
+: None of the dependencies failed, and at least one dependency was run. The task is marked as
+Upstream failed
+if the condition is unmet.
+All done
+: The task is run after all its dependencies have run, regardless of the status of the dependent runs. This condition allows you to define a task that is run without depending on the outcome of its dependent tasks.
+At least one failed
+: At least one dependency failed. The task is marked as
+Excluded
+if the condition is unmet.
+All failed
+: All dependencies have failed. The task is marked as
+Excluded
+if the condition is unmet.
+note
+Upstream tasks with the
+Excluded
+result state are treated as successful when evaluating
+Run if
+conditions. Upstream tasks marked
+Upstream failed
+or
+Upstream canceled
+are treated as failed, not as skipped.
+Tasks configured to handle failures are marked as
+Excluded
+if their
+Run if
+condition is not met. An excluded task is skipped.
+If all of a task's dependencies are excluded, the task itself is also excluded, regardless of its
+Run if
+condition.
+This exclusion cascades along a linear dependency chain. For example, in a chain of A → B → C, if A is excluded, then B is excluded (all of its dependencies are excluded), which in turn excludes C, so none of these tasks run.
+If you cancel a task run, the cancellation propagates through downstream tasks, and tasks with a
+Run if
+condition that handles failure are run, for example, to verify a cleanup task runs when a task run is canceled.
+If an upstream task is disabled, downstream tasks are evaluated against their
+Run if
+condition and may also be disabled for that run. For the full list of outcomes, see
+Downstream task behavior
+.
+Example job with task dependencies
+​
+Configuring task dependencies creates a Directed Acyclic Graph (DAG) of task execution, a common way of representing execution order in job schedulers. For example, consider the following job consisting of four tasks:
+Task 1 is the root task and does not depend on any other task.
+Task 2 and Task 3 depend on Task 1 completing first.
+Finally, Task 4 depends on Task 2 and Task 3 completing successfully.
+The following diagram illustrates the order of processing for these tasks:
+On this page
+Add a Run if condition to a task
+Run if
+condition options
+Example job with task dependencies

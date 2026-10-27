@@ -1,0 +1,143 @@
+On this page
+Last updated
+on
+Sep 11, 2026
+PySpark on
+Databricks
+Databricks
+is built on top of
+Apache Spark
+, a unified analytics engine for big data and machine learning. PySpark helps you interface with Apache Spark using the Python programming language, which is a flexible language that is easy to learn, implement, and maintain. It also provides many options for
+data visualization
+in Databricks. PySpark combines the power of Python and
+Apache Spark
+.
+This article provides an overview of the fundamentals of PySpark on Databricks.
+Introduction to Spark concepts
+​
+It is important to understand key
+Apache Spark
+concepts before diving into using PySpark.
+DataFrames
+​
+DataFrames are the primary objects in
+Apache Spark
+. A DataFrame is a dataset organized into named columns. You can think of a DataFrame like a spreadsheet or a SQL table, a two-dimensional labeled data structure of a series of records (similar to rows in a table) and columns of different types. DataFrames provide a rich set of functions (for example, select columns, filter, join, and aggregate) that allow you to perform common data manipulation and analysis tasks efficiently.
+Some important DataFrame elements include:
+Schema
+: A schema defines the column names and types of a DataFrame. Data formats have different semantics for schema definition and enforcement. Some data sources provide schema information, while others either rely on manual schema definition or allow schema inference. Users can define schemas manually or schemas can be read from a data source.
+Rows
+: Spark represents records in a DataFrame as
+Row
+objects. While underlying data formats such as
+Delta Lake
+use columns to store data, for optimization Spark caches and shuffles data using rows.
+Columns
+: Columns in Spark are similar to columns in a spreadsheet and can represent a simple type such as a string or integer, but also complex types like array, map, or null. You can write queries that select, manipulate, or remove columns from a data source. Possible data sources include tables, views, files, or other DataFrames. Columns are never removed from a dataset or a DataFrame, they are just omitted from results through
+.drop
+transformations or omission in
+select
+statements.
+Data processing
+​
+Apache Spark
+uses lazy evaluation to process transformations and actions defined with DataFrames. These concepts are fundamental to understanding data processing with Spark.
+Transformations
+: In Spark, you express processing logic as transformations, which are instructions for loading and manipulating data using DataFrames. Common transformations include reading data (such as
+spark.read
+and
+spark.table
+), joins, aggregations, and type casting.
+Lazy Evaluation
+: Spark optimizes data processing by identifying the most efficient physical plan to evaluate logic specified by transformations. However, Spark does not act on transformations until actions are called. Rather than evaluating each transformation in the exact order specified, Spark waits until an action triggers computation on all transformations. This is known as lazy evaluation, or lazy loading, which allows you to
+chain
+multiple operations because Spark handles their execution in a deferred manner, rather than immediately executing them when they are defined.
+note
+Lazy evaluation means that DataFrames store logical queries as a set of instructions against a data source rather than an in-memory result. This varies drastically from eager execution, which is the model used by
+pandas DataFrames
+.
+Actions
+: Actions instruct Spark to compute a result from a series of transformations on one or more DataFrames. Action operations return a value, and can be any of the following:
+Actions to output data in the console or your editor, such as
+display
+or
+show
+Actions to collect data (returns
+Row
+objects), such as
+take(n)
+, and
+first
+or
+head
+Actions to write to data sources, such as
+saveAsTable
+Aggregations that trigger a computation, such as
+count
+important
+In production data pipelines, writing data is typically the only action that should be present. All other actions interrupt query optimization and can lead to bottlenecks.
+What does it mean that DataFrames are immutable?
+​
+DataFrames are a collection of transformations and actions that are defined against one or more data sources, but ultimately
+Apache Spark
+resolves queries back to the original data sources, so the data itself is not changed, and no DataFrames are changed. In other words, DataFrames are
+immutable
+. Because of this, after performing transformations, a new DataFrame is returned that has to be saved to a variable in order to access it in subsequent operations. If you want to evaluate an intermediate step of your transformation, call an action.
+APIs and libraries
+​
+As with all APIs for Spark, PySpark comes equipped with many APIs and libraries that enable and support powerful functionality, including:
+Processing of structured data with relational queries with
+Spark SQL and DataFrames
+. Spark SQL allows you to mix SQL queries with Spark programs. With Spark DataFrames, you can efficiently read, write, transform, and analyze data using Python and SQL, which means you are always leveraging the full power of Spark. See
+PySpark Getting Started
+.
+Scalable processing of streams with
+Structured Streaming
+. You can express your streaming computation the same way you would express a batch computation on static data and the Spark SQL engine runs it incrementally and continuously as streaming data continues to arrive. See
+Structured Streaming Overview
+.
+Pandas data structures and data analysis tools that work on
+Apache Spark
+with
+Pandas API on Spark
+. Pandas API on Spark allows you to scale your pandas workload to any size by running it distributed across multiple nodes, with a single codebase that works with pandas (tests, smaller datasets) and with Spark (production, distributed datasets). See
+Pandas API on Spark Overview
+.
+Machine learning algorithms with
+Machine Learning (MLLib)
+. MLlib is a scalable machine learning library built on Spark that provides a uniform set of APIs that help users create and tune practical machine learning pipelines. See
+Machine Learning Library Overview
+.
+Graphs and graph-parallel computation with
+GraphX
+. GraphX introduces a new directed multigraph with properties attached to each vertex and edge, and exposes graph computation operators, algorithms, and builders to simplify graph analytics tasks. See
+GraphX Overview
+.
+Spark tutorials
+​
+For PySpark on Databricks usage examples, see the following articles:
+DataFrames tutorial
+PySpark basics
+The
+Apache Spark documentation
+also has quickstarts and guides for learning Spark, including the following:
+PySpark User Guide
+PySpark DataFrames QuickStart
+Spark SQL Getting Started
+Structured Streaming Programming Guide
+Pandas API on Spark QuickStart
+Machine Learning Library Programming Guide
+PySpark reference
+​
+PySpark reference can be found in these sections:
+PySpark Reference
+Pandas API on Spark Reference
+Structured Streaming API Reference
+MLlib (DataFrame-based) API Reference
+On this page
+Introduction to Spark concepts
+DataFrames
+Data processing
+APIs and libraries
+Spark tutorials
+PySpark reference
